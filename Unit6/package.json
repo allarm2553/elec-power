@@ -1,0 +1,20 @@
+{
+  "name": "unit6-industrial-motor-speed-control",
+  "version": "1.0.0",
+  "description": "หน่วยที่ 6: วงจรควบคุมความเร็วมอเตอร์ในงานอุตสาหกรรม (DC Drive 4-Quadrant, VFD Inverter V/f, BLDC 6-Step) - หลักสูตร ปวส. 30105-2019",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "motor-drive",
+    "vfd",
+    "4-quadrant-dc",
+    "bldc",
+    "hall-sensor",
+    "power-electronics",
+    "v-f-control"
+  ],
+  "author": "Power Electronics Lab",
+  "license": "MIT"
+}

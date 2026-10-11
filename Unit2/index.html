@@ -1,0 +1,2679 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>หน่วยที่ 2: วงจรเรียงกระแสควบคุมแรงดันได้ (Phase-Controlled Rectifiers) | Power Electronics</title>
+  
+  <!-- Google Fonts: Chakra Petch, Sarabun, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- KaTeX for Math Equations -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+
+  <style>
+    :root {
+      --bg-dark: #070d19;
+      --bg-card: rgba(15, 23, 42, 0.78);
+      --bg-card-hover: rgba(30, 41, 59, 0.85);
+      --card-border: rgba(56, 189, 248, 0.18);
+      --card-border-glow: rgba(56, 189, 248, 0.45);
+      
+      --accent-primary: #38bdf8;   /* Cyan */
+      --accent-secondary: #06b6d4; /* Teal */
+      --accent-green: #10b981;     /* Emerald */
+      --accent-amber: #f59e0b;     /* Amber */
+      --accent-red: #ef4444;       /* Rose */
+      --accent-purple: #c084fc;    /* Purple */
+      
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      
+      --font-display: 'Chakra Petch', sans-serif;
+      --font-body: 'Sarabun', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.12) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(192, 132, 252, 0.08) 0px, transparent 50%);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-dark); }
+    ::-webkit-scrollbar-thumb { background: rgba(56, 189, 248, 0.3); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--accent-primary); }
+
+    /* Top Navigation Header */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(16px);
+      background: rgba(10, 19, 34, 0.88);
+      border-bottom: 1px solid var(--card-border);
+      padding: 0.75rem 2rem;
+    }
+
+    .header-container {
+      max-width: 1440px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #0284c7, #8b5cf6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.35rem;
+      color: #ffffff;
+      box-shadow: 0 0 16px rgba(2, 132, 199, 0.45);
+    }
+
+    .brand-title {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      background: linear-gradient(135deg, #ffffff, var(--accent-primary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-subtitle {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.45rem 1rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: var(--font-display);
+      border: none;
+      text-decoration: none;
+    }
+
+    .btn-outline {
+      background: rgba(30, 41, 59, 0.6);
+      color: var(--text-main);
+      border: 1px solid var(--card-border);
+    }
+    .btn-outline:hover {
+      background: rgba(56, 189, 248, 0.15);
+      border-color: var(--accent-primary);
+      color: var(--accent-primary);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #0284c7, #2563eb);
+      color: #ffffff;
+      box-shadow: 0 0 12px rgba(2, 132, 199, 0.4);
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #0369a1, #1d4ed8);
+      box-shadow: 0 0 16px rgba(2, 132, 199, 0.6);
+    }
+
+    .btn-amber {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+    .btn-amber:hover {
+      background: rgba(245, 158, 11, 0.25);
+    }
+
+    /* Main Tab Navigation Bar */
+    .nav-tabs-wrapper {
+      max-width: 1440px;
+      margin: 1rem auto 0;
+      padding: 0 2rem;
+      display: flex;
+      gap: 0.5rem;
+      overflow-x: auto;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .nav-tab {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.65rem 1.15rem;
+      font-family: var(--font-display);
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      background: transparent;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+    }
+    .nav-tab:hover {
+      color: var(--accent-primary);
+      background: rgba(56, 189, 248, 0.05);
+    }
+    .nav-tab.active {
+      color: var(--accent-primary);
+      border-bottom-color: var(--accent-primary);
+      background: rgba(56, 189, 248, 0.08);
+    }
+
+    /* Main Content Container */
+    main {
+      max-width: 1440px;
+      margin: 1.25rem auto;
+      padding: 0 2rem 3rem;
+      width: 100%;
+      flex: 1;
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Glassmorphism Card Style */
+    .glass-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      position: relative;
+    }
+
+    .card-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      font-family: var(--font-display);
+    }
+
+    .card-title-text {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--accent-primary);
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    /* Layout Grids */
+    .grid-2col {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 1.25rem;
+    }
+    @media (max-width: 1024px) {
+      .grid-2col { grid-template-columns: 1fr; }
+    }
+
+    /* Canvas Card Wrapper */
+    .canvas-card-wrapper {
+      background: #050b14;
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .canvas-header-bar {
+      background: rgba(15, 23, 42, 0.95);
+      padding: 0.5rem 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+      font-size: 0.78rem;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      background: #050b14;
+    }
+
+    /* Control Groups & Sliders */
+    .control-group {
+      margin-bottom: 0.85rem;
+    }
+
+    .control-label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.82rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .control-label-title {
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .control-value-badge {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--accent-primary);
+      background: rgba(56, 189, 248, 0.12);
+      padding: 0.15rem 0.55rem;
+      border-radius: 4px;
+      font-size: 0.85rem;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: #1e293b;
+      outline: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--accent-primary);
+      box-shadow: 0 0 10px var(--accent-primary);
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    /* Type Toggles */
+    .type-toggle {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+      gap: 0.4rem;
+      margin-bottom: 1rem;
+    }
+
+    .type-toggle-btn {
+      padding: 0.45rem 0.65rem;
+      border-radius: 6px;
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      font-weight: 600;
+      font-family: var(--font-display);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+    .type-toggle-btn:hover {
+      background: rgba(56, 189, 248, 0.12);
+      color: #ffffff;
+    }
+    .type-toggle-btn.active {
+      background: linear-gradient(135deg, rgba(2, 132, 199, 0.8), rgba(37, 99, 235, 0.8));
+      border-color: var(--accent-primary);
+      color: #ffffff;
+      box-shadow: 0 0 10px rgba(2, 132, 199, 0.4);
+    }
+
+    /* Readout Cards Grid */
+    .readout-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.65rem;
+      margin-top: 0.75rem;
+    }
+
+    .readout-card {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 0.65rem 0.85rem;
+    }
+
+    .readout-title {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-bottom: 0.25rem;
+    }
+
+    .readout-val {
+      font-family: var(--font-mono);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--accent-primary);
+    }
+
+    .readout-unit {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      font-weight: 400;
+    }
+
+    /* Badges */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.25rem 0.65rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    .status-badge.active-region {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    .status-badge.saturation {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    /* Theory Note Box */
+    .theory-box {
+      background: rgba(15, 23, 42, 0.85);
+      border-left: 3px solid var(--accent-primary);
+      padding: 0.75rem 1rem;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.82rem;
+      line-height: 1.6;
+      color: #cbd5e1;
+      margin-top: 0.85rem;
+    }
+
+    /* Table Styles */
+    .log-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+      margin-top: 0.75rem;
+    }
+    .log-table th {
+      background: rgba(15, 23, 42, 0.95);
+      color: var(--accent-primary);
+      padding: 0.55rem 0.75rem;
+      text-align: left;
+      font-family: var(--font-display);
+      border-bottom: 1px solid var(--card-border);
+    }
+    .log-table td {
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      font-family: var(--font-mono);
+      color: #e2e8f0;
+    }
+    .log-table tr:hover td {
+      background: rgba(56, 189, 248, 0.05);
+    }
+
+    /* Quiz Questions */
+    .quiz-question {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .quiz-title {
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      color: #ffffff;
+      font-size: 0.9rem;
+    }
+    .quiz-options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .quiz-option {
+      padding: 0.5rem 0.85rem;
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .quiz-option:hover {
+      background: rgba(56, 189, 248, 0.15);
+      color: #ffffff;
+    }
+    .quiz-option.selected {
+      background: rgba(56, 189, 248, 0.25) !important;
+      border-color: #38bdf8 !important;
+      color: #ffffff !important;
+      font-weight: 600;
+    }
+    .quiz-option.correct {
+      background: rgba(16, 185, 129, 0.25) !important;
+      border-color: #10b981 !important;
+      color: #34d399 !important;
+    }
+    .quiz-option.wrong {
+      background: rgba(239, 68, 68, 0.25) !important;
+      border-color: #ef4444 !important;
+      color: #fca5a5 !important;
+    }
+
+    /* Modal Dialog */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .modal-card {
+      background: #0f172a;
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      max-width: 580px;
+      width: 100%;
+      padding: 1.5rem;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
+    }
+
+    footer {
+      border-top: 1px solid var(--card-border);
+      background: rgba(10, 19, 34, 0.95);
+      padding: 1.25rem 2rem;
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--text-dim);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== HEADER ==================== -->
+  <header>
+    <div class="header-container">
+      <a href="../" class="brand-logo">
+        <div class="brand-icon">
+          <i class="fa-solid fa-bolt-lightning"></i>
+        </div>
+        <div>
+          <div class="brand-title">Phase-Controlled Rectifiers Lab</div>
+          <div class="brand-subtitle">หน่วยที่ 2: วงจรเรียงกระแสควบคุมแรงดันได้ (รหัส 30105-2019)</div>
+        </div>
+      </a>
+
+      <div class="header-actions">
+        <a href="../" class="btn btn-outline" style="font-size:0.8rem;">
+          <i class="fa-solid fa-arrow-left"></i> หน้าหลัก
+        </a>
+        <button class="btn btn-outline" onclick="openModal('modal-gas')" style="color:#f59e0b; border-color:rgba(245,158,11,0.3);" title="ระบบจัดการสำหรับครูผู้สอน">
+          <i class="fa-solid fa-chalkboard-user"></i> สำหรับครูผู้สอน
+        </button>
+        <span class="btn btn-amber" id="header-workpiece-count">
+          <i class="fa-solid fa-clipboard-check"></i> ชิ้นงาน [ <span id="log-count">0</span> ]
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== TAB NAVIGATION ==================== -->
+  <div class="nav-tabs-wrapper">
+    <button class="nav-tab active" id="tab-btn-scr-physics" onclick="switchMainTab('tab-scr-physics')">
+      <i class="fa-solid fa-atom"></i> 1. ฟิสิกส์และการกระตุ้นนำกระแส SCR
+    </button>
+    <button class="nav-tab" id="tab-btn-1phase" onclick="switchMainTab('tab-1phase')">
+      <i class="fa-solid fa-wave-square"></i> 2. วงจร 1 เฟสควบคุมได้ (1-Phase)
+    </button>
+    <button class="nav-tab" id="tab-btn-3phase" onclick="switchMainTab('tab-3phase')">
+      <i class="fa-solid fa-network-wired"></i> 3. วงจร 3 เฟสอุตสาหกรรม (3-Phase)
+    </button>
+    <button class="nav-tab" id="tab-btn-lab" onclick="switchMainTab('tab-lab')">
+      <i class="fa-solid fa-microchip"></i> 4. ห้องทดลองเสมือน &amp; คุณภาพไฟฟ้า (CAD/Scope)
+    </button>
+    <button class="nav-tab" id="tab-btn-quiz" onclick="switchMainTab('tab-quiz')">
+      <i class="fa-solid fa-clipboard-list"></i> 5. แบบทดสอบ &amp; บันทึกใบงาน
+    </button>
+  </div>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <main>
+
+    <!-- ==================== TAB 1: SCR PHYSICS & TRIGGERING ==================== -->
+    <section id="tab-scr-physics" class="tab-content active">
+      <div class="grid-2col">
+        
+        <!-- Left: 2D Physics Canvas -->
+        <div class="glass-card">
+          <div class="card-title">
+            <div class="card-title-text">
+              <i class="fa-solid fa-circle-nodes"></i>
+              <span id="scr-phys-title">โครงสร้างเนื้อสาร 4 ชั้น P-N-P-N ของ SCR (Thyristor)</span>
+            </div>
+            <span class="status-badge active-region" id="scr-status-badge">
+              <i class="fa-solid fa-shield-halved"></i> <span id="scr-status-text">Forward Blocking</span>
+            </span>
+          </div>
+
+          <div class="canvas-card-wrapper">
+            <div class="canvas-header-bar">
+              <span style="color:var(--accent-primary); font-weight:700;">
+                2D Semiconductor Physics &amp; Two-Transistor Analogy Simulator
+              </span>
+              <span style="font-family:var(--font-mono); font-size:0.72rem; color:var(--text-dim);">
+                Anode (A) - Gate (G) - Cathode (K)
+              </span>
+            </div>
+            <canvas id="canvas-scr-physics" width="700" height="310"></canvas>
+          </div>
+
+          <div style="display:flex; gap:1.2rem; flex-wrap:wrap; font-size:0.78rem; margin-top:0.75rem;">
+            <span style="color:#10b981;"><i class="fa-solid fa-circle"></i> อิเล็กตรอน (Electrons e-)</span>
+            <span style="color:#f97316;"><i class="fa-solid fa-circle"></i> โฮล (Holes h+)</span>
+            <span style="color:#38bdf8;"><i class="fa-solid fa-bolt"></i> รอยต่อ J1, J2, J3</span>
+            <span style="color:#c084fc;"><i class="fa-solid fa-microchip"></i> กระแสเกตกระตุ้น IG</span>
+          </div>
+
+          <div class="theory-box" id="scr-theory-box">
+            <strong>ทฤษฎีสารกึ่งตัวนำ SCR 4 ชั้น (P1-N1-P2-N2):</strong> ในสภาวะไบอัสตรง ($V_{AK} > 0$) รอยต่อ $J_1$ และ $J_3$ จะได้รับ Forward Bias แต่รอยต่อกลาง **$J_2$ จะได้รับ Reverse Bias** ทำให้เกิด Depletion Region กั้นกระแสไว้ (Forward Blocking) เมื่อป้อนพัลส์กระแสเกต ($I_G \ge I_{GT}$) เข้าที่ชั้น $P_2$ จะฉีดอิเล็กตรอนทำลายสนามไฟฟ้าที่ $J_2$ จนเกิด **Regenerative Feedback** ทำให้ SCR นำกระแสเต็มที่ และจะยังคงนำกระแสอยู่แม้ตัดสัญญาณเกตออก จนกว่ากระแส $I_A$ จะลดลงต่ำกว่าระดับ **Holding Current ($I_H$)**
+          </div>
+        </div>
+
+        <!-- Right: Controls & Parameters -->
+        <div class="glass-card">
+          <div class="card-title">
+            <div class="card-title-text">
+              <i class="fa-solid fa-sliders"></i>
+              <span>เลือกมุมมอง &amp; ปรับค่าไบอัส</span>
+            </div>
+          </div>
+
+          <div class="type-toggle">
+            <button class="type-toggle-btn active" id="btn-scr-layer" onclick="setScrPhysicsMode('layer')">
+              4-Layer Physics
+            </button>
+            <button class="type-toggle-btn" id="btn-scr-analogy" onclick="setScrPhysicsMode('analogy')">
+              2-Transistor (Q1-Q2)
+            </button>
+            <button class="type-toggle-btn" id="btn-scr-ujt" onclick="setScrPhysicsMode('ujt')">
+              UJT Trigger Circuit
+            </button>
+          </div>
+
+          <div class="control-group">
+            <div class="control-label-row">
+              <span class="control-label-title">แรงดันตกคร่อมขั้วแอโนด-แคโทด (V_AK):</span>
+              <span class="control-value-badge" id="scr-vak-badge">100 V</span>
+            </div>
+            <input type="range" id="slider-scr-vak" min="-400" max="600" step="10" value="100" oninput="updateScrPhysics()">
+          </div>
+
+          <div class="control-group">
+            <div class="control-label-row">
+              <span class="control-label-title">กระแสขับเกตกระตุ้น (I_G Trigger):</span>
+              <span class="control-value-badge" id="scr-ig-badge">0 mA</span>
+            </div>
+            <input type="range" id="slider-scr-ig" min="0" max="60" step="2" value="0" oninput="updateScrPhysics()">
+          </div>
+
+          <div style="display:flex; gap:0.5rem; margin-bottom:1rem;">
+            <button class="btn btn-primary" onclick="triggerGatePulse()" style="flex:1; justify-content:center; font-size:0.8rem;">
+              <i class="fa-solid fa-bolt"></i> จ่ายพัลส์เกตชั่วขณะ (Pulse Trigger)
+            </button>
+            <button class="btn btn-outline" onclick="resetScrState()" style="font-size:0.8rem;">
+              <i class="fa-solid fa-rotate-left"></i> รีเซ็ต
+            </button>
+          </div>
+
+          <div class="readout-grid">
+            <div class="readout-card">
+              <div class="readout-title">กระแสแอโนด I_A</div>
+              <div class="readout-val" id="scr-ia-val">0.00 <span class="readout-unit">A</span></div>
+            </div>
+            <div class="readout-card">
+              <div class="readout-title">สถานะรอยต่อ J2</div>
+              <div class="readout-val" id="scr-j2-val" style="color:var(--accent-amber); font-size:0.95rem;">Rev. Block</div>
+            </div>
+            <div class="readout-card">
+              <div class="readout-title">Latching Current (I_L)</div>
+              <div class="readout-val" style="font-size:0.9rem; color:#38bdf8;">35.0 <span class="readout-unit">mA</span></div>
+            </div>
+            <div class="readout-card">
+              <div class="readout-title">Holding Current (I_H)</div>
+              <div class="readout-val" style="font-size:0.9rem; color:#f59e0b;">15.0 <span class="readout-unit">mA</span></div>
+            </div>
+          </div>
+
+          <div class="card-title" style="margin-top:0.85rem;">
+            <div class="card-title-text"><i class="fa-solid fa-microchip"></i> <span>ผังขาอุปกรณ์จริง (Pinout TO-220 / TO-247)</span></div>
+          </div>
+          <div style="background: rgba(0,0,0,0.35); padding: 0.65rem 0.85rem; border-radius: 8px; font-family: var(--font-mono); font-size: 0.78rem; color: var(--accent-secondary);">
+            PIN 1: CATHODE (K) | PIN 2: ANODE (A, แท่นฮีตซิงก์) | PIN 3: GATE (G)
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== TAB 2: 1-PHASE CONTROLLED RECTIFIERS ==================== -->
+    <section id="tab-1phase" class="tab-content">
+      <div class="grid-2col">
+
+        <!-- Left: Waveforms Canvas -->
+        <div class="glass-card">
+          <div class="card-title">
+            <div class="card-title-text">
+              <i class="fa-solid fa-wave-square"></i>
+              <span id="title-1phase-wave">รูปคลื่นวงจรเรียงกระแส 1 เฟสควบคุมได้ (1-Phase Waveforms)</span>
+            </div>
+            <span class="status-badge active-region" id="badge-1phase-mode">
+              α = <span id="badge-alpha-1ph">60</span>°
+            </span>
+          </div>
+
+          <div class="canvas-card-wrapper">
+            <div class="canvas-header-bar">
+              <div style="display:flex; gap:0.8rem; align-items:center; font-family:var(--font-mono); font-size:0.75rem;">
+                <span style="color:#38bdf8; font-weight:600;">● Vin: ไฟสลับขาเข้า</span>
+                <span style="color:#10b981; font-weight:600;">● Vgate: พัลส์ขับเกต</span>
+                <span style="color:#f59e0b; font-weight:600;">● Vload: แรงดันตกคร่อมโหลด</span>
+              </div>
+              <span style="font-family:var(--font-mono); font-size:0.72rem; color:var(--text-dim);">f = 50 Hz | T = 20 ms</span>
+            </div>
+            <canvas id="canvas-1phase" width="700" height="310"></canvas>
+          </div>
+
+          <!-- Formula & Math Box -->
+          <div class="theory-box" style="margin-top:0.75rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
+              <span style="font-weight:700; color:var(--accent-primary);">สูตรคำนวณแรงดันเฉลี่ยทางทฤษฎี (Analytical Equation):</span>
+              <span id="formula-desc-1ph" style="color:var(--text-dim); font-size:0.75rem;">1-Phase Fully-Controlled Bridge</span>
+            </div>
+            <div id="katex-formula-1ph" style="font-size:1.05rem; padding:0.35rem 0; overflow-x:auto;">
+              <!-- KaTeX renders here -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Controls -->
+        <div class="glass-card">
+          <div class="card-title">
+            <div class="card-title-text">
+              <i class="fa-solid fa-sliders"></i>
+              <span>เลือกโทโพโลยีวงจร &amp; โหลด</span>
+            </div>
+          </div>
+
+          <!-- Topology Selector -->
+          <div class="type-toggle" style="grid-template-columns: 1fr; margin-bottom:0.75rem;">
+            <button class="type-toggle-btn" id="btn-topo-1ph-half" onclick="set1PhaseTopology('half')">
+              1. ครึ่งคลื่นควบคุมได้ (Half-Wave: 1 SCR)
+            </button>
+            <button class="type-toggle-btn" id="btn-topo-1ph-semi" onclick="set1PhaseTopology('semi')">
+              2. บริดจ์กึ่งควบคุม (Semi-Controlled: 2 SCR + 2 Diode)
+            </button>
+            <button class="type-toggle-btn active" id="btn-topo-1ph-full" onclick="set1PhaseTopology('full')">
+              3. บริดจ์ควบคุมสมบูรณ์ (Fully-Controlled: 4 SCR)
+            </button>
+          </div>
+
+          <!-- Load Selector -->
+          <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.35rem; font-weight:600;">ชนิดของโหลด (Load Type):</div>
+          <div class="type-toggle" style="grid-template-columns: repeat(3, 1fr); margin-bottom:0.85rem;">
+            <button class="type-toggle-btn active" id="btn-load-r" onclick="set1PhaseLoad('R')">
+              โหลด R
+            </button>
+            <button class="type-toggle-btn" id="btn-load-rl" onclick="set1PhaseLoad('RL')">
+              โหลด R-L
+            </button>
+            <button class="type-toggle-btn" id="btn-load-rlfwd" onclick="set1PhaseLoad('RL_FWD')">
+              R-L + D_FWD
+            </button>
+          </div>
+
+          <!-- Sliders -->
+          <div class="control-group">
+            <div class="control-label-row">
+              <span class="control-label-title">มุมจุดชนวน (Firing Angle α):</span>
+              <span class="control-value-badge" id="slider-alpha-1ph-badge">60°</span>
+            </div>
+            <input type="range" id="slider-alpha-1ph" min="0" max="175" step="5" value="60" oninput="update1PhaseSim()">
+          </div>
+
+          <div class="control-group">
+            <div class="control-label-row">
+              <span class="control-label-title">แรงดันไฟสลับขาเข้า (V_rms AC):</span>
+              <span class="control-value-badge" id="slider-vrms-1ph-badge">220 V</span>
+            </div>
+            <input type="range" id="slider-vrms-1ph" min="50" max="240" step="5" value="220" oninput="update1PhaseSim()">
+          </div>
+
+          <div class="control-group">
+            <div class="control-label-row">
+              <span class="control-label-title">ความต้านทานโหลด R (Ω):</span>
+              <span class="control-value-badge" id="slider-r-1ph-badge">20 Ω</span>
+            </div>
+            <input type="range" id="slider-r-1ph" min="5" max="50" step="1" value="20" oninput="update1PhaseSim()">
+          </div>
+
+          <!-- Live Results Grid -->
+          <div class="readout-grid">
+            <div class="readout-card">
+              <div class="readout-title">แรงดันเฉลี่ย V_dc</div>
+              <div class="readout-val" id="readout-1ph-vdc">99.0 <span class="readout-unit">V</span></div>
+            </div>
+            <div class="readout-card">
+              <div class="readout-title">กระแสเฉลี่ย I_dc</div>
+              <div class="readout-val" id="readout-1ph-idc" style="color:var(--accent-secondary);">4.95 <span class="readout-unit">A</span></div>
+            </div>
+            <div class="readout-card">
+              <div class="readout-title">แรงดันประสิทธิผล V_rms</div>
+              <div class="readout-val" id="readout-1ph-vrms">155.6 <span class="readout-unit">V</span></div>
+            </div>
+            <div class="readout-card">
+              <div class="readout-title">กำลังไฟฟ้า P_dc</div>
+              <div class="readout-val" id="readout-1ph-pdc" style="color:var(--accent-green);">490 <span class="readout-unit">W</span></div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== TAB 3: 3-PHASE CONTROLLED RECTIFIERS ==================== -->
+    <section id="tab-3phase" class="tab-content">
+      <div class="grid-2col">
+
+        <!-- Left: 3-Phase Waveforms Canvas -->
+        <div class="glass-card">
+          <div class="card-title">
+            <div class="card-title-text">
+              <i class="fa-solid fa-network-wired"></i>
+              <span id="title-3phase-wave">วงจรเรียงกระแส 3 เฟส 6-พัลส์ในงานอุตสาหกรรม (6-Pulse Graetz Bridge)</span>
+            </div>
+            <span class="status-badge active-region" id="badge-3phase-mode">
+              Rectification Mode
+            </span>
+          </div>
+
+          <div class="canvas-card-wrapper">
+            <div class="canvas-header-bar">
+              <div style="display:flex; gap:0.8rem; align-items:center; font-family:var(--font-mono); font-size:0.75rem;">
+                <span style="color:#ef4444;">● เฟส A</span>
+                <span style="color:#f59e0b;">● เฟส B</span>
+                <span style="color:#38bdf8;">● เฟส C</span>
+                <span style="color:#10b981; font-weight:700;">● V_load (กระเพื่อม 300Hz)</span>
+              </div>
+              <span style="font-family:var(--font-mono); font-size:0.72rem; color:var(--text-dim);">6-Pulse Ripple</span>
+            </div>
+            <canvas id="canvas-3phase" width="700" height="310"></canvas>
+          </div>
+
+          <!-- 3-Phase Theory & Firing Ring -->
+          <div class="theory-box" style="margin-top:0.75rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
+              <span style="font-weight:700; color:var(--accent-primary);">ลำดับการจุดชนวนไทริสเตอร์ 6 ตัว (Firing Sequence):</span>
+              <span id="firing-pair-current" style="color:#34d399; font-family:var(--font-mono); font-weight:700;">Active: (T1, T6)</span>
+            </div>
+            <div style="font-family:var(--font-mono); font-size:0.78rem; color:#94a3b8; background:rgba(0,0,0,0.3); padding:0.4rem 0.6rem; border-radius:6px;">
+              (T1, T6) → (T1, T2) → (T3, T2) → (T3, T4) → (T5, T4) → (T5, T6) → วนรอบละ 60°
+            </div>
+            <div id="katex-formula-3ph" style="font-size:1.02rem; padding:0.4rem 0 0; overflow-x:auto;">
+              <!-- KaTeX 3-phase formula -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: 3-Phase Controls -->
+        <div class="glass-card">
+          <div class="card-title">
+            <div class="card-title-text">
+              <i class="fa-solid fa-sliders"></i>
+              <span>ตั้งค่าระบบ 3 เฟส</span>
+            </div>
+          </div>
+
+          <div class="type-toggle" style="grid-template-columns: 1fr 1fr; margin-bottom:0.85rem;">
+            <button class="type-toggle-btn" id="btn-topo-3ph-3p" onclick="set3PhaseTopology('3p')">
+              3-Pulse (Half-Wave 3 SCR)
+            </button>
+            <button class="type-toggle-btn active" id="btn-topo-3ph-6p" onclick="set3PhaseTopology('6p')">
+              6-Pulse (Full Bridge 6 SCR)
+            </button>
+          </div>
+
+          <div class="control-group">
+            <div class="control-label-row">
+              <span class="control-label-title">มุมจุดชนวน (Firing Angle α):</span>
+              <span class="control-value-badge" id="slider-alpha-3ph-badge">30°</span>
+            </div>
+            <input type="range" id="slider-alpha-3ph" min="0" max="150" step="5" value="30" oninput="update3PhaseSim()">
+          </div>
+
+          <div class="control-group">
+            <div class="control-label-row">
+              <span class="control-label-title">แรงดันไฟสลับระหว่างสาย (V_LL rms):</span>
+              <span class="control-value-badge" id="slider-vll-3ph-badge">380 V</span>
+            </div>
+            <input type="range" id="slider-vll-3ph" min="200" max="440" step="10" value="380" oninput="update3PhaseSim()">
+          </div>
+
+          <div class="control-group">
+            <div class="control-label-row">
+              <span class="control-label-title">ความต้านทานโหลด R (Ω):</span>
+              <span class="control-value-badge" id="slider-r-3ph-badge">15 Ω</span>
+            </div>
+            <input type="range" id="slider-r-3ph" min="5" max="50" step="1" value="15" oninput="update3PhaseSim()">
+          </div>
+
+          <!-- Mode Callout Box -->
+          <div id="mode-callout-3ph" style="padding:0.75rem; border-radius:8px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); margin-bottom:0.85rem;">
+            <div style="font-weight:700; color:#34d399; font-size:0.85rem; margin-bottom:0.25rem;">
+              <i class="fa-solid fa-circle-check"></i> โหมดการทำงาน: Rectification Mode (AC → DC)
+            </div>
+            <div style="font-size:0.76rem; color:#cbd5e1; line-height:1.5;">
+              α < 90°: แรงดันเฉลี่ย $V_{dc} > 0$ ส่งกำลังไฟฟ้าจากไฟสลับไปจ่ายให้โหลดดีซี เช่น มอเตอร์ขับเคลื่อนอุตสาหกรรม
+            </div>
+          </div>
+
+          <!-- 3-Phase Results Grid -->
+          <div class="readout-grid">
+            <div class="readout-card">
+              <div class="readout-title">แรงดันเฉลี่ย V_dc</div>
+              <div class="readout-val" id="readout-3ph-vdc">444.3 <span class="readout-unit">V</span></div>
+            </div>
+            <div class="readout-card">
+              <div class="readout-title">กระแสเฉลี่ย I_dc</div>
+              <div class="readout-val" id="readout-3ph-idc" style="color:var(--accent-secondary);">29.6 <span class="readout-unit">A</span></div>
+            </div>
+            <div class="readout-card">
+              <div class="readout-title">ความถี่ริปเปิล (Ripple f)</div>
+              <div class="readout-val" id="readout-3ph-fripple" style="color:#a78bfa;">300 <span class="readout-unit">Hz</span></div>
+            </div>
+            <div class="readout-card">
+              <div class="readout-title">กำลังไฟฟ้า P_dc</div>
+              <div class="readout-val" id="readout-3ph-pdc" style="color:var(--accent-green);">13.1 <span class="readout-unit">kW</span></div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== TAB 4: VIRTUAL LAB & POWER QUALITY ==================== -->
+    <section id="tab-lab" class="tab-content">
+      <div class="grid-2col">
+
+        <!-- Left: Schematic CAD & Scope Screens -->
+        <div style="display:flex; flex-direction:column; gap:1.25rem;">
+          
+          <!-- 1. Interactive 2D Circuit Schematic -->
+          <div>
+            <div class="card-title" style="margin-bottom:0.65rem;">
+              <div class="card-title-text">
+                <i class="fa-solid fa-diagram-project"></i>
+                <span>แผนภาพวงจรจริงและการไหลของกระแสสด (2D Schematic CAD)</span>
+              </div>
+              <div style="display:flex; gap:0.5rem; align-items:center;">
+                <div class="type-toggle" style="margin:0; width:160px; grid-template-columns:1fr 1fr;">
+                  <button id="btn-schem-1ph" class="type-toggle-btn active" onclick="setSchematicMode('1ph')" style="padding:0.25rem 0.5rem; font-size:0.72rem;">1-Phase</button>
+                  <button id="btn-schem-3ph" class="type-toggle-btn" onclick="setSchematicMode('3ph')" style="padding:0.25rem 0.5rem; font-size:0.72rem;">3-Phase</button>
+                </div>
+                <span class="status-badge active-region" id="schem-state-badge" style="font-size:0.7rem;">
+                  <i class="fa-solid fa-bolt"></i> <span id="schem-state-text">SCR Conduction</span>
+                </span>
+              </div>
+            </div>
+
+            <div class="canvas-card-wrapper" style="margin-bottom:0.5rem;">
+              <div class="canvas-header-bar">
+                <span id="schem-title" style="color:var(--accent-primary); font-weight:700;">
+                  วงจรบริดจ์เต็มคลื่น 1 เฟส (4 SCRs Phase-Controlled Converter)
+                </span>
+                <span style="font-family:var(--font-mono); font-size:0.72rem; color:var(--text-dim);">
+                  Live Current Particles &amp; Firing Pulses
+                </span>
+              </div>
+              <canvas id="canvas-schematic" width="700" height="260"></canvas>
+              
+              <!-- Schematic Legend & Probe Indicator Bar -->
+              <div style="display:flex; justify-content:space-between; align-items:center; padding:0.45rem 0.85rem; background:rgba(15,23,42,0.92); border-top:1px solid rgba(56,189,248,0.15); font-size:0.75rem; flex-wrap:wrap; gap:0.5rem;">
+                <div style="display:flex; gap:1.2rem; flex-wrap:wrap;">
+                  <span style="color:#38bdf8; font-weight:600;"><i class="fa-solid fa-location-crosshairs"></i> CH1: V_in (โพรบวัดไฟเข้า)</span>
+                  <span style="color:#10b981; font-weight:600;"><i class="fa-solid fa-location-crosshairs"></i> CH2: V_gate (พัลส์จุดเกต)</span>
+                  <span style="color:#f59e0b; font-weight:600;"><i class="fa-solid fa-location-crosshairs"></i> CH3: V_load (แรงดันตกคร่อมโหลด)</span>
+                  <span style="color:#ef4444; font-weight:600;"><i class="fa-solid fa-location-crosshairs"></i> CH4: V_AK (แรงดันตกคร่อม SCR)</span>
+                </div>
+                <div id="schem-expl-text" style="font-family:var(--font-mono); font-size:0.72rem; color:#34d399; font-weight:600;">
+                  ● สภาวะนำกระแส: กระแสไหลผ่านคู่ SCR1 &amp; SCR2 จ่ายกำลังสู่โหลด
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. Virtual Scope / FFT Screen -->
+          <div>
+            <div class="card-title" style="margin-bottom:0.65rem;">
+              <div class="card-title-text">
+                <i class="fa-solid fa-wave-square"></i>
+                <span>ออสซิลโลสโคป 4 ช่องสัญญาณเสมือน &amp; วิเคราะห์สเปกตรัม FFT</span>
+              </div>
+              <div style="display:flex; gap:0.5rem; align-items:center;">
+                <button id="btn-scope-run" class="status-badge active-region" onclick="toggleLabScopeRun()" title="คลิกเพื่อ หยุด/ตรวจคลื่นต่อ (RUN / STOP)" style="cursor:pointer; border:1px solid #10b981; background:rgba(16,185,129,0.18); color:#34d399; font-weight:700; transition:all 0.2s; display:inline-flex; align-items:center; gap:0.4rem; padding:0.32rem 0.75rem; border-radius:6px; font-family:var(--font-mono); font-size:0.75rem;">
+                  <i class="fa-solid fa-circle-pause" id="icon-scope-run"></i>
+                  <span id="text-scope-run">Scope Running</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="canvas-card-wrapper">
+              <div class="canvas-header-bar">
+                <div style="display:flex; gap:0.5rem; align-items:center; font-family:var(--font-mono); font-size:0.75rem; flex-wrap:wrap;">
+                  <button id="btn-ch-vin" onclick="toggleLabChannel('vin')" style="background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:#38bdf8; padding:0.2rem 0.55rem; border-radius:4px; cursor:pointer; font-weight:600; font-size:0.72rem;">
+                    ● CH1: V_in
+                  </button>
+                  <button id="btn-ch-vgate" onclick="toggleLabChannel('vgate')" style="background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#10b981; padding:0.2rem 0.55rem; border-radius:4px; cursor:pointer; font-weight:600; font-size:0.72rem;">
+                    ● CH2: V_gate
+                  </button>
+                  <button id="btn-ch-vload" onclick="toggleLabChannel('vload')" style="background:rgba(245,158,11,0.15); border:1px solid #f59e0b; color:#f59e0b; padding:0.2rem 0.55rem; border-radius:4px; cursor:pointer; font-weight:600; font-size:0.72rem;">
+                    ● CH3: V_load
+                  </button>
+                  <button id="btn-ch-vak" onclick="toggleLabChannel('vak')" style="background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#ef4444; padding:0.2rem 0.55rem; border-radius:4px; cursor:pointer; font-weight:600; font-size:0.72rem;">
+                    ● CH4: V_AK
+                  </button>
+                  <button id="btn-toggle-fft" onclick="toggleFftDisplay()" style="background:rgba(192,132,252,0.15); border:1px solid #c084fc; color:#c084fc; padding:0.2rem 0.55rem; border-radius:4px; cursor:pointer; font-weight:600; font-size:0.72rem;">
+                    📊 โหมด FFT Spectrum
+                  </button>
+                </div>
+                <span id="scope-time-badge" style="color:var(--text-dim); font-family:var(--font-mono); font-size:0.72rem;">TIME: 2.5 ms/div</span>
+              </div>
+              <canvas id="canvas-scope" width="700" height="280"></canvas>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right: Lab Controls & Power Quality Telemetry -->
+        <div class="glass-card">
+          <div class="card-title">
+            <div class="card-title-text">
+              <i class="fa-solid fa-sliders"></i>
+              <span>แผงควบคุม &amp; วิเคราะห์คุณภาพไฟฟ้า</span>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <div class="control-label-row">
+              <span class="control-label-title">มุมจุดชนวน (Firing Angle α):</span>
+              <span class="control-value-badge" id="slider-lab-alpha-badge">45°</span>
+            </div>
+            <input type="range" id="slider-lab-alpha" min="0" max="170" step="5" value="45" oninput="updateLabSimulation()">
+          </div>
+
+          <div class="control-group">
+            <div class="control-label-row">
+              <span class="control-label-title">แรงดันแหล่งจ่าย V_in (rms):</span>
+              <span class="control-value-badge" id="slider-lab-vin-badge">220 V</span>
+            </div>
+            <input type="range" id="slider-lab-vin" min="50" max="380" step="10" value="220" oninput="updateLabSimulation()">
+          </div>
+
+          <div class="control-group">
+            <div class="control-label-row">
+              <span class="control-label-title">ความต้านทานโหลด R (Ω):</span>
+              <span class="control-value-badge" id="slider-lab-r-badge">20 Ω</span>
+            </div>
+            <input type="range" id="slider-lab-r" min="5" max="50" step="1" value="20" oninput="updateLabSimulation()">
+          </div>
+
+          <div class="control-group">
+            <div class="control-label-row">
+              <span class="control-label-title">ความเหนี่ยวนำโหลด L (mH):</span>
+              <span class="control-value-badge" id="slider-lab-l-badge">50 mH</span>
+            </div>
+            <input type="range" id="slider-lab-l" min="0" max="200" step="5" value="50" oninput="updateLabSimulation()">
+          </div>
+
+          <!-- Free-wheeling Diode Toggle -->
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:0.5rem 0.75rem; background:rgba(15,23,42,0.8); border:1px solid var(--card-border); border-radius:8px; margin-bottom:1rem;">
+            <span style="font-size:0.82rem; font-weight:600; color:#e2e8f0;">
+              <i class="fa-solid fa-shuffle"></i> ต่อไดโอดฟรีวีล (Freewheeling Diode FWD)
+            </span>
+            <input type="checkbox" id="check-lab-fwd" checked onchange="updateLabSimulation()" style="width:18px; height:18px; cursor:pointer;">
+          </div>
+
+          <!-- Power Quality Telemetry Cards -->
+          <div class="card-title" style="margin-top:0.5rem; margin-bottom:0.5rem;">
+            <div class="card-title-text" style="font-size:0.88rem; color:#a78bfa;">
+              <i class="fa-solid fa-chart-line"></i> <span>พารามิเตอร์คุณภาพไฟฟ้า (Power Quality Telemetry)</span>
+            </div>
+          </div>
+
+          <div class="readout-grid">
+            <div class="readout-card">
+              <div class="readout-title">แรงดันเฉลี่ย V_dc</div>
+              <div class="readout-val" id="lab-vdc-val">140.0 <span class="readout-unit">V</span></div>
+            </div>
+            <div class="readout-card">
+              <div class="readout-title">แรงดันประสิทธิผล V_rms</div>
+              <div class="readout-val" id="lab-vrms-val" style="color:#38bdf8;">178.5 <span class="readout-unit">V</span></div>
+            </div>
+            <div class="readout-card">
+              <div class="readout-title">Total Harmonics (THD_v)</div>
+              <div class="readout-val" id="lab-thd-val" style="color:var(--accent-red);">48.2 <span class="readout-unit">%</span></div>
+            </div>
+            <div class="readout-card">
+              <div class="readout-title">Displacement PF (cos α)</div>
+              <div class="readout-val" id="lab-dpf-val" style="color:var(--accent-green);">0.71 <span class="readout-unit">lag</span></div>
+            </div>
+            <div class="readout-card">
+              <div class="readout-title">Ripple Factor (RF)</div>
+              <div class="readout-val" id="lab-rf-val" style="color:var(--accent-amber);">0.79</div>
+            </div>
+            <div class="readout-card">
+              <div class="readout-title">กำลังเอาต์พุต P_out</div>
+              <div class="readout-val" id="lab-pout-val" style="color:#c084fc;">980 <span class="readout-unit">W</span></div>
+            </div>
+          </div>
+
+          <button onclick="recordLabPoint()" class="btn btn-primary" style="width:100%; justify-content:center; margin-top:1rem;">
+            <i class="fa-solid fa-floppy-disk"></i> บันทึกจุดทดสอบลงตารางใบงาน (Log Point)
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== TAB 5: QUIZ & WORKSHEET LOG ==================== -->
+    <section id="tab-quiz" class="tab-content">
+      <div class="grid-2col">
+        
+        <!-- Left: Interactive Quiz -->
+        <div class="glass-card">
+          <div class="card-title">
+            <div class="card-title-text">
+              <i class="fa-solid fa-graduation-cap"></i>
+              <span>แบบประเมินผลการเรียนรู้ประจำหน่วยที่ 2</span>
+            </div>
+            <span class="status-badge saturation" id="quiz-score-badge">คะแนนสะสม: 0 / 5</span>
+          </div>
+
+          <div id="quiz-container">
+            <!-- Question 1 -->
+            <div class="quiz-question" id="q1">
+              <div class="quiz-title">1. ในสภาวะ Forward Blocking ของ SCR ข้อใดกล่าวถูกต้องที่สุดเกี่ยวกับรอยต่อภายใน?</div>
+              <div class="quiz-options">
+                <div class="quiz-option" onclick="checkOption(this, 1, false)">A. รอยต่อ J1, J2, J3 ได้รับ Forward Bias ทั้งหมด</div>
+                <div class="quiz-option" onclick="checkOption(this, 1, true)">B. รอยต่อ J1 และ J3 ได้รับ Forward Bias แต่ J2 ได้รับ Reverse Bias</div>
+                <div class="quiz-option" onclick="checkOption(this, 1, false)">C. รอยต่อ J1 ได้รับ Reverse Bias แต่ J2 และ J3 ได้รับ Forward Bias</div>
+                <div class="quiz-option" onclick="checkOption(this, 1, false)">D. ทุกรอยต่อได้รับ Reverse Bias เหมือนไดโอดต่อย้อนกลับ</div>
+              </div>
+              <div class="theory-box" id="quiz-exp-1" style="display:none; margin-top:0.5rem;">
+                <strong>เฉลย B:</strong> เมื่อให้แรงดัน $V_{AK} > 0$ ขั้ว Anode เป็นบวกเทียบกับ Cathode รอยต่อ $J_1 (P1-N1)$ และ $J_3 (P2-N2)$ จะเป็นไบอัสตรง ส่วนรอยต่อกลาง $J_2 (N1-P2)$ จะได้รับไบอัสกลับ เกิดชั้น Depletion Region กั้นกระแสแอโนดไว้
+              </div>
+            </div>
+
+            <!-- Question 2 -->
+            <div class="quiz-question" id="q2">
+              <div class="quiz-title">2. วงจรเรียงกระแสเต็มคลื่นบริดจ์ 1 เฟสควบคุมได้สมบูรณ์ (4 SCR) ป้อนไฟ 220V rms ที่มุมจุดชนวน α = 60° โหลด R จะมีค่าแรงดันเฉลี่ย V_dc เท่าใด?</div>
+              <div class="quiz-options">
+                <div class="quiz-option" onclick="checkOption(this, 2, false)">A. 69.8 V</div>
+                <div class="quiz-option" onclick="checkOption(this, 2, true)">B. 148.6 V</div>
+                <div class="quiz-option" onclick="checkOption(this, 2, false)">C. 198.1 V</div>
+                <div class="quiz-option" onclick="checkOption(this, 2, false)">D. 99.0 V</div>
+              </div>
+              <div class="theory-box" id="quiz-exp-2" style="display:none; margin-top:0.5rem;">
+                <strong>เฉลย B:</strong> สูตรเต็มคลื่นบริดจ์โหลด R: $V_{dc} = \frac{V_m}{\pi}(1 + \cos\alpha)$ โดย $V_m = 220 \times \sqrt{2} = 311.12\text{ V}$ ดังนั้น $V_{dc} = \frac{311.12}{\pi}(1 + \cos 60^\circ) = 99.03 \times 1.5 = 148.55\text{ V}$
+              </div>
+            </div>
+
+            <!-- Question 3 -->
+            <div class="quiz-question" id="q3">
+              <div class="quiz-title">3. ในวงจรเรียงกระแสโหลดความเหนี่ยวนำ (R-L Load) การต่อไดโอดฟรีวีล (FWD) คร่อมโหลด มีวัตถุประสงค์หลักเพื่ออะไร?</div>
+              <div class="quiz-options">
+                <div class="quiz-option" onclick="checkOption(this, 3, false)">A. เพิ่มมุมจุดชนวน α ให้กว้างขึ้นเกิน 180°</div>
+                <div class="quiz-option" onclick="checkOption(this, 3, false)">B. ลดค่ากระแสเฉลี่ยของโหลดเพื่อประหยัดไฟ</div>
+                <div class="quiz-option" onclick="checkOption(this, 3, true)">C. ป้องกันแรงดันเอาต์พุตติดลบ และเป็นทางผ่านให้กระแสเหนี่ยวนำไหลวนต่อเนื่อง</div>
+                <div class="quiz-option" onclick="checkOption(this, 3, false)">D. ทำให้อุณหภูมิของหม้อแปลงลดลง</div>
+              </div>
+              <div class="theory-box" id="quiz-exp-3" style="display:none; margin-top:0.5rem;">
+                <strong>เฉลย C:</strong> เมื่อแรงดันไฟสลับเข้าสู่ครึ่งลบ ขดลวดเหนี่ยวนำจะคายพลังงานสนามแม่เหล็กเหนี่ยวนำแรงดันย้อนกลับ ไดโอด FWD จะนำกระแสลัดวงจรแรงดันส่วนนี้ ทำให้แรงดันเอาต์พุตไม่ตกติดลบ และกระแสโหลดไหลเรียบต่อเนื่องขึ้น
+              </div>
+            </div>
+
+            <!-- Question 4 -->
+            <div class="quiz-question" id="q4">
+              <div class="quiz-title">4. วงจรเรียงกระแส 3 เฟส 6-พัลส์ (6-Pulse Bridge) ป้อนไฟ 380V 50Hz ความถี่ของริปเปิลแรงดันเอาต์พุต (Ripple Frequency) มีค่าเท่าใด?</div>
+              <div class="quiz-options">
+                <div class="quiz-option" onclick="checkOption(this, 4, false)">A. 50 Hz</div>
+                <div class="quiz-option" onclick="checkOption(this, 4, false)">B. 100 Hz</div>
+                <div class="quiz-option" onclick="checkOption(this, 4, false)">C. 150 Hz</div>
+                <div class="quiz-option" onclick="checkOption(this, 4, true)">D. 300 Hz</div>
+              </div>
+              <div class="theory-box" id="quiz-exp-4" style="display:none; margin-top:0.5rem;">
+                <strong>เฉลย D:</strong> ในวงจร 6-Pulse ความถี่การกระเพื่อมของริปเปิลจะเท่ากับ $f_{ripple} = 6 \times f_{in} = 6 \times 50\text{ Hz} = 300\text{ Hz}$ ทำให้กรองแรงดันให้เรียบได้ง่ายกว่าวงจร 1 เฟสมาก
+              </div>
+            </div>
+
+            <!-- Question 5 -->
+            <div class="quiz-question" id="q5">
+              <div class="quiz-title">5. วงจรเรียงกระแสควบคุมได้ 3 เฟส จะทำงานในโหมด "Inversion / Regeneration Mode" (คืนพลังงาน DC กลับสู่ AC) เมื่อมุมจุดชนวน α อยู่ในช่วงใด?</div>
+              <div class="quiz-options">
+                <div class="quiz-option" onclick="checkOption(this, 5, false)">A. 0° ≤ α < 30°</div>
+                <div class="quiz-option" onclick="checkOption(this, 5, false)">B. 30° ≤ α < 90°</div>
+                <div class="quiz-option" onclick="checkOption(this, 5, true)">C. 90° < α ≤ 150° (เมื่อมีแหล่งจ่ายไฟ DC ย้อนกลับ)</div>
+                <div class="quiz-option" onclick="checkOption(this, 5, false)">D. α = 180° เท่านั้น</div>
+              </div>
+              <div class="theory-box" id="quiz-exp-5" style="display:none; margin-top:0.5rem;">
+                <strong>เฉลย C:</strong> เมื่อ $\alpha > 90^\circ$ ค่า $\cos\alpha$ จะติดลบ ทำให้แรงดันเฉลี่ย $V_{dc} < 0$ หากโหลดมีแรงดันไฟตรงย้อนกลับ (เช่น มอเตอร์ไฟฟ้าขณะเบรก) กำลังไฟฟ้าจะไหลย้อนกลับจาก DC คืนเข้าสู่ระบบไฟสลับ AC
+              </div>
+            </div>
+
+            <div style="margin-top: 1rem;">
+              <button onclick="checkQuizScore()" class="btn btn-primary" style="width: 100%; padding: 0.65rem 1rem; font-size: 0.88rem; font-weight: 700;">
+                <i class="fa-solid fa-clipboard-check"></i> ตรวจคะแนนแบบทดสอบ
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Student Info & Experiment Data Logger -->
+        <div class="glass-card">
+          <div class="card-title">
+            <div class="card-title-text">
+              <i class="fa-solid fa-table-list"></i>
+              <span>ตารางบันทึกผลการทดลอง (Data Logger)</span>
+            </div>
+            <button class="btn btn-outline" onclick="clearRecordedLogs()" style="font-size:0.75rem; padding:0.25rem 0.6rem;">
+              <i class="fa-solid fa-trash"></i> ล้างตาราง
+            </button>
+          </div>
+
+          <!-- Student Info Card -->
+          <div style="background:rgba(15,23,42,0.85); border:1px solid var(--card-border); border-radius:8px; padding:0.85rem; margin-bottom:1rem;">
+            <div style="font-weight:700; color:var(--accent-primary); font-size:0.82rem; margin-bottom:0.5rem;">
+              <i class="fa-solid fa-user-graduate"></i> ข้อมูลผู้ทำการทดลอง
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-bottom:0.5rem;">
+              <input type="text" id="student-name" placeholder="ชื่อ-นามสกุล นักศึกษา" style="background:#0f172a; border:1px solid var(--card-border); padding:0.4rem 0.6rem; border-radius:6px; color:#fff; font-size:0.8rem;">
+              <div>
+                <input type="text" id="student-id" placeholder="รหัสนักศึกษา (เช่น 66301...)" oninput="checkUnitDuplicate()" style="width:100%; background:#0f172a; border:1px solid var(--card-border); padding:0.4rem 0.6rem; border-radius:6px; color:#fff; font-size:0.8rem;">
+                <div id="unit-dup-warning" style="display:none; color: #ef4444; font-size: 0.72rem; margin-top: 4px; font-weight: 500;">
+                  <i class="fa-solid fa-triangle-exclamation"></i> รหัสนักศึกษานี้เคยส่งงานหน่วยที่ 2 แล้ว (ห้ามส่งซ้ำ)
+                </div>
+              </div>
+            </div>
+            <input type="text" id="student-group" placeholder="กลุ่มเรียน / แผนกวิชา" style="width:100%; background:#0f172a; border:1px solid var(--card-border); padding:0.4rem 0.6rem; border-radius:6px; color:#fff; font-size:0.8rem;">
+          </div>
+
+          <!-- Recorded Data Table -->
+          <div style="max-height: 250px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px;">
+            <table class="log-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>วงจร</th>
+                  <th>α</th>
+                  <th>V_dc</th>
+                  <th>I_dc</th>
+                  <th>THD</th>
+                  <th>สถานะ</th>
+                </tr>
+              </thead>
+              <tbody id="log-table-body">
+                <tr>
+                  <td colspan="7" style="text-align:center; color:var(--text-dim); padding:1.5rem;">
+                    ยังไม่มีข้อมูลผลการทดลอง (กดบันทึกได้จากแท็บ 4)
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Submit Buttons -->
+          <div style="display:flex; flex-direction:column; gap:0.6rem; margin-top:1rem;">
+            <button id="btn-submit-unit" onclick="submitToGoogleSheet()" class="btn btn-primary" style="justify-content:center; padding:0.65rem;">
+              <i class="fa-solid fa-cloud-arrow-up"></i> ส่งผลการทดลอง &amp; คะแนนเข้า Google Sheet
+            </button>
+            <button onclick="exportCsv()" class="btn btn-outline" style="justify-content:center; font-size:0.8rem;">
+              <i class="fa-solid fa-file-csv"></i> ดาวน์โหลดรายงานเป็นไฟล์ CSV
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== MODAL: GOOGLE APPS SCRIPT CONFIG ==================== -->
+  <div class="modal-overlay" id="modal-gas">
+    <div class="modal-card">
+      <div class="card-title">
+        <div class="card-title-text">
+          <i class="fa-solid fa-file-excel"></i>
+          <span>ตั้งค่า Google Apps Script Web App (สำหรับครูผู้สอน)</span>
+        </div>
+        <button onclick="closeModal('modal-gas')" style="background:transparent; border:none; color:var(--text-dim); cursor:pointer; font-size:1.1rem;">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div style="font-size:0.82rem; color:var(--text-muted); line-height:1.6; margin-bottom:1rem;">
+        นำโค้ดในไฟล์ <code style="color:var(--accent-primary);">Unit2/Code.gs</code> ไปวางใน Google Apps Script ของท่าน จากนั้นเลือก <strong>Deploy as Web App</strong> (สิทธิ์: Anyone) แล้วนำ URL มาบันทึกไว้ในช่องด้านล่างนี้
+      </div>
+
+      <div class="control-group">
+        <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:0.35rem;">
+          Google Apps Script Web App URL:
+        </label>
+        <input type="text" id="gas-url-input" placeholder="https://script.google.com/macros/s/.../exec" style="width:100%; background:#070d19; border:1px solid var(--card-border); padding:0.55rem 0.75rem; border-radius:6px; color:#fff; font-size:0.82rem; font-family:var(--font-mono);">
+      </div>
+
+      <div style="display:flex; gap:0.5rem; justify-content:flex-end; flex-wrap:wrap; margin-top:1.25rem;">
+        <button class="btn btn-outline" onclick="resetUnit2AntiCheat()" style="color:#f87171; border-color:rgba(239,68,68,0.4);">
+          <i class="fa-solid fa-rotate-left"></i> ล้างประวัติส่งซ้ำ (หน่วยที่ 2)
+        </button>
+        <button class="btn btn-outline" onclick="copyCodeGs()">
+          <i class="fa-solid fa-copy"></i> คัดลอกโค้ด Code.gs
+        </button>
+        <button class="btn btn-primary" onclick="saveGasUrl()">
+          <i class="fa-solid fa-floppy-disk"></i> บันทึก URL
+        </button>
+      </div>
+
+      <div style="margin-top:1rem; padding-top:0.75rem; border-top:1px solid rgba(255,255,255,0.08); font-size:0.75rem; color:var(--text-dim);">
+        <i class="fa-solid fa-circle-info"></i> ลิงก์สำหรับครูส่งให้นักเรียนพร้อม URL ชีต: <button class="btn btn-outline" onclick="copyStudentLink()" style="padding:0.2rem 0.5rem; font-size:0.72rem; margin-left:0.5rem;"><i class="fa-solid fa-share-nodes"></i> คัดลอกลิงก์ให้นักเรียน</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer>
+    <div style="max-width:1440px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+      <div>
+        ⚡ <strong>Power Electronics Learning System</strong> | พัฒนาสำหรับหลักสูตร ปวส. สาขาวิชาช่างอิเล็กทรอนิกส์และไฟฟ้ากำลัง
+      </div>
+      <div>
+        ครูผู้สอน: แผนกวิชาช่างอิเล็กทรอนิกส์ | All Rights Reserved © 2026
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==================== SCRIPT ENGINE ==================== -->
+  <script>
+    // State Management
+    let currentMainTab = 'tab-scr-physics';
+    let scrPhysicsMode = 'layer'; // 'layer', 'analogy', 'ujt'
+    let scrIsLatched = false;
+    let scrAnimTime = 0;
+
+    let onePhaseTopology = 'full'; // 'half', 'semi', 'full'
+    let onePhaseLoad = 'R';        // 'R', 'RL', 'RL_FWD'
+
+    let threePhaseTopology = '6p'; // '3p', '6p'
+
+    let labSchemMode = '1ph';      // '1ph', '3ph'
+    let isLabScopeRunning = true;
+    let isFftMode = false;
+    let labChannels = { vin: true, vgate: true, vload: true, vak: true };
+
+    let teacherGasUrl = localStorage.getItem('power_unit2_gas_url') || '';
+    let quizScore = 0;
+    let answeredQuestions = new Set();
+    let recordedLogs = [];
+
+    // Canvas Contexts
+    const scrCanvas = document.getElementById('canvas-scr-physics');
+    const scrCtx = scrCanvas ? scrCanvas.getContext('2d') : null;
+
+    const onePhCanvas = document.getElementById('canvas-1phase');
+    const onePhCtx = onePhCanvas ? onePhCanvas.getContext('2d') : null;
+
+    const threePhCanvas = document.getElementById('canvas-3phase');
+    const threePhCtx = threePhCanvas ? threePhCanvas.getContext('2d') : null;
+
+    const labSchemCanvas = document.getElementById('canvas-schematic');
+    const labSchemCtx = labSchemCanvas ? labSchemCanvas.getContext('2d') : null;
+
+    const labScopeCanvas = document.getElementById('canvas-scope');
+    const labScopeCtx = labScopeCanvas ? labScopeCanvas.getContext('2d') : null;
+
+    // --- TAB SWITCHER ---
+    function switchMainTab(tabId) {
+      document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+      document.getElementById(tabId).classList.add('active');
+      const btnMap = {
+        'tab-scr-physics': 'tab-btn-scr-physics',
+        'tab-1phase': 'tab-btn-1phase',
+        'tab-3phase': 'tab-btn-3phase',
+        'tab-lab': 'tab-btn-lab',
+        'tab-quiz': 'tab-btn-quiz'
+      };
+      if (btnMap[tabId]) document.getElementById(btnMap[tabId]).classList.add('active');
+      currentMainTab = tabId;
+
+      if (tabId === 'tab-scr-physics') updateScrPhysics();
+      if (tabId === 'tab-1phase') update1PhaseSim();
+      if (tabId === 'tab-3phase') update3PhaseSim();
+      if (tabId === 'tab-lab') updateLabSimulation();
+    }
+
+    // =========================================================================
+    // 1. TAB 1: SCR PHYSICS & TRIGGERING ENGINE
+    // =========================================================================
+    function setScrPhysicsMode(mode) {
+      scrPhysicsMode = mode;
+      document.querySelectorAll('#btn-scr-layer, #btn-scr-analogy, #btn-scr-ujt').forEach(b => b.classList.remove('active'));
+      document.getElementById('btn-scr-' + mode).classList.add('active');
+
+      const titleEl = document.getElementById('scr-phys-title');
+      const descEl = document.getElementById('scr-theory-box');
+
+      if (mode === 'layer') {
+        titleEl.innerText = 'โครงสร้างเนื้อสาร 4 ชั้น P-N-P-N ของ SCR (Thyristor)';
+        descEl.innerHTML = '<strong>โครงสร้างสารกึ่งตัวนำ 4 ชั้น (P1-N1-P2-N2):</strong> สภาวะปกติเมื่อไม่มีสัญญาณเกต รอยต่อกลาง $J_2$ จะกั้นแรงดันไว้ (Forward Blocking) เมื่อป้อนพัลส์เกต $I_G$ อิเล็กตรอนจากชั้น $N_2$ จะถูกฉีดข้าม $J_2$ จนรอยต่อพังทลายลงและนำกระแสได้อย่างรวดเร็ว';
+      } else if (mode === 'analogy') {
+        titleEl.innerText = 'แบบจำลองทรานซิสเตอร์คู่ (Two-Transistor Analogy: Q1 PNP + Q2 NPN)';
+        descEl.innerHTML = '<strong>แบบจำลองทรานซิสเตอร์คู่:</strong> มอง SCR เป็น $Q_1$ (PNP) และ $Q_2$ (NPN) ต่อร่วมกัน เมื่อมีกระแสเกตกระตุ้น $I_G$ ไหลเข้าเบสของ $Q_2$ จะเกิด $I_{C2}$ ซึ่งจะกลายเป็น $I_{B1}$ ขับให้ $Q_1$ นำกระแส เกิดเป็นวงรอบป้อนกลับแบบเสริมกำลัง (Regenerative Loop: $I_{C1} + I_G = I_{B2}$) ทำให้ SCR ล็อกนำกระแสได้ต่อเนื่องแม้นำ $I_G$ ออก';
+      } else if (mode === 'ujt') {
+        titleEl.innerText = 'วงจรทริกเกอร์พัลส์ UJT Relaxation Oscillator';
+        descEl.innerHTML = '<strong>วงจรจุดชนวนเกตด้วย UJT:</strong> ตัวเก็บประจุ $C$ ชาร์จประจุผ่านตัวต้านทานปรับค่าได้ $R$ จนถึงแรงดันจุดสูงสุด $V_P = \eta V_{BB} + V_D$ จากนั้น UJT จะนำกระแสคายประจุผ่านหม้อแปลงพัลส์ (Pulse Transformer) ส่งสัญญาณพัลส์แหลมคมเข้าไปจุดชนวนเกตของ SCR อย่างแม่นยำ';
+      }
+      updateScrPhysics();
+    }
+
+    function triggerGatePulse() {
+      document.getElementById('slider-scr-ig').value = 45;
+      updateScrPhysics();
+      setTimeout(() => {
+        document.getElementById('slider-scr-ig').value = 0;
+        updateScrPhysics();
+      }, 600);
+    }
+
+    function resetScrState() {
+      scrIsLatched = false;
+      document.getElementById('slider-scr-vak').value = 100;
+      document.getElementById('slider-scr-ig').value = 0;
+      updateScrPhysics();
+    }
+
+    function updateScrPhysics() {
+      const vak = parseFloat(document.getElementById('slider-scr-vak').value);
+      const ig = parseFloat(document.getElementById('slider-scr-ig').value);
+
+      document.getElementById('scr-vak-badge').innerText = vak.toFixed(0) + ' V';
+      document.getElementById('scr-ig-badge').innerText = ig.toFixed(0) + ' mA';
+
+      // Latching logic
+      if (vak > 5.0 && ig >= 25.0) {
+        scrIsLatched = true;
+      }
+      if (vak <= 1.0) {
+        scrIsLatched = false;
+      }
+
+      const statusBadge = document.getElementById('scr-status-badge');
+      const statusText = document.getElementById('scr-status-text');
+      const iaVal = document.getElementById('scr-ia-val');
+      const j2Val = document.getElementById('scr-j2-val');
+
+      if (vak < 0) {
+        statusBadge.className = 'status-badge saturation';
+        statusText.innerText = 'Reverse Blocking (ปิดกั้นกลับ)';
+        iaVal.innerHTML = '0.00 <span class="readout-unit">A</span>';
+        j2Val.innerText = 'J1/J3 Rev. Block';
+      } else if (scrIsLatched) {
+        statusBadge.className = 'status-badge active-region';
+        statusText.innerText = 'Forward Conduction (นำกระแส)';
+        const ia = (vak / 15.0).toFixed(2);
+        iaVal.innerHTML = `${ia} <span class="readout-unit">A</span>`;
+        j2Val.innerText = 'J2 Broken (ON)';
+      } else {
+        statusBadge.className = 'status-badge saturation';
+        statusText.innerText = 'Forward Blocking (ปิดกั้นตรง)';
+        iaVal.innerHTML = '0.00 <span class="readout-unit">A</span>';
+        j2Val.innerText = 'J2 Rev. Block';
+      }
+
+      drawScrPhysicsCanvas(vak, ig);
+    }
+
+    function drawScrPhysicsCanvas(vak, ig) {
+      if (!scrCanvas || !scrCtx) return;
+      const w = scrCanvas.width;
+      const h = scrCanvas.height;
+      scrCtx.clearRect(0, 0, w, h);
+
+      // Dark CAD Background & Grid
+      scrCtx.fillStyle = '#060d19';
+      scrCtx.fillRect(0, 0, w, h);
+      scrCtx.strokeStyle = 'rgba(56, 189, 248, 0.04)';
+      scrCtx.lineWidth = 1;
+      for (let x = 0; x < w; x += 20) {
+        scrCtx.beginPath(); scrCtx.moveTo(x, 0); scrCtx.lineTo(x, h); scrCtx.stroke();
+      }
+      for (let y = 0; y < h; y += 20) {
+        scrCtx.beginPath(); scrCtx.moveTo(0, y); scrCtx.lineTo(w, y); scrCtx.stroke();
+      }
+
+      if (scrPhysicsMode === 'layer') {
+        // --- 4-LAYER P-N-P-N STRUCTURE ---
+        const xStart = 80, yStart = 40, totalW = 540, layerH = 50;
+
+        // Anode Top Contact
+        scrCtx.fillStyle = '#64748b';
+        scrCtx.fillRect(xStart + 160, 15, 220, 25);
+        scrCtx.strokeStyle = '#94a3b8'; scrCtx.lineWidth = 1.5;
+        scrCtx.strokeRect(xStart + 160, 15, 220, 25);
+        scrCtx.fillStyle = '#ffffff'; scrCtx.font = 'bold 11px JetBrains Mono'; scrCtx.textAlign = 'center';
+        scrCtx.fillText('ANODE (A) +', xStart + 270, 32);
+
+        // P1 Layer
+        scrCtx.fillStyle = '#f97316';
+        scrCtx.fillRect(xStart, yStart, totalW, layerH);
+        scrCtx.fillStyle = '#ffffff'; scrCtx.font = 'bold 12px JetBrains Mono';
+        scrCtx.fillText('P1 LAYER (Anode Region)', xStart + 270, yStart + 30);
+
+        // Junction J1 Line
+        scrCtx.strokeStyle = '#38bdf8'; scrCtx.lineWidth = 2;
+        scrCtx.beginPath(); scrCtx.moveTo(xStart, yStart + layerH); scrCtx.lineTo(xStart + totalW, yStart + layerH); scrCtx.stroke();
+        scrCtx.fillStyle = '#38bdf8'; scrCtx.font = '9px JetBrains Mono';
+        scrCtx.fillText('รอยต่อ J1 (Forward Biased)', xStart + 55, yStart + layerH - 6);
+
+        // N1 Layer (Lightly doped blocking region)
+        scrCtx.fillStyle = '#1e293b';
+        scrCtx.fillRect(xStart, yStart + layerH, totalW, layerH + 20);
+        scrCtx.fillStyle = '#38bdf8'; scrCtx.font = 'bold 12px JetBrains Mono';
+        scrCtx.fillText('N1 LAYER (Wide Base / Voltage Blocking Region)', xStart + 270, yStart + layerH + 42);
+
+        // Junction J2 (The Crucial Barrier)
+        const j2Y = yStart + layerH * 2 + 20;
+        scrCtx.strokeStyle = scrIsLatched ? '#10b981' : '#f59e0b'; scrCtx.lineWidth = scrIsLatched ? 2.5 : 3.5;
+        scrCtx.beginPath(); scrCtx.moveTo(xStart, j2Y); scrCtx.lineTo(xStart + totalW, j2Y); scrCtx.stroke();
+        scrCtx.fillStyle = scrIsLatched ? '#34d399' : '#fbbf24'; scrCtx.font = '9px JetBrains Mono';
+        scrCtx.fillText(scrIsLatched ? 'รอยต่อ J2 (พังทลายนำกระแสเต็มที่)' : 'รอยต่อ J2 (Reverse Biased Barrier)', xStart + 80, j2Y - 6);
+
+        // P2 Layer
+        scrCtx.fillStyle = '#ea580c';
+        scrCtx.fillRect(xStart, j2Y, totalW, layerH);
+        scrCtx.fillStyle = '#ffffff'; scrCtx.font = 'bold 12px JetBrains Mono';
+        scrCtx.fillText('P2 LAYER (Gate Region)', xStart + 270, j2Y + 30);
+
+        // Gate Contact (attached to P2 layer on the right side)
+        scrCtx.fillStyle = (ig > 10 || scrIsLatched) ? '#c084fc' : '#64748b';
+        scrCtx.fillRect(xStart + totalW, j2Y + 10, 45, 30);
+        scrCtx.strokeStyle = '#c084fc'; scrCtx.lineWidth = 1.5;
+        scrCtx.strokeRect(xStart + totalW, j2Y + 10, 45, 30);
+        scrCtx.fillStyle = '#ffffff'; scrCtx.font = 'bold 10px JetBrains Mono';
+        scrCtx.fillText('GATE (G)', xStart + totalW + 22, j2Y + 28);
+
+        // Junction J3 Line
+        const j3Y = j2Y + layerH;
+        scrCtx.strokeStyle = '#38bdf8'; scrCtx.lineWidth = 2;
+        scrCtx.beginPath(); scrCtx.moveTo(xStart, j3Y); scrCtx.lineTo(xStart + totalW, j3Y); scrCtx.stroke();
+        scrCtx.fillStyle = '#38bdf8'; scrCtx.font = '9px JetBrains Mono';
+        scrCtx.fillText('รอยต่อ J3 (Forward Biased)', xStart + 55, j3Y - 6);
+
+        // N2 Layer (Cathode emitter)
+        scrCtx.fillStyle = '#0284c7';
+        scrCtx.fillRect(xStart, j3Y, totalW, layerH);
+        scrCtx.fillStyle = '#ffffff'; scrCtx.font = 'bold 12px JetBrains Mono';
+        scrCtx.fillText('N2 LAYER (Cathode Emitter Region)', xStart + 270, j3Y + 30);
+
+        // Cathode Bottom Contact
+        const kY = j3Y + layerH;
+        scrCtx.fillStyle = '#64748b';
+        scrCtx.fillRect(xStart + 160, kY, 220, 20);
+        scrCtx.strokeStyle = '#94a3b8'; scrCtx.lineWidth = 1.5;
+        scrCtx.strokeRect(xStart + 160, kY, 220, 20);
+        scrCtx.fillStyle = '#ffffff'; scrCtx.font = 'bold 11px JetBrains Mono';
+        scrCtx.fillText('CATHODE (K) -', xStart + 270, kY + 14);
+
+        // Animated Carriers
+        if (scrIsLatched) {
+          const t = Date.now() * 0.003;
+          // Green Electrons moving up from N2 to Anode
+          scrCtx.fillStyle = '#10b981';
+          for (let i = 0; i < 20; i++) {
+            const px = xStart + 40 + i * 25;
+            const py = kY - ((t * 70 + i * 20) % (kY - yStart));
+            scrCtx.beginPath(); scrCtx.arc(px, py, 3, 0, Math.PI * 2); scrCtx.fill();
+          }
+          // Orange Holes moving down from P1 to Cathode
+          scrCtx.fillStyle = '#f97316';
+          for (let i = 0; i < 15; i++) {
+            const px = xStart + 50 + i * 32;
+            const py = yStart + ((t * 55 + i * 25) % (kY - yStart));
+            scrCtx.beginPath(); scrCtx.arc(px, py, 2.5, 0, Math.PI * 2); scrCtx.fill();
+          }
+        }
+
+      } else if (scrPhysicsMode === 'analogy') {
+        // --- TWO-TRANSISTOR ANALOGY (Q1 PNP + Q2 NPN) ---
+        drawTwoTransistorAnalogy(scrCtx, w, h, vak, ig, scrIsLatched);
+      } else {
+        // --- UJT TRIGGER CIRCUIT ---
+        drawUjtCircuit(scrCtx, w, h);
+      }
+    }
+
+    function drawTwoTransistorAnalogy(ctx, w, h, vak, ig, isLatched) {
+      // Q1 (PNP) on top-left, Q2 (NPN) on bottom-right
+      const q1X = 220, q1Y = 110;
+      const q2X = 420, q2Y = 200;
+
+      ctx.fillStyle = '#38bdf8'; ctx.font = 'bold 14px Chakra Petch'; ctx.textAlign = 'center';
+      ctx.fillText('⚡ วงจรโมเดลทรานซิสเตอร์คู่ (Regenerative Feedback Loop)', w / 2, 30);
+
+      // Draw Q1 Box (PNP)
+      ctx.fillStyle = 'rgba(249, 115, 22, 0.15)';
+      ctx.strokeStyle = '#f97316'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.roundRect(q1X - 60, q1Y - 45, 120, 90, 8); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#f97316'; ctx.font = 'bold 12px JetBrains Mono';
+      ctx.fillText('Q1 (PNP)', q1X, q1Y - 20);
+      ctx.font = '10px Sarabun'; ctx.fillStyle = '#e2e8f0';
+      ctx.fillText('P1 - N1 - P2', q1X, q1Y + 5);
+
+      // Draw Q2 Box (NPN)
+      ctx.fillStyle = 'rgba(2, 132, 199, 0.15)';
+      ctx.strokeStyle = '#0284c7'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.roundRect(q2X - 60, q2Y - 45, 120, 90, 8); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#38bdf8'; ctx.font = 'bold 12px JetBrains Mono';
+      ctx.fillText('Q2 (NPN)', q2X, q2Y - 20);
+      ctx.font = '10px Sarabun'; ctx.fillStyle = '#e2e8f0';
+      ctx.fillText('N1 - P2 - N2', q2X, q2Y + 5);
+
+      // Interconnection Wires
+      ctx.strokeStyle = isLatched ? '#10b981' : '#64748b'; ctx.lineWidth = 2.5;
+
+      // Anode connection to Q1 Emitter
+      ctx.beginPath(); ctx.moveTo(q1X, q1Y - 45); ctx.lineTo(q1X, 55); ctx.stroke();
+      ctx.fillStyle = '#ffffff'; ctx.font = 'bold 11px JetBrains Mono';
+      ctx.fillText('ANODE (A)', q1X, 50);
+
+      // Cathode connection from Q2 Emitter
+      ctx.beginPath(); ctx.moveTo(q2X, q2Y + 45); ctx.lineTo(q2X, 280); ctx.stroke();
+      ctx.fillText('CATHODE (K)', q2X, 295);
+
+      // Collector Q1 to Base Q2 (IC1 -> IB2)
+      ctx.beginPath();
+      ctx.moveTo(q1X + 60, q1Y);
+      ctx.lineTo(q2X, q1Y);
+      ctx.lineTo(q2X, q2Y - 45);
+      ctx.stroke();
+      ctx.fillStyle = '#34d399'; ctx.font = 'bold 10px JetBrains Mono';
+      ctx.fillText('I_C1 → I_B2', (q1X + q2X) / 2, q1Y - 6);
+
+      // Collector Q2 to Base Q1 (IC2 -> IB1)
+      ctx.beginPath();
+      ctx.moveTo(q2X - 60, q2Y);
+      ctx.lineTo(q1X, q2Y);
+      ctx.lineTo(q1X, q1Y + 45);
+      ctx.stroke();
+      ctx.fillText('I_C2 → I_B1', (q1X + q2X) / 2, q2Y + 16);
+
+      // Gate Input Lead
+      ctx.strokeStyle = '#c084fc';
+      ctx.beginPath(); ctx.moveTo(560, q2Y); ctx.lineTo(q2X + 60, q2Y); ctx.stroke();
+      ctx.fillStyle = '#c084fc';
+      ctx.fillText('GATE (I_G)', 590, q2Y + 4);
+
+      // Equation
+      ctx.fillStyle = isLatched ? '#34d399' : '#f59e0b'; ctx.font = '11px JetBrains Mono';
+      ctx.fillText(isLatched 
+        ? 'สภาวะ Latching: α1 + α2 → 1 (กระแส I_A ไหลวนเสริมตนเองโดยไม่ต้องมี I_G)' 
+        : 'สภาวะ Blocking: α1 + α2 < 1 (ไม่มีกระแสเกตกระตุ้น วงจรล็อกนำกระแสไม่ได้)', w / 2, 260);
+    }
+
+    function drawUjtCircuit(ctx, w, h) {
+      ctx.fillStyle = '#38bdf8'; ctx.font = 'bold 14px Chakra Petch'; ctx.textAlign = 'center';
+      ctx.fillText('⚡ วงจรสร้างพัลส์กระตุ้นเกต UJT Relaxation Oscillator', w / 2, 30);
+
+      // Waveform demonstration on canvas
+      const ox = 100, oy = 210, pw = 500, ph = 140;
+      ctx.strokeStyle = '#334155'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(ox + pw, oy); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(ox, oy - ph); ctx.stroke();
+
+      // Sawtooth charging wave on capacitor VE
+      ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      for (let x = 0; x < pw; x++) {
+        const cycle = x % 120;
+        let v = 0;
+        if (cycle < 105) v = (cycle / 105) * 85;
+        else v = Math.max(0, 85 - (cycle - 105) * 6);
+        const py = oy - v;
+        if (x === 0) ctx.moveTo(ox + x, py); else ctx.lineTo(ox + x, py);
+      }
+      ctx.stroke();
+
+      // Sharp Trigger Pulses
+      ctx.strokeStyle = '#10b981'; ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      for (let x = 0; x < pw; x++) {
+        const cycle = x % 120;
+        let p = (cycle >= 105 && cycle <= 112) ? 65 : 0;
+        const py = oy - p;
+        if (x === 0) ctx.moveTo(ox + x, py); else ctx.lineTo(ox + x, py);
+      }
+      ctx.stroke();
+
+      ctx.fillStyle = '#38bdf8'; ctx.font = '10px JetBrains Mono'; ctx.textAlign = 'left';
+      ctx.fillText('แรงดันชาร์จคาปาซิเตอร์ VE (Sawtooth)', ox + 15, oy - 95);
+      ctx.fillStyle = '#10b981';
+      ctx.fillText('พัลส์ทริกเกอร์เกต VG (Trigger Pulses)', ox + 15, oy - 65);
+    }
+
+    // =========================================================================
+    // 2. TAB 2: 1-PHASE CONTROLLED RECTIFIERS ENGINE
+    // =========================================================================
+    function set1PhaseTopology(topo) {
+      onePhaseTopology = topo;
+      document.querySelectorAll('#btn-topo-1ph-half, #btn-topo-1ph-semi, #btn-topo-1ph-full').forEach(b => b.classList.remove('active'));
+      document.getElementById('btn-topo-1ph-' + topo).classList.add('active');
+
+      const titleEl = document.getElementById('title-1phase-wave');
+      const descEl = document.getElementById('formula-desc-1ph');
+
+      if (topo === 'half') {
+        titleEl.innerText = 'วงจรเรียงกระแส 1 เฟสครึ่งคลื่น (1-Phase Half-Wave 1 SCR)';
+        descEl.innerText = 'Half-Wave Controlled Rectifier';
+      } else if (topo === 'semi') {
+        titleEl.innerText = 'วงจรเรียงกระแส 1 เฟสบริดจ์กึ่งควบคุม (Semi-Controlled 2 SCR + 2 Diode)';
+        descEl.innerText = 'Semi-Controlled Bridge Converter';
+      } else {
+        titleEl.innerText = 'วงจรเรียงกระแส 1 เฟสบริดจ์ควบคุมสมบูรณ์ (Fully-Controlled 4 SCR)';
+        descEl.innerText = 'Fully-Controlled Bridge Converter';
+      }
+      update1PhaseSim();
+    }
+
+    function set1PhaseLoad(load) {
+      onePhaseLoad = load;
+      document.querySelectorAll('#btn-load-r, #btn-load-rl, #btn-load-rlfwd').forEach(b => b.classList.remove('active'));
+      const idMap = { 'R': 'btn-load-r', 'RL': 'btn-load-rl', 'RL_FWD': 'btn-load-rlfwd' };
+      document.getElementById(idMap[load]).classList.add('active');
+      update1PhaseSim();
+    }
+
+    function update1PhaseSim() {
+      const alphaDeg = parseFloat(document.getElementById('slider-alpha-1ph').value);
+      const vrms = parseFloat(document.getElementById('slider-vrms-1ph').value);
+      const rLoad = parseFloat(document.getElementById('slider-r-1ph').value);
+
+      document.getElementById('slider-alpha-1ph-badge').innerText = alphaDeg.toFixed(0) + '°';
+      document.getElementById('badge-alpha-1ph').innerText = alphaDeg.toFixed(0);
+      document.getElementById('slider-vrms-1ph-badge').innerText = vrms.toFixed(0) + ' V';
+      document.getElementById('slider-r-1ph-badge').innerText = rLoad.toFixed(0) + ' Ω';
+
+      const alphaRad = (alphaDeg * Math.PI) / 180;
+      const vm = vrms * Math.sqrt(2);
+
+      let vdc = 0;
+      let formulaLatex = '';
+
+      if (onePhaseTopology === 'half') {
+        // Half-Wave
+        if (onePhaseLoad === 'R' || onePhaseLoad === 'RL_FWD') {
+          vdc = (vm / (2 * Math.PI)) * (1 + Math.cos(alphaRad));
+          formulaLatex = `V_{dc} = \\frac{V_m}{2\\pi}(1 + \\cos\\alpha) = \\frac{${vm.toFixed(1)}}{2\\pi}(1 + \\cos ${alphaDeg}^\\circ) = \\mathbf{${vdc.toFixed(1)}\\text{ V}}`;
+        } else {
+          // RL without FWD
+          const betaRad = Math.min(Math.PI + 0.35, alphaRad + Math.PI * 0.7);
+          vdc = Math.max(0, (vm / (2 * Math.PI)) * (Math.cos(alphaRad) - Math.cos(betaRad)));
+          formulaLatex = `V_{dc} = \\frac{V_m}{2\\pi}(\\cos\\alpha - \\cos\\beta) = \\mathbf{${vdc.toFixed(1)}\\text{ V}}`;
+        }
+      } else if (onePhaseTopology === 'semi') {
+        // Semi-Controlled Bridge
+        vdc = (vm / Math.PI) * (1 + Math.cos(alphaRad));
+        formulaLatex = `V_{dc} = \\frac{V_m}{\\pi}(1 + \\cos\\alpha) = \\frac{${vm.toFixed(1)}}{\\pi}(1 + \\cos ${alphaDeg}^\\circ) = \\mathbf{${vdc.toFixed(1)}\\text{ V}}`;
+      } else {
+        // Fully-Controlled Bridge
+        if (onePhaseLoad === 'R' || onePhaseLoad === 'RL_FWD') {
+          vdc = (vm / Math.PI) * (1 + Math.cos(alphaRad));
+          formulaLatex = `V_{dc} = \\frac{V_m}{\\pi}(1 + \\cos\\alpha) = \\frac{${vm.toFixed(1)}}{\\pi}(1 + \\cos ${alphaDeg}^\\circ) = \\mathbf{${vdc.toFixed(1)}\\text{ V}}`;
+        } else {
+          // RL Continuous Conduction
+          vdc = (2 * vm / Math.PI) * Math.cos(alphaRad);
+          formulaLatex = `V_{dc} = \\frac{2V_m}{\\pi}\\cos\\alpha = \\frac{2 \\times ${vm.toFixed(1)}}{\\pi}\\cos ${alphaDeg}^\\circ = \\mathbf{${vdc.toFixed(1)}\\text{ V}}`;
+        }
+      }
+
+      const idc = Math.max(0, vdc / rLoad);
+      const voutRms = Math.sqrt(Math.max(0, vdc * vdc * 1.25));
+      const pdc = vdc * idc;
+
+      document.getElementById('readout-1ph-vdc').innerHTML = `${vdc.toFixed(1)} <span class="readout-unit">V</span>`;
+      document.getElementById('readout-1ph-idc').innerHTML = `${idc.toFixed(2)} <span class="readout-unit">A</span>`;
+      document.getElementById('readout-1ph-vrms').innerHTML = `${voutRms.toFixed(1)} <span class="readout-unit">V</span>`;
+      document.getElementById('readout-1ph-pdc').innerHTML = `${pdc.toFixed(0)} <span class="readout-unit">W</span>`;
+
+      // Render KaTeX
+      const formulaEl = document.getElementById('katex-formula-1ph');
+      if (window.katex && formulaEl) {
+        katex.render(formulaLatex, formulaEl, { displayMode: true, throwOnError: false });
+      }
+
+      draw1PhaseCanvas(alphaRad, vm);
+    }
+
+    function draw1PhaseCanvas(alphaRad, vm) {
+      if (!onePhCanvas || !onePhCtx) return;
+      const w = onePhCanvas.width;
+      const h = onePhCanvas.height;
+      onePhCtx.clearRect(0, 0, w, h);
+
+      // Background Grid
+      onePhCtx.fillStyle = '#060d19';
+      onePhCtx.fillRect(0, 0, w, h);
+      onePhCtx.strokeStyle = 'rgba(56, 189, 248, 0.05)';
+      onePhCtx.lineWidth = 1;
+      for (let x = 0; x < w; x += 35) {
+        onePhCtx.beginPath(); onePhCtx.moveTo(x, 0); onePhCtx.lineTo(x, h); onePhCtx.stroke();
+      }
+      for (let y = 0; y < h; y += 35) {
+        onePhCtx.beginPath(); onePhCtx.moveTo(0, y); onePhCtx.lineTo(w, y); onePhCtx.stroke();
+      }
+
+      // Zero-crossing center line
+      const midY = 160;
+      onePhCtx.strokeStyle = 'rgba(148, 163, 184, 0.25)';
+      onePhCtx.lineWidth = 1.5;
+      onePhCtx.beginPath(); onePhCtx.moveTo(0, midY); onePhCtx.lineTo(w, midY); onePhCtx.stroke();
+
+      const numCycles = 2;
+      const scaleY = 110 / (vm || 1);
+
+      // 1. Trace 1: Vin (Input Sine Wave - Cyan dashed/dim)
+      onePhCtx.strokeStyle = 'rgba(56, 189, 248, 0.35)';
+      onePhCtx.lineWidth = 1.5;
+      onePhCtx.setLineDash([4, 4]);
+      onePhCtx.beginPath();
+      for (let x = 0; x < w; x++) {
+        const theta = (x / w) * (numCycles * 2 * Math.PI);
+        const vin = vm * Math.sin(theta);
+        const y = midY - vin * scaleY;
+        if (x === 0) onePhCtx.moveTo(x, y); else onePhCtx.lineTo(x, y);
+      }
+      onePhCtx.stroke();
+      onePhCtx.setLineDash([]);
+
+      // 2. Trace 2: Vload Output (Solid Amber with Fill)
+      onePhCtx.fillStyle = 'rgba(245, 158, 11, 0.15)';
+      onePhCtx.beginPath();
+      onePhCtx.moveTo(0, midY);
+
+      for (let x = 0; x < w; x++) {
+        const thetaTotal = (x / w) * (numCycles * 2 * Math.PI);
+        const theta = thetaTotal % (2 * Math.PI);
+        let vOut = 0;
+
+        if (onePhaseTopology === 'half') {
+          // Half-wave
+          if (theta >= alphaRad && theta <= Math.PI) {
+            vOut = vm * Math.sin(theta);
+          } else if (theta > Math.PI && onePhaseLoad === 'RL') {
+            // Negative voltage transient if RL without FWD
+            vOut = vm * Math.sin(theta) * 0.85;
+          }
+        } else if (onePhaseTopology === 'semi') {
+          // Semi-controlled
+          const halfCycle = theta % Math.PI;
+          if (halfCycle >= alphaRad) {
+            vOut = vm * Math.sin(halfCycle);
+          }
+        } else {
+          // Fully-controlled
+          const halfCycle = theta % Math.PI;
+          if (halfCycle >= alphaRad) {
+            vOut = vm * Math.sin(halfCycle);
+          } else if (onePhaseLoad === 'RL' && theta > 0) {
+            vOut = -vm * Math.sin(halfCycle) * 0.9;
+          }
+        }
+
+        const y = midY - vOut * scaleY;
+        onePhCtx.lineTo(x, y);
+      }
+      onePhCtx.lineTo(w, midY);
+      onePhCtx.closePath();
+      onePhCtx.fill();
+
+      // Stroke Vload
+      onePhCtx.strokeStyle = '#f59e0b';
+      onePhCtx.lineWidth = 2.5;
+      onePhCtx.beginPath();
+      for (let x = 0; x < w; x++) {
+        const thetaTotal = (x / w) * (numCycles * 2 * Math.PI);
+        const theta = thetaTotal % (2 * Math.PI);
+        let vOut = 0;
+
+        if (onePhaseTopology === 'half') {
+          if (theta >= alphaRad && theta <= Math.PI) vOut = vm * Math.sin(theta);
+          else if (theta > Math.PI && onePhaseLoad === 'RL') vOut = vm * Math.sin(theta) * 0.85;
+        } else if (onePhaseTopology === 'semi') {
+          const halfCycle = theta % Math.PI;
+          if (halfCycle >= alphaRad) vOut = vm * Math.sin(halfCycle);
+        } else {
+          const halfCycle = theta % Math.PI;
+          if (halfCycle >= alphaRad) vOut = vm * Math.sin(halfCycle);
+          else if (onePhaseLoad === 'RL' && theta > 0) vOut = -vm * Math.sin(halfCycle) * 0.9;
+        }
+
+        const y = midY - vOut * scaleY;
+        if (x === 0) onePhCtx.moveTo(x, y); else onePhCtx.lineTo(x, y);
+      }
+      onePhCtx.stroke();
+
+      // 3. Gate Pulses (Green spikes at alpha)
+      onePhCtx.strokeStyle = '#10b981';
+      onePhCtx.lineWidth = 2;
+      for (let c = 0; c < numCycles * 2; c++) {
+        const alphaX = ((c * Math.PI + alphaRad) / (numCycles * 2 * Math.PI)) * w;
+        if (alphaX <= w) {
+          onePhCtx.beginPath();
+          onePhCtx.moveTo(alphaX, midY + 40);
+          onePhCtx.lineTo(alphaX, midY + 10);
+          onePhCtx.lineTo(alphaX + 6, midY + 10);
+          onePhCtx.lineTo(alphaX + 6, midY + 40);
+          onePhCtx.stroke();
+        }
+      }
+    }
+
+    // =========================================================================
+    // 3. TAB 3: 3-PHASE CONTROLLED RECTIFIERS ENGINE
+    // =========================================================================
+    function set3PhaseTopology(topo) {
+      threePhaseTopology = topo;
+      document.querySelectorAll('#btn-topo-3ph-3p, #btn-topo-3ph-6p').forEach(b => b.classList.remove('active'));
+      document.getElementById('btn-topo-3ph-' + topo).classList.add('active');
+
+      const titleEl = document.getElementById('title-3phase-wave');
+      if (topo === '3p') {
+        titleEl.innerText = 'วงจรเรียงกระแส 3 เฟส 3-พัลส์ (3-Phase Half-Wave 3 SCR)';
+      } else {
+        titleEl.innerText = 'วงจรเรียงกระแส 3 เฟส 6-พัลส์ในงานอุตสาหกรรม (6-Pulse Graetz Bridge)';
+      }
+      update3PhaseSim();
+    }
+
+    function update3PhaseSim() {
+      const alphaDeg = parseFloat(document.getElementById('slider-alpha-3ph').value);
+      const vll = parseFloat(document.getElementById('slider-vll-3ph').value);
+      const rLoad = parseFloat(document.getElementById('slider-r-3ph').value);
+
+      document.getElementById('slider-alpha-3ph-badge').innerText = alphaDeg.toFixed(0) + '°';
+      document.getElementById('slider-vll-3ph-badge').innerText = vll.toFixed(0) + ' V';
+      document.getElementById('slider-r-3ph-badge').innerText = rLoad.toFixed(0) + ' Ω';
+
+      const alphaRad = (alphaDeg * Math.PI) / 180;
+      const vmPhase = (vll / Math.sqrt(3)) * Math.sqrt(2);
+      const vmLine = vll * Math.sqrt(2);
+
+      let vdc = 0;
+      let fripple = 300;
+      let formulaLatex = '';
+
+      if (threePhaseTopology === '3p') {
+        vdc = (3 * Math.sqrt(3) * vmPhase / (2 * Math.PI)) * Math.cos(alphaRad);
+        fripple = 150;
+        formulaLatex = `V_{dc} = \\frac{3\\sqrt{3}V_{m(ph)}}{2\\pi}\\cos\\alpha = \\frac{3\\sqrt{3}(${vmPhase.toFixed(1)})}{2\\pi}\\cos ${alphaDeg}^\\circ = \\mathbf{${vdc.toFixed(1)}\\text{ V}}`;
+      } else {
+        vdc = (3 * vmLine / Math.PI) * Math.cos(alphaRad);
+        fripple = 300;
+        formulaLatex = `V_{dc} = \\frac{3V_{m(LL)}}{\\pi}\\cos\\alpha = 1.35 V_{LL}\\cos\\alpha = 1.35(${vll})\\cos ${alphaDeg}^\\circ = \\mathbf{${vdc.toFixed(1)}\\text{ V}}`;
+      }
+
+      const idc = Math.max(0, vdc / rLoad);
+      const pdc = Math.max(0, (vdc * idc) / 1000); // kW
+
+      document.getElementById('readout-3ph-vdc').innerHTML = `${vdc.toFixed(1)} <span class="readout-unit">V</span>`;
+      document.getElementById('readout-3ph-idc').innerHTML = `${idc.toFixed(1)} <span class="readout-unit">A</span>`;
+      document.getElementById('readout-3ph-fripple').innerHTML = `${fripple} <span class="readout-unit">Hz</span>`;
+      document.getElementById('readout-3ph-pdc').innerHTML = `${pdc.toFixed(1)} <span class="readout-unit">kW</span>`;
+
+      // Mode Callout Update
+      const badgeMode = document.getElementById('badge-3phase-mode');
+      const calloutBox = document.getElementById('mode-callout-3ph');
+
+      if (alphaDeg < 90) {
+        badgeMode.className = 'status-badge active-region';
+        badgeMode.innerText = 'Rectification Mode';
+        calloutBox.style.background = 'rgba(16, 185, 129, 0.12)';
+        calloutBox.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+        calloutBox.innerHTML = `
+          <div style="font-weight:700; color:#34d399; font-size:0.85rem; margin-bottom:0.25rem;">
+            <i class="fa-solid fa-circle-check"></i> โหมดการทำงาน: Rectification Mode (AC → DC)
+          </div>
+          <div style="font-size:0.76rem; color:#cbd5e1; line-height:1.5;">
+            α = ${alphaDeg}° < 90°: แรงดันเฉลี่ย $V_{dc} > 0$ ส่งกำลังไฟฟ้าจ่ายให้โหลดอุตสาหกรรม
+          </div>`;
+      } else {
+        badgeMode.className = 'status-badge saturation';
+        badgeMode.innerText = 'Inversion / Regeneration';
+        calloutBox.style.background = 'rgba(245, 158, 11, 0.15)';
+        calloutBox.style.borderColor = 'rgba(245, 158, 11, 0.4)';
+        calloutBox.innerHTML = `
+          <div style="font-weight:700; color:#fbbf24; font-size:0.85rem; margin-bottom:0.25rem;">
+            <i class="fa-solid fa-triangle-exclamation"></i> โหมดการทำงาน: Inversion Mode (DC → AC)
+          </div>
+          <div style="font-size:0.76rem; color:#cbd5e1; line-height:1.5;">
+            α = ${alphaDeg}° > 90°: แรงดันเฉลี่ย $V_{dc} < 0$ คืนพลังงานจากโหลด DC กลับเข้าสู่ระบบไฟฟ้า AC (Regenerative Braking)
+          </div>`;
+      }
+
+      // Render KaTeX
+      const formulaEl = document.getElementById('katex-formula-3ph');
+      if (window.katex && formulaEl) {
+        katex.render(formulaLatex, formulaEl, { displayMode: true, throwOnError: false });
+      }
+
+      draw3PhaseCanvas(alphaRad, vmLine);
+    }
+
+    function draw3PhaseCanvas(alphaRad, vmLine) {
+      if (!threePhCanvas || !threePhCtx) return;
+      const w = threePhCanvas.width;
+      const h = threePhCanvas.height;
+      threePhCtx.clearRect(0, 0, w, h);
+
+      // Dark background & Grid
+      threePhCtx.fillStyle = '#060d19';
+      threePhCtx.fillRect(0, 0, w, h);
+
+      threePhCtx.strokeStyle = 'rgba(56, 189, 248, 0.05)';
+      threePhCtx.lineWidth = 1;
+      for (let x = 0; x < w; x += 35) {
+        threePhCtx.beginPath(); threePhCtx.moveTo(x, 0); threePhCtx.lineTo(x, h); threePhCtx.stroke();
+      }
+
+      const midY = 160;
+      threePhCtx.strokeStyle = 'rgba(148, 163, 184, 0.2)';
+      threePhCtx.beginPath(); threePhCtx.moveTo(0, midY); threePhCtx.lineTo(w, midY); threePhCtx.stroke();
+
+      const numPeriods = 1.5;
+      const scaleY = 90 / (vmLine || 1);
+
+      // Phase A (Red), Phase B (Amber), Phase C (Cyan)
+      const phases = [
+        { name: 'A', offset: 0, col: 'rgba(239, 68, 68, 0.35)' },
+        { name: 'B', offset: (2 * Math.PI) / 3, col: 'rgba(245, 158, 11, 0.35)' },
+        { name: 'C', offset: (4 * Math.PI) / 3, col: 'rgba(56, 189, 248, 0.35)' }
+      ];
+
+      phases.forEach(p => {
+        threePhCtx.strokeStyle = p.col;
+        threePhCtx.lineWidth = 1.5;
+        threePhCtx.setLineDash([3, 3]);
+        threePhCtx.beginPath();
+        for (let x = 0; x < w; x++) {
+          const theta = (x / w) * (numPeriods * 2 * Math.PI) - p.offset;
+          const v = vmLine * Math.sin(theta);
+          const y = midY - v * scaleY;
+          if (x === 0) threePhCtx.moveTo(x, y); else threePhCtx.lineTo(x, y);
+        }
+        threePhCtx.stroke();
+      });
+      threePhCtx.setLineDash([]);
+
+      // 6-Pulse Output Envelope (Green thick line)
+      threePhCtx.strokeStyle = '#10b981';
+      threePhCtx.lineWidth = 2.5;
+      threePhCtx.beginPath();
+
+      for (let x = 0; x < w; x++) {
+        const thetaTotal = (x / w) * (numPeriods * 2 * Math.PI);
+        const theta = (thetaTotal + alphaRad) % (Math.PI / 3);
+        const vOut = vmLine * Math.cos(theta - Math.PI / 6);
+        const y = midY - vOut * scaleY;
+        if (x === 0) threePhCtx.moveTo(x, y); else threePhCtx.lineTo(x, y);
+      }
+      threePhCtx.stroke();
+    }
+
+    // =========================================================================
+    // 4. TAB 4: VIRTUAL LAB, CAD SCHEMATIC & POWER QUALITY ENGINE
+    // =========================================================================
+    function setSchematicMode(mode) {
+      labSchemMode = mode;
+      document.getElementById('btn-schem-1ph').classList.toggle('active', mode === '1ph');
+      document.getElementById('btn-schem-3ph').classList.toggle('active', mode === '3ph');
+
+      const titleEl = document.getElementById('schem-title');
+      if (mode === '1ph') {
+        titleEl.innerText = 'วงจรบริดจ์เต็มคลื่น 1 เฟส (4 SCRs Phase-Controlled Converter)';
+      } else {
+        titleEl.innerText = 'วงจรบริดจ์เต็มคลื่น 3 เฟส 6-พัลส์ (6 SCRs Graetz Bridge)';
+      }
+      updateLabSimulation();
+    }
+
+    function toggleLabScopeRun() {
+      isLabScopeRunning = !isLabScopeRunning;
+      const btn = document.getElementById('btn-scope-run');
+      const icon = document.getElementById('icon-scope-run');
+      const text = document.getElementById('text-scope-run');
+
+      if (isLabScopeRunning) {
+        btn.className = 'status-badge active-region';
+        btn.style.background = 'rgba(16,185,129,0.18)';
+        btn.style.borderColor = '#10b981';
+        btn.style.color = '#34d399';
+        icon.className = 'fa-solid fa-circle-pause';
+        text.innerText = 'Scope Running';
+      } else {
+        btn.className = 'status-badge saturation';
+        btn.style.background = 'rgba(239,68,68,0.2)';
+        btn.style.borderColor = '#ef4444';
+        btn.style.color = '#f87171';
+        icon.className = 'fa-solid fa-circle-play';
+        text.innerText = 'Scope Stopped (Freeze)';
+      }
+      updateLabSimulation();
+    }
+
+    function toggleLabChannel(ch) {
+      if (labChannels.hasOwnProperty(ch)) {
+        labChannels[ch] = !labChannels[ch];
+        const btn = document.getElementById('btn-ch-' + ch);
+        if (btn) {
+          if (labChannels[ch]) {
+            btn.style.opacity = '1';
+            btn.style.textDecoration = 'none';
+          } else {
+            btn.style.opacity = '0.35';
+            btn.style.textDecoration = 'line-through';
+          }
+        }
+        updateLabSimulation();
+      }
+    }
+
+    function toggleFftDisplay() {
+      isFftMode = !isFftMode;
+      const btn = document.getElementById('btn-toggle-fft');
+      btn.style.background = isFftMode ? 'rgba(192,132,252,0.45)' : 'rgba(192,132,252,0.15)';
+      updateLabSimulation();
+    }
+
+    function updateLabSimulation() {
+      const alphaDeg = parseFloat(document.getElementById('slider-lab-alpha').value);
+      const vin = parseFloat(document.getElementById('slider-lab-vin').value);
+      const rLoad = parseFloat(document.getElementById('slider-lab-r').value);
+      const lLoad = parseFloat(document.getElementById('slider-lab-l').value);
+      const hasFwd = document.getElementById('check-lab-fwd').checked;
+
+      document.getElementById('slider-lab-alpha-badge').innerText = alphaDeg.toFixed(0) + '°';
+      document.getElementById('slider-lab-vin-badge').innerText = vin.toFixed(0) + ' V';
+      document.getElementById('slider-lab-r-badge').innerText = rLoad.toFixed(0) + ' Ω';
+      document.getElementById('slider-lab-l-badge').innerText = lLoad.toFixed(0) + ' mH';
+
+      const alphaRad = (alphaDeg * Math.PI) / 180;
+      const vm = vin * Math.sqrt(2);
+
+      let vdc = 0;
+      if (labSchemMode === '1ph') {
+        vdc = (vm / Math.PI) * (hasFwd ? (1 + Math.cos(alphaRad)) : (2 * Math.cos(alphaRad)));
+      } else {
+        vdc = (3 * vm * Math.sqrt(3) / Math.PI) * Math.cos(alphaRad);
+      }
+      vdc = Math.max(0, vdc);
+
+      const idc = Math.max(0, vdc / rLoad);
+      const vrmsOut = Math.sqrt(vdc * vdc * (1 + 0.35 * Math.sin(alphaRad)));
+      const thd = (alphaDeg * 0.45 + 18.5);
+      const dpf = Math.cos(alphaRad);
+      const rf = Math.sqrt(Math.max(0, (vrmsOut / (vdc || 1)) ** 2 - 1));
+      const pout = vdc * idc;
+
+      document.getElementById('lab-vdc-val').innerHTML = `${vdc.toFixed(1)} <span class="readout-unit">V</span>`;
+      document.getElementById('lab-vrms-val').innerHTML = `${vrmsOut.toFixed(1)} <span class="readout-unit">V</span>`;
+      document.getElementById('lab-thd-val').innerHTML = `${thd.toFixed(1)} <span class="readout-unit">%</span>`;
+      document.getElementById('lab-dpf-val').innerHTML = `${dpf.toFixed(2)} <span class="readout-unit">${alphaDeg > 0 ? 'lag' : ''}</span>`;
+      document.getElementById('lab-rf-val').innerText = rf.toFixed(2);
+      document.getElementById('lab-pout-val').innerHTML = `${pout.toFixed(0)} <span class="readout-unit">W</span>`;
+
+      drawLabSchematic(alphaDeg, vdc, idc);
+      drawLabScopeCanvas(alphaDeg, vm, vdc, thd);
+    }
+
+    function drawLabSchematic(alphaDeg, vdc, idc) {
+      if (!labSchemCanvas || !labSchemCtx) return;
+      const w = labSchemCanvas.width;
+      const h = labSchemCanvas.height;
+      labSchemCtx.clearRect(0, 0, w, h);
+
+      // Background Grid
+      labSchemCtx.fillStyle = '#060d19';
+      labSchemCtx.fillRect(0, 0, w, h);
+
+      labSchemCtx.strokeStyle = 'rgba(56, 189, 248, 0.04)';
+      labSchemCtx.lineWidth = 1;
+      for (let x = 0; x < w; x += 20) {
+        labSchemCtx.beginPath(); labSchemCtx.moveTo(x, 0); labSchemCtx.lineTo(x, h); labSchemCtx.stroke();
+      }
+      for (let y = 0; y < h; y += 20) {
+        labSchemCtx.beginPath(); labSchemCtx.moveTo(0, y); labSchemCtx.lineTo(w, y); labSchemCtx.stroke();
+      }
+
+      // Schematic components
+      const cx = 280, cy = 130;
+      
+      // AC Source Symbol (Left)
+      labSchemCtx.strokeStyle = '#38bdf8'; labSchemCtx.lineWidth = 2.5;
+      labSchemCtx.beginPath(); labSchemCtx.arc(80, cy, 22, 0, Math.PI * 2); labSchemCtx.stroke();
+      labSchemCtx.fillStyle = '#38bdf8'; labSchemCtx.font = 'bold 12px JetBrains Mono'; labSchemCtx.textAlign = 'center';
+      labSchemCtx.fillText('~', 80, cy + 4);
+      labSchemCtx.font = '10px Sarabun'; labSchemCtx.fillStyle = '#94a3b8';
+      labSchemCtx.fillText('AC Source', 80, cy + 38);
+
+      // Bridge Rectifier Diamond (4 SCRs)
+      const bw = 70, bh = 70;
+      labSchemCtx.strokeStyle = '#64748b'; labSchemCtx.lineWidth = 2;
+      labSchemCtx.strokeRect(cx - bw, cy - bh, bw * 2, bh * 2);
+
+      // Wires from AC to Bridge
+      labSchemCtx.beginPath();
+      labSchemCtx.moveTo(102, cy - 10); labSchemCtx.lineTo(cx - bw, cy - 25);
+      labSchemCtx.moveTo(102, cy + 10); labSchemCtx.lineTo(cx - bw, cy + 25);
+      labSchemCtx.stroke();
+
+      // Draw 4 Thyristor Symbols in Bridge
+      drawThyristorIcon(labSchemCtx, cx - 35, cy - 35, 'T1', '#38bdf8');
+      drawThyristorIcon(labSchemCtx, cx + 35, cy - 35, 'T3', '#38bdf8');
+      drawThyristorIcon(labSchemCtx, cx - 35, cy + 35, 'T4', '#38bdf8');
+      drawThyristorIcon(labSchemCtx, cx + 35, cy + 35, 'T2', '#38bdf8');
+
+      // Wires to Load (Right)
+      const loadX = 520;
+      labSchemCtx.strokeStyle = '#f59e0b'; labSchemCtx.lineWidth = 2.5;
+      labSchemCtx.beginPath();
+      labSchemCtx.moveTo(cx + bw, cy - 40); labSchemCtx.lineTo(loadX, cy - 40);
+      labSchemCtx.moveTo(cx + bw, cy + 40); labSchemCtx.lineTo(loadX, cy + 40);
+      labSchemCtx.stroke();
+
+      // Load Box (R + L)
+      labSchemCtx.fillStyle = 'rgba(245, 158, 11, 0.15)';
+      labSchemCtx.strokeStyle = '#f59e0b'; labSchemCtx.lineWidth = 2;
+      labSchemCtx.beginPath(); labSchemCtx.roundRect(loadX - 25, cy - 40, 50, 80, 6); labSchemCtx.fill(); labSchemCtx.stroke();
+      labSchemCtx.fillStyle = '#ffffff'; labSchemCtx.font = 'bold 10px JetBrains Mono'; labSchemCtx.textAlign = 'center';
+      labSchemCtx.fillText('R-L LOAD', loadX, cy);
+      labSchemCtx.font = '9px JetBrains Mono'; labSchemCtx.fillStyle = '#f59e0b';
+      labSchemCtx.fillText(`${vdc.toFixed(0)}V | ${idc.toFixed(1)}A`, loadX, cy + 18);
+
+      // Live Current Animation Dots
+      if (isLabScopeRunning && idc > 0.1) {
+        const t = (Date.now() * 0.003);
+        labSchemCtx.fillStyle = '#10b981';
+        for (let i = 0; i < 7; i++) {
+          const px = (cx + bw) + ((t * 80 + i * 35) % (loadX - cx - bw));
+          labSchemCtx.beginPath(); labSchemCtx.arc(px, cy - 40, 3, 0, Math.PI * 2); labSchemCtx.fill();
+        }
+        for (let i = 0; i < 7; i++) {
+          const px = loadX - ((t * 80 + i * 35) % (loadX - cx - bw));
+          labSchemCtx.beginPath(); labSchemCtx.arc(px, cy + 40, 3, 0, Math.PI * 2); labSchemCtx.fill();
+        }
+      }
+    }
+
+    function drawThyristorIcon(ctx, x, y, label, col) {
+      ctx.strokeStyle = col; ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.moveTo(x - 8, y + 8); ctx.lineTo(x + 8, y + 8); ctx.lineTo(x, y - 8); ctx.closePath();
+      ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x - 8, y - 8); ctx.lineTo(x + 8, y - 8); ctx.stroke();
+      // Gate lead
+      ctx.beginPath(); ctx.moveTo(x + 2, y); ctx.lineTo(x + 8, y + 2); ctx.stroke();
+      ctx.fillStyle = col; ctx.font = '8px JetBrains Mono'; ctx.textAlign = 'center';
+      ctx.fillText(label, x - 12, y + 2);
+    }
+
+    function drawLabScopeCanvas(alphaDeg, vm, vdc, thd) {
+      if (!labScopeCanvas || !labScopeCtx) return;
+      const w = labScopeCanvas.width;
+      const h = labScopeCanvas.height;
+      labScopeCtx.clearRect(0, 0, w, h);
+
+      // Dark Background
+      labScopeCtx.fillStyle = '#060d19';
+      labScopeCtx.fillRect(0, 0, w, h);
+
+      if (isFftMode) {
+        // --- FFT HARMONICS SPECTRUM MODE ---
+        drawFftSpectrum(labScopeCtx, w, h, thd);
+        return;
+      }
+
+      // --- 4-CHANNEL OSCILLOSCOPE TIME-DOMAIN MODE ---
+      // Grid reticle
+      labScopeCtx.strokeStyle = 'rgba(56, 189, 248, 0.06)';
+      labScopeCtx.lineWidth = 1;
+      for (let x = 0; x < w; x += 70) {
+        labScopeCtx.beginPath(); labScopeCtx.moveTo(x, 0); labScopeCtx.lineTo(x, h); labScopeCtx.stroke();
+      }
+      for (let y = 0; y < h; y += 35) {
+        labScopeCtx.beginPath(); labScopeCtx.moveTo(0, y); labScopeCtx.lineTo(w, y); labScopeCtx.stroke();
+      }
+
+      const midY = 140;
+      labScopeCtx.strokeStyle = 'rgba(148, 163, 184, 0.2)';
+      labScopeCtx.beginPath(); labScopeCtx.moveTo(0, midY); labScopeCtx.lineTo(w, midY); labScopeCtx.stroke();
+
+      const alphaRad = (alphaDeg * Math.PI) / 180;
+      const scaleY = 90 / (vm || 1);
+      const numCycles = 2;
+
+      // CH1: Vin (Cyan)
+      if (labChannels.vin) {
+        labScopeCtx.strokeStyle = '#38bdf8'; labScopeCtx.lineWidth = 2;
+        labScopeCtx.beginPath();
+        for (let x = 0; x < w; x++) {
+          const theta = (x / w) * (numCycles * 2 * Math.PI);
+          const y = midY - vm * Math.sin(theta) * scaleY;
+          if (x === 0) labScopeCtx.moveTo(x, y); else labScopeCtx.lineTo(x, y);
+        }
+        labScopeCtx.stroke();
+      }
+
+      // CH2: Vgate (Green pulses)
+      if (labChannels.vgate) {
+        labScopeCtx.strokeStyle = '#10b981'; labScopeCtx.lineWidth = 2;
+        for (let c = 0; c < numCycles * 2; c++) {
+          const ax = ((c * Math.PI + alphaRad) / (numCycles * 2 * Math.PI)) * w;
+          if (ax <= w) {
+            labScopeCtx.beginPath();
+            labScopeCtx.moveTo(ax, midY + 45);
+            labScopeCtx.lineTo(ax, midY + 15);
+            labScopeCtx.lineTo(ax + 5, midY + 15);
+            labScopeCtx.lineTo(ax + 5, midY + 45);
+            labScopeCtx.stroke();
+          }
+        }
+      }
+
+      // CH3: Vload (Amber)
+      if (labChannels.vload) {
+        labScopeCtx.strokeStyle = '#f59e0b'; labScopeCtx.lineWidth = 2.5;
+        labScopeCtx.beginPath();
+        for (let x = 0; x < w; x++) {
+          const thetaTotal = (x / w) * (numCycles * 2 * Math.PI);
+          const theta = thetaTotal % Math.PI;
+          let vl = (theta >= alphaRad) ? vm * Math.sin(theta) : 0;
+          const y = midY - vl * scaleY;
+          if (x === 0) labScopeCtx.moveTo(x, y); else labScopeCtx.lineTo(x, y);
+        }
+        labScopeCtx.stroke();
+      }
+
+      // CH4: V_AK (Red - Anode to Cathode Voltage)
+      if (labChannels.vak) {
+        labScopeCtx.strokeStyle = '#ef4444'; labScopeCtx.lineWidth = 1.8;
+        labScopeCtx.beginPath();
+        for (let x = 0; x < w; x++) {
+          const thetaTotal = (x / w) * (numCycles * 2 * Math.PI);
+          const theta = thetaTotal % (2 * Math.PI);
+          let vakV = 0;
+          if (theta < alphaRad) vakV = vm * Math.sin(theta);
+          else if (theta >= Math.PI) vakV = vm * Math.sin(theta);
+          const y = midY - vakV * scaleY;
+          if (x === 0) labScopeCtx.moveTo(x, y); else labScopeCtx.lineTo(x, y);
+        }
+        labScopeCtx.stroke();
+      }
+
+      // Frozen HUD Tag
+      if (!isLabScopeRunning) {
+        labScopeCtx.save();
+        labScopeCtx.fillStyle = 'rgba(239, 68, 68, 0.25)';
+        labScopeCtx.strokeStyle = '#ef4444'; labScopeCtx.lineWidth = 1.5;
+        labScopeCtx.beginPath(); labScopeCtx.roundRect(w - 170, 12, 155, 28, 6);
+        labScopeCtx.fill(); labScopeCtx.stroke();
+        labScopeCtx.font = 'bold 10px JetBrains Mono'; labScopeCtx.fillStyle = '#fca5a5';
+        labScopeCtx.textAlign = 'center'; labScopeCtx.fillText('⏸ FREEZE (หยุดจับภาพ)', w - 92, 30);
+        labScopeCtx.restore();
+      }
+    }
+
+    function drawFftSpectrum(ctx, w, h, thd) {
+      ctx.fillStyle = '#c084fc'; ctx.font = 'bold 13px Chakra Petch'; ctx.textAlign = 'center';
+      ctx.fillText(`📊 FFT Harmonics Spectrum Analyzer (THD = ${thd.toFixed(1)}%)`, w / 2, 28);
+
+      const ox = 70, oy = 230, pw = 560;
+      ctx.strokeStyle = '#334155'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(ox + pw, oy); ctx.stroke();
+
+      const harmonics = [
+        { f: 'DC', mag: 85, col: '#f59e0b' },
+        { f: '100Hz (2f0)', mag: 62, col: '#c084fc' },
+        { f: '200Hz (4f0)', mag: 28, col: '#c084fc' },
+        { f: '300Hz (6f0)', mag: 16, col: '#c084fc' },
+        { f: '400Hz (8f0)', mag: 9, col: '#c084fc' },
+        { f: '500Hz (10f0)', mag: 5, col: '#c084fc' }
+      ];
+
+      const barW = 45;
+      harmonics.forEach((hItem, idx) => {
+        const bx = ox + 40 + idx * 80;
+        const barH = (hItem.mag / 100) * 160;
+        ctx.fillStyle = hItem.col;
+        ctx.fillRect(bx - barW / 2, oy - barH, barW, barH);
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 10px JetBrains Mono'; ctx.textAlign = 'center';
+        ctx.fillText(`${hItem.mag}%`, bx, oy - barH - 6);
+        ctx.font = '9px Sarabun'; ctx.fillStyle = '#94a3b8';
+        ctx.fillText(hItem.f, bx, oy + 16);
+      });
+    }
+
+    // 5. TAB 5: QUIZ & GOOGLE SHEETS LOGGER (ตรวจเฉพาะคะแนน ไม่เฉลยคำตอบ)
+    const userQuizAnswers = {};
+
+    function checkOption(el, qIndex, isCorrect) {
+      const parent = el.closest('.quiz-question');
+      parent.querySelectorAll('.quiz-option').forEach(o => o.classList.remove('selected', 'correct', 'wrong'));
+      el.classList.add('selected');
+      userQuizAnswers[qIndex] = isCorrect;
+    }
+
+    function checkQuizScore() {
+      const totalQuestions = 5;
+      const answeredCount = Object.keys(userQuizAnswers).length;
+      if (answeredCount === 0) {
+        showToast('⚠️ กรุณาเลือกคำตอบก่อนกดตรวจคะแนน');
+        return;
+      }
+      quizScore = Object.values(userQuizAnswers).filter(Boolean).length;
+      document.getElementById('quiz-score-badge').innerText = `คะแนนที่ได้: ${quizScore} / ${totalQuestions}`;
+      showToast(`✓ ตรวจคะแนนเสร็จสิ้น คุณได้คะแนน: ${quizScore} / ${totalQuestions}`);
+    }
+
+    function recordLabPoint() {
+      const alpha = document.getElementById('slider-lab-alpha-badge').innerText;
+      const vdc = document.getElementById('lab-vdc-val').innerText;
+      const idc = document.getElementById('lab-idc-val').innerText;
+      const thd = document.getElementById('lab-thd-val').innerText;
+      const topo = labSchemMode === '1ph' ? '1-Ph Bridge' : '3-Ph 6-Pulse';
+
+      const rec = {
+        id: recordedLogs.length + 1,
+        topo: topo,
+        alpha: alpha,
+        vdc: vdc,
+        idc: idc,
+        thd: thd,
+        status: 'Pass'
+      };
+      recordedLogs.push(rec);
+      updateLogTable();
+      alert(`บันทึกผลการทดสอบจุดที่ ${rec.id} (${topo}, α=${alpha}) เรียบร้อยแล้ว`);
+    }
+
+    function updateLogTable() {
+      const tbody = document.getElementById('log-table-body');
+      document.getElementById('log-count').innerText = recordedLogs.length;
+
+      if (recordedLogs.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-dim); padding:1.5rem;">ยังไม่มีข้อมูลผลการทดลอง</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = recordedLogs.map(r => `
+        <tr>
+          <td>${r.id}</td>
+          <td style="color:#38bdf8;">${r.topo}</td>
+          <td>${r.alpha}</td>
+          <td>${r.vdc}</td>
+          <td>${r.idc}</td>
+          <td style="color:#c084fc;">${r.thd}</td>
+          <td><span class="status-badge active-region">${r.status}</span></td>
+        </tr>
+      `).join('');
+    }
+
+    function clearRecordedLogs() {
+      if (confirm('ยืนยันการล้างข้อมูลในตารางทั้งหมด?')) {
+        recordedLogs = [];
+        updateLogTable();
+      }
+    }
+
+    function exportCsv() {
+      if (recordedLogs.length === 0) {
+        alert('ยังไม่มีข้อมูลการทดลองในตาราง');
+        return;
+      }
+      let csv = "ID,Topology,Alpha,V_dc,I_dc,THD,Status\n";
+      recordedLogs.forEach(r => {
+        csv += `${r.id},"${r.topo}","${r.alpha}","${r.vdc}","${r.idc}","${r.thd}","${r.status}"\n`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Unit2_ControlledRectifiers_Log_${Date.now()}.csv`;
+      a.click();
+    }
+
+    function submitToGoogleSheet() {
+      const activeGas = teacherGasUrl || localStorage.getItem('elec_power_master_gas_url');
+      if (!activeGas) {
+        alert('กรุณากรอกและบันทึก Google Apps Script Web App URL ก่อนส่งข้อมูล');
+        openModal('modal-gas');
+        return;
+      }
+
+      const sName = document.getElementById('student-name').value.trim();
+      const sId = document.getElementById('student-id').value.trim();
+      const sGroup = document.getElementById('student-group').value.trim();
+
+      if (!sName || !sId) {
+        alert('กรุณากรอกชื่อ-สกุล และรหัสนักศึกษาก่อนส่งงาน');
+        return;
+      }
+
+      // Check Anti-duplicate submission on client (Per-unit key)
+      const submittedIds = JSON.parse(localStorage.getItem('submitted_student_ids_unit2') || '[]');
+      if (submittedIds.includes(sId)) {
+        alert(`❌ รหัสประจำตัว "${sId}" เคยส่งแบบทดสอบ/ผลการทดลองหน่วยที่ 2 ไปแล้วบนเครื่องนี้\n(ไม่อนุญาตให้ส่งคะแนนซ้ำ)`);
+        checkUnitDuplicate();
+        return;
+      }
+
+      const payload = {
+        name: sName,
+        studentId: sId,
+        group: sGroup,
+        activity: `Unit 2 Lab (${recordedLogs.length} points) + Quiz Score: ${quizScore}/5`,
+        result: `Score: ${quizScore}/5, Logs: ${recordedLogs.length}`,
+        status: quizScore >= 3 ? 'ผ่านเกณฑ์' : 'ต้องปรับปรุง'
+      };
+
+      fetch(activeGas, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).then(() => {
+        // Record studentId to prevent duplicate submissions on this device
+        submittedIds.push(sId);
+        localStorage.setItem('submitted_student_ids_unit2', JSON.stringify(submittedIds));
+        checkUnitDuplicate();
+        alert('ส่งผลการทดลองและคะแนนเข้า Google Sheet ของครูผู้สอนเรียบร้อยแล้ว!');
+      }).catch(err => {
+        alert('เกิดข้อผิดพลาดในการเชื่อมต่อ: ' + err);
+      });
+    }
+
+    function checkUnitDuplicate() {
+      const sid = document.getElementById('student-id') ? document.getElementById('student-id').value.trim() : '';
+      const warn = document.getElementById('unit-dup-warning');
+      const btn = document.getElementById('btn-submit-unit');
+      const submittedIds = JSON.parse(localStorage.getItem('submitted_student_ids_unit2') || '[]');
+      if (sid && submittedIds.includes(sid)) {
+        if (warn) warn.style.display = 'block';
+        if (btn) {
+          btn.disabled = true;
+          btn.style.opacity = '0.5';
+          btn.style.cursor = 'not-allowed';
+        }
+        return true;
+      } else {
+        if (warn) warn.style.display = 'none';
+        if (btn) {
+          btn.disabled = false;
+          btn.style.opacity = '1';
+          btn.style.cursor = 'pointer';
+        }
+        return false;
+      }
+    }
+
+    function resetUnit2AntiCheat() {
+      if (confirm('ต้องการล้างประวัติการส่งงานเฉพาะ "หน่วยที่ 2" ของเครื่องนี้หรือไม่?\n(หลังจากล้างแล้วจะสามารถทดสอบส่งคะแนนใหม่ได้)')) {
+        localStorage.removeItem('submitted_student_ids_unit2');
+        checkUnitDuplicate();
+        alert('✓ ล้างประวัติส่งซ้ำหน่วยที่ 2 เรียบร้อยแล้ว');
+      }
+    }
+
+    function saveGasUrl() {
+      const url = document.getElementById('gas-url-input').value.trim();
+      if (!url) {
+        alert('กรุณาระบุ URL ของ Google Apps Script');
+        return;
+      }
+      teacherGasUrl = url;
+      localStorage.setItem('power_unit2_gas_url', url);
+      alert('บันทึก Google Apps Script URL เรียบร้อยแล้ว');
+      closeModal('modal-gas');
+    }
+
+    function copyCodeGs() {
+      fetch('Code.gs')
+        .then(r => r.text())
+        .then(t => {
+          navigator.clipboard.writeText(t);
+          alert('คัดลอกโค้ด Code.gs ลงใน Clipboard เรียบร้อยแล้ว!');
+        }).catch(() => {
+          alert('ไม่สามารถดึงไฟล์ Code.gs ได้ กรุณาดาวน์โหลดผ่านโฟลเดอร์ Unit2/');
+        });
+    }
+
+    function copyStudentLink() {
+      const activeGas = teacherGasUrl || localStorage.getItem('elec_power_master_gas_url');
+      if (!activeGas) {
+        alert('กรุณากรอกและบันทึก Google Apps Script Web App URL ก่อน');
+        return;
+      }
+      let base = window.location.origin + window.location.pathname.replace(/\/index\.html$/i, '/');
+      if (base.startsWith('file:') || window.location.origin === 'null') {
+        base = 'http://localhost:8082/Unit2/';
+      }
+      const studentUrl = base + (base.endsWith('/') ? '' : '/') + '?gas=' + encodeURIComponent(activeGas);
+      navigator.clipboard.writeText(studentUrl);
+      alert('คัดลอกลิงก์พร้อม ?gas= ให้นักเรียนเรียบร้อยแล้ว:\n' + studentUrl);
+    }
+
+    // Modal Helpers
+    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+    // Init on Load
+    window.onload = function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const paramGas = urlParams.get('gas') || urlParams.get('endpoint');
+      if (paramGas) {
+        teacherGasUrl = paramGas;
+        localStorage.setItem('power_unit2_gas_url', paramGas);
+        document.getElementById('gas-url-input').value = paramGas;
+      } else {
+        const saved = teacherGasUrl || localStorage.getItem('elec_power_master_gas_url');
+        if (saved) {
+          teacherGasUrl = saved;
+          document.getElementById('gas-url-input').value = saved;
+        }
+      }
+
+      updateScrPhysics();
+      update1PhaseSim();
+      update3PhaseSim();
+      updateLabSimulation();
+      checkUnitDuplicate();
+
+      // Continuous Animation Loop for live current particles & carrier physics
+      setInterval(() => {
+        if (currentMainTab === 'tab-scr-physics') {
+          if (scrIsLatched) updateScrPhysics();
+        } else if (currentMainTab === 'tab-lab') {
+          if (isLabScopeRunning) {
+            updateLabSimulation();
+          }
+        }
+      }, 60);
+    };
+  </script>
+</body>
+</html>

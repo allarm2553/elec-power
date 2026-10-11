@@ -1,0 +1,22 @@
+{
+  "name": "controlled-rectifiers-lab",
+  "version": "1.0.0",
+  "description": "Phase-Controlled Rectifiers & AC-to-DC Converters Learning Lab (Unit 2 - Course 30105-2019)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "power-electronics",
+    "controlled-rectifier",
+    "scr",
+    "thyristor",
+    "phase-control",
+    "firing-angle",
+    "harmonics",
+    "thd",
+    "simulator"
+  ],
+  "author": "Antigravity & allarm2553",
+  "license": "MIT"
+}

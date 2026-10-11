@@ -1,0 +1,21 @@
+{
+  "name": "power-electronics-unit4",
+  "version": "1.0.0",
+  "description": "Unit 4: DC-to-AC Inverters & SPWM Synthesis Lab - Power Electronics (30105-2019)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "power-electronics",
+    "inverter",
+    "spwm",
+    "h-bridge",
+    "dead-time",
+    "three-phase",
+    "harmonics",
+    "thd"
+  ],
+  "author": "Power Electronics Lab Division",
+  "license": "MIT"
+}

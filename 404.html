@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 ไม่พบหน้านี้ — PowerLab Virtual Labs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;600;700&family=Sarabun:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg-dark: #070d18;
+      --card-bg: rgba(15, 23, 42, 0.85);
+      --border-cyan: rgba(56, 189, 248, 0.25);
+      --accent-cyan: #38bdf8;
+      --accent-amber: #f59e0b;
+      --accent-rose: #fb7185;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(ellipse at 20% 20%, rgba(56, 189, 248, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(245, 158, 11, 0.06) 0%, transparent 50%),
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px;
+      color: var(--text-main);
+      font-family: 'Sarabun', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .container {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-cyan);
+      border-radius: 20px;
+      padding: 3rem 2.5rem;
+      max-width: 580px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5), 0 0 30px rgba(56, 189, 248, 0.1);
+    }
+
+    .badge-404 {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(251, 113, 133, 0.15);
+      border: 1px solid rgba(251, 113, 133, 0.35);
+      color: var(--accent-rose);
+      font-family: 'Chakra Petch', sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 0.35rem 0.9rem;
+      border-radius: 999px;
+      margin-bottom: 1.25rem;
+      letter-spacing: 0.05em;
+    }
+
+    .code-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 5rem;
+      font-weight: 700;
+      line-height: 1;
+      background: linear-gradient(135deg, #fb7185 0%, #f59e0b 50%, #38bdf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 1rem;
+      text-shadow: 0 0 40px rgba(56, 189, 248, 0.3);
+    }
+
+    h1 {
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.75rem;
+    }
+
+    p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+
+    .action-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    @media (min-width: 480px) {
+      .action-group {
+        flex-direction: row;
+        justify-content: center;
+      }
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.8rem 1.6rem;
+      border-radius: 10px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.25s ease;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+      color: #fff;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      box-shadow: 0 4px 15px rgba(2, 132, 199, 0.3);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(2, 132, 199, 0.4);
+    }
+
+    .btn-secondary {
+      background: rgba(148, 163, 184, 0.1);
+      color: #e2e8f0;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(148, 163, 184, 0.2);
+      border-color: rgba(148, 163, 184, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .quick-links {
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .quick-links a {
+      color: var(--accent-cyan);
+      text-decoration: none;
+      margin: 0 0.4rem;
+    }
+
+    .quick-links a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="badge-404">
+      <i class="fa-solid fa-triangle-exclamation"></i> HTTP 404 — PAGE NOT FOUND
+    </div>
+    <div class="code-title">404</div>
+    <h1>ไม่พบหน้าที่คุณต้องการค้นหา</h1>
+    <p>
+      หน้าที่คุณเรียกดูอาจถูกย้าย ลบ หรือยังไม่ได้สร้างขึ้นในระบบห้องปฏิบัติการเสมือนจริง PowerLab
+    </p>
+
+    <div class="action-group">
+      <a href="./index.html" id="btn-home" class="btn btn-primary">
+        <i class="fa-solid fa-house"></i> กลับสู่หน้าหลัก Master Portal
+      </a>
+      <a href="./manual.html" id="btn-manual" class="btn btn-secondary">
+        <i class="fa-solid fa-book-open"></i> คู่มือการใช้งาน (Manual)
+      </a>
+    </div>
+
+    <div class="quick-links">
+      <span>ไปยังห้องแล็บ:</span>
+      <a href="./Unit1/">หน่วยที่ 1</a> •
+      <a href="./Unit2/">หน่วยที่ 2</a> •
+      <a href="./Unit3/">หน่วยที่ 3</a> •
+      <a href="./Unit4/">หน่วยที่ 4</a> •
+      <a href="./Unit5/">หน่วยที่ 5</a> •
+      <a href="./Unit6/">หน่วยที่ 6</a> •
+      <a href="./Unit7/">หน่วยที่ 7</a>
+    </div>
+  </div>
+
+  <script>
+    // Intelligent path resolution for GitHub Pages sub-directories
+    (function() {
+      // Determine base repository path if running on GitHub Pages or nested path
+      const pathSegments = window.location.pathname.split('/').filter(Boolean);
+      // If we are in a subpath like /Elec_Power/something/404, resolve home to repo root
+      if (pathSegments.length > 0) {
+        // e.g. for user.github.io/Elec_Power/foo -> repo root is /Elec_Power/
+        const repoName = pathSegments[0];
+        // Check if hostname is github.io
+        if (window.location.hostname.endsWith('github.io')) {
+          const baseRepoUrl = '/' + repoName + '/';
+          document.getElementById('btn-home').href = baseRepoUrl;
+          document.getElementById('btn-manual').href = baseRepoUrl + 'manual.html';
+          const quickLinks = document.querySelectorAll('.quick-links a');
+          quickLinks.forEach((a, i) => {
+            a.href = baseRepoUrl + 'Unit' + (i + 1) + '/';
+          });
+        }
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1887 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>หน่วยที่ 7: การประยุกต์และบำรุงรักษาระบบอิเล็กทรอนิกส์กำลังในงานอุตสาหกรรม | Power Electronics Lab</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    :root {
+      --bg-dark: #050d15;
+      --bg-card: rgba(13, 27, 42, 0.82);
+      --bg-card-hover: rgba(22, 43, 66, 0.9);
+      --border-card: rgba(16, 185, 129, 0.22);
+      --border-card-hover: rgba(52, 211, 153, 0.5);
+
+      /* Primary Palette: Industrial Emerald & Safety Accents */
+      --accent-green: #10b981;
+      --accent-emerald: #059669;
+      --accent-mint: #34d399;
+      --accent-teal: #14b8a6;
+      --accent-cyan: #38bdf8;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --accent-red: #ef4444;
+
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+
+      --font-display: 'Chakra Petch', sans-serif;
+      --font-body: 'Sarabun', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+
+      --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
+      --shadow-green: 0 0 25px rgba(16, 185, 129, 0.25);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: radial-gradient(circle at 15% 15%, rgba(16, 185, 129, 0.08), transparent 45%),
+                  radial-gradient(circle at 85% 85%, rgba(20, 184, 166, 0.06), transparent 45%),
+                  radial-gradient(circle at 50% 50%, rgba(245, 158, 11, 0.04), transparent 60%),
+                  var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    /* Top Bar & Header */
+    header {
+      background: rgba(10, 20, 32, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-card);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 0.75rem 1.5rem;
+    }
+
+    .header-container {
+      max-width: 1440px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, var(--accent-green), var(--accent-teal));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.35rem;
+      color: #050d15;
+      box-shadow: 0 0 18px rgba(16, 185, 129, 0.35);
+    }
+
+    .brand-title {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: #ffffff;
+      line-height: 1.2;
+    }
+
+    .brand-sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-family: var(--font-display);
+    }
+
+    /* Nav Tabs */
+    .nav-tabs {
+      display: flex;
+      gap: 0.4rem;
+      background: rgba(15, 28, 44, 0.65);
+      padding: 0.35rem;
+      border-radius: 12px;
+      border: 1px solid var(--border-card);
+      overflow-x: auto;
+    }
+
+    .nav-tab-btn {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-muted);
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 0.5rem 0.95rem;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      transition: all 0.25s ease;
+      white-space: nowrap;
+    }
+
+    .nav-tab-btn:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .nav-tab-btn.active {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(20, 184, 166, 0.18));
+      color: var(--accent-mint);
+      border: 1px solid rgba(52, 211, 153, 0.45);
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .portal-link-btn {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-main);
+      border: 1px solid var(--border-card);
+      padding: 0.5rem 0.85rem;
+      border-radius: 8px;
+      font-family: var(--font-display);
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      transition: all 0.2s ease;
+    }
+
+    .portal-link-btn:hover {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: var(--accent-green);
+      color: var(--accent-mint);
+      transform: translateY(-1px);
+    }
+
+    /* Main Container */
+    main {
+      max-width: 1440px;
+      margin: 1.5rem auto;
+      padding: 0 1.5rem;
+    }
+
+    .tab-pane {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .tab-pane.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Grid Layouts */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+    }
+
+    .grid-1-2 {
+      display: grid;
+      grid-template-columns: 1.1fr 1.9fr;
+      gap: 1.5rem;
+    }
+
+    .grid-2-1 {
+      display: grid;
+      grid-template-columns: 1.8fr 1.2fr;
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 1024px) {
+      .grid-2, .grid-3, .grid-1-2, .grid-2-1 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border-card);
+      border-radius: 16px;
+      padding: 1.25rem;
+      box-shadow: var(--shadow-card);
+      position: relative;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .card-title {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.2rem 0.55rem;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+
+    .badge-green { background: rgba(16, 185, 129, 0.18); color: var(--accent-mint); border: 1px solid rgba(16, 185, 129, 0.35); }
+    .badge-amber { background: rgba(245, 158, 11, 0.18); color: var(--accent-amber); border: 1px solid rgba(245, 158, 11, 0.35); }
+    .badge-red { background: rgba(239, 68, 68, 0.18); color: var(--accent-rose); border: 1px solid rgba(239, 68, 68, 0.35); }
+    .badge-cyan { background: rgba(56, 189, 248, 0.18); color: var(--accent-cyan); border: 1px solid rgba(56, 189, 248, 0.35); }
+
+    /* Controls & Inputs */
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 0.35rem;
+    }
+
+    .form-val {
+      font-family: var(--font-mono);
+      color: var(--accent-mint);
+      font-weight: 700;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      outline: none;
+      -webkit-appearance: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent-mint);
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
+      transition: transform 0.15s ease;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    .input-field {
+      width: 100%;
+      background: rgba(8, 17, 28, 0.85);
+      border: 1px solid var(--border-card);
+      border-radius: 8px;
+      padding: 0.55rem 0.85rem;
+      color: #fff;
+      font-family: var(--font-body);
+      font-size: 0.88rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .input-field:focus {
+      border-color: var(--accent-mint);
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.25);
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      font-family: var(--font-display);
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      outline: none;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .btn-green {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #050d15;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);
+    }
+
+    .btn-green:hover {
+      background: linear-gradient(135deg, #34d399, #10b981);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border-card);
+      color: var(--text-main);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--accent-mint);
+      color: var(--accent-mint);
+      background: rgba(16, 185, 129, 0.08);
+    }
+
+    .btn-red {
+      background: linear-gradient(135deg, #ef4444, #b91c1c);
+      color: #fff;
+    }
+    .btn-red:hover {
+      background: linear-gradient(135deg, #f87171, #ef4444);
+      transform: translateY(-2px);
+    }
+
+    .btn-amber {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #050d15;
+    }
+    .btn-amber:hover {
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      transform: translateY(-2px);
+    }
+
+    /* Modbus Hex Terminal */
+    .hex-terminal {
+      background: #02070e;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 10px;
+      padding: 0.85rem;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: #34d399;
+      height: 180px;
+      overflow-y: auto;
+      line-height: 1.6;
+    }
+
+    .hex-terminal .tx { color: #38bdf8; }
+    .hex-terminal .rx { color: #34d399; }
+    .hex-terminal .crc { color: #fbbf24; }
+    .hex-terminal .err { color: #f87171; }
+
+    /* HMI Display Panel */
+    .hmi-panel {
+      background: linear-gradient(180deg, #091524 0%, #040b13 100%);
+      border: 2px solid rgba(56, 189, 248, 0.35);
+      border-radius: 12px;
+      padding: 1.25rem;
+      position: relative;
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+    }
+
+    .hmi-screen {
+      background: #010d18;
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 8px;
+      padding: 1rem;
+      font-family: var(--font-mono);
+      margin-bottom: 1rem;
+    }
+
+    /* LOTO Step List */
+    .loto-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.85rem;
+      padding: 0.85rem 1rem;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      margin-bottom: 0.65rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .loto-step:hover {
+      background: rgba(16, 185, 129, 0.06);
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    .loto-step.done {
+      background: rgba(16, 185, 129, 0.12);
+      border-color: var(--accent-green);
+    }
+
+    .loto-step-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .loto-step.done .loto-step-num {
+      background: var(--accent-green);
+      color: #050d15;
+    }
+
+    /* Thermal Canvas & Crosshair */
+    .thermo-container {
+      position: relative;
+      background: #02070e;
+      border-radius: 12px;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #thermoCanvas {
+      width: 100%;
+      max-width: 640px;
+      height: auto;
+      cursor: crosshair;
+      display: block;
+    }
+
+    .thermo-overlay {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(5, 13, 21, 0.85);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 8px;
+      padding: 0.5rem 0.85rem;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: #fff;
+      pointer-events: none;
+    }
+
+    .thermo-palette-bar {
+      height: 14px;
+      border-radius: 4px;
+      margin-top: 0.5rem;
+      background: linear-gradient(to right, #0000ff, #00ffff, #00ff00, #ffff00, #ff0000, #ffffff);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    /* Diode Check DMM Tool */
+    .dmm-chassis {
+      background: #1e293b;
+      border: 4px solid #f59e0b;
+      border-radius: 16px;
+      padding: 1.25rem;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.8);
+      max-width: 380px;
+      margin: 0 auto;
+    }
+
+    .dmm-screen {
+      background: #99f6e4;
+      border: 3px solid #0f172a;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      text-align: right;
+      font-family: var(--font-mono);
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #0f172a;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.4);
+      margin-bottom: 1rem;
+    }
+
+    /* Modal Backdrop */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(3, 7, 18, 0.8);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 1rem;
+    }
+
+    .modal-content {
+      background: #0b1726;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      border-radius: 16px;
+      max-width: 680px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 1.75rem;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(16, 185, 129, 0.2);
+      position: relative;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: rgba(13, 27, 42, 0.95);
+      border: 1px solid var(--accent-mint);
+      border-radius: 10px;
+      padding: 0.85rem 1.4rem;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #fff;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+      display: none;
+      z-index: 2000;
+      animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* Quiz Radio Options */
+    .quiz-option {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 0.65rem 1rem;
+      margin-bottom: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.88rem;
+    }
+
+    .quiz-option:hover {
+      background: rgba(16, 185, 129, 0.08);
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    .quiz-option input[type="radio"] {
+      accent-color: var(--accent-mint);
+    }
+
+    .quiz-option.correct {
+      background: rgba(16, 185, 129, 0.2) !important;
+      border-color: var(--accent-green) !important;
+      color: #6ee7b7;
+    }
+
+    .quiz-option.wrong {
+      background: rgba(239, 68, 68, 0.2) !important;
+      border-color: var(--accent-red) !important;
+      color: #fca5a5;
+    }
+
+    /* Printable Workpiece Layout */
+    @media print {
+      header, .nav-tabs, .header-actions, .btn-submit-area, .no-print {
+        display: none !important;
+      }
+      body {
+        background: #fff !important;
+        color: #000 !important;
+      }
+      .card, .hmi-panel {
+        background: #fff !important;
+        border: 1px solid #ccc !important;
+        color: #000 !important;
+        box-shadow: none !important;
+      }
+      .print-only {
+        display: block !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Sticky Header -->
+  <header>
+    <div class="header-container">
+      <div class="brand-group">
+        <a href="../" class="portal-link-btn" title="กลับสู่หน้าหลัก Master Portal">
+          <i class="fa-solid fa-house"></i> หน้าหลัก
+        </a>
+        <div class="brand-icon">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div>
+          <div class="brand-title">หน่วยที่ 7: การประยุกต์และบำรุงรักษาระบบอิเล็กทรอนิกส์กำลังในงานอุตสาหกรรม</div>
+          <div class="brand-sub">PLC & Modbus RTU Control, LOTO & DC Discharge, Thermoscan PM (Course 30105-2019)</div>
+        </div>
+      </div>
+
+      <!-- Module Navigation Tabs -->
+      <nav class="nav-tabs">
+        <button class="nav-tab-btn active" onclick="switchTab('tab1', this)">
+          <i class="fa-solid fa-network-wired"></i> 1. Modbus RTU & PLC
+        </button>
+        <button class="nav-tab-btn" onclick="switchTab('tab2', this)">
+          <i class="fa-solid fa-lock"></i> 2. LOTO & คายประจุ DC Bus
+        </button>
+        <button class="nav-tab-btn" onclick="switchTab('tab3', this)">
+          <i class="fa-solid fa-temperature-three-quarters"></i> 3. เทอร์โมสแกน & จุดร้อน
+        </button>
+        <button class="nav-tab-btn" onclick="switchTab('tab4', this)">
+          <i class="fa-solid fa-triangle-exclamation"></i> 4. วินิจฉัยฟอลต์ & เช็คชีต PM
+        </button>
+        <button class="nav-tab-btn" onclick="switchTab('tab5', this)">
+          <i class="fa-solid fa-clipboard-check"></i> 5. แบบทดสอบ & รายงานชิ้นงาน
+        </button>
+      </nav>
+
+      <!-- Action Buttons -->
+      <div class="header-actions">
+        <button onclick="toggleTeacherModal(true)" class="portal-link-btn" title="สำหรับครูผู้สอน">
+          <i class="fa-solid fa-chalkboard-user"></i> สำหรับครูผู้สอน
+        </button>
+        <a href="Code.gs" download="Unit7_Code.gs" class="portal-link-btn" title="ดาวน์โหลด Code.gs สำหรับ Google Sheets">
+          <i class="fa-solid fa-file-code" style="color:var(--accent-amber);"></i> Code.gs
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Body Content -->
+  <main>
+
+    <!-- ================= TAB 1: MODBUS RTU & PLC CONTROL ================= -->
+    <div id="tab1" class="tab-pane active">
+      <div class="grid-2-1">
+        
+        <!-- HMI & PLC Inverter Live Telemetry Panel -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="fa-solid fa-desktop" style="color:var(--accent-cyan);"></i> หน้าจอสัมผัสจำลอง HMI / PLC Touch Screen Control
+            </div>
+            <span class="badge badge-green" id="hmi-comm-badge">
+              <i class="fa-solid fa-circle" style="font-size: 0.55rem;"></i> RS-485 Modbus Online
+            </span>
+          </div>
+
+          <div class="hmi-panel">
+            <div class="hmi-screen">
+              <div style="display:flex;justify-content:space-between;border-bottom:1px solid rgba(56,189,248,0.2);padding-bottom:0.4rem;margin-bottom:0.6rem;">
+                <span style="color:#94a3b8;font-size:0.75rem;">STATION: SLAVE #01 (INVERTER VFD)</span>
+                <span style="color:#38bdf8;font-size:0.75rem;" id="hmi-status-word">STATUS: READY / STOP</span>
+              </div>
+
+              <div class="grid-3" style="text-align:center;margin-bottom:0.75rem;">
+                <div style="background:rgba(56,189,248,0.06);padding:0.6rem;border-radius:6px;border:1px solid rgba(56,189,248,0.15);">
+                  <div style="color:#94a3b8;font-size:0.72rem;">ความถี่เอาต์พุต (Hz)</div>
+                  <div style="color:#38bdf8;font-size:1.8rem;font-weight:700;" id="hmi-freq-val">0.00</div>
+                </div>
+                <div style="background:rgba(16,185,129,0.06);padding:0.6rem;border-radius:6px;border:1px solid rgba(16,185,129,0.15);">
+                  <div style="color:#94a3b8;font-size:0.72rem;">ความเร็วรอบ (RPM)</div>
+                  <div style="color:#34d399;font-size:1.8rem;font-weight:700;" id="hmi-rpm-val">0</div>
+                </div>
+                <div style="background:rgba(245,158,11,0.06);padding:0.6rem;border-radius:6px;border:1px solid rgba(245,158,11,0.15);">
+                  <div style="color:#94a3b8;font-size:0.72rem;">กระแสเอาต์พุต (A)</div>
+                  <div style="color:#fbbf24;font-size:1.8rem;font-weight:700;" id="hmi-curr-val">0.0</div>
+                </div>
+              </div>
+
+              <div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#cbd5e1;padding-top:0.4rem;border-top:1px solid rgba(255,255,255,0.08);">
+                <span>แรงดันดีซีบัส (V_dc): <strong id="hmi-vdc-val" style="color:#38bdf8;">542 V</strong></span>
+                <span>แรงดันเอาต์พุต (V_out): <strong id="hmi-vout-val" style="color:#34d399;">0 V</strong></span>
+                <span>กำลังไฟฟ้า (kW): <strong id="hmi-pwr-val" style="color:#fbbf24;">0.00 kW</strong></span>
+              </div>
+            </div>
+
+            <!-- HMI Physical Buttons -->
+            <div style="display:flex;gap:0.75rem;flex-wrap:wrap;justify-content:center;margin-bottom:1rem;">
+              <button class="btn btn-green" onclick="sendHmiCommand('RUN_FWD')">
+                <i class="fa-solid fa-play"></i> สั่งเดินหน้า (FWD)
+              </button>
+              <button class="btn btn-amber" onclick="sendHmiCommand('RUN_REV')">
+                <i class="fa-solid fa-rotate-left"></i> สั่งถอยหลัง (REV)
+              </button>
+              <button class="btn btn-red" onclick="sendHmiCommand('STOP')">
+                <i class="fa-solid fa-stop"></i> สั่งหยุด (STOP)
+              </button>
+              <button class="btn btn-outline" onclick="sendHmiCommand('RESET')">
+                <i class="fa-solid fa-arrows-rotate"></i> Reset Fault
+              </button>
+            </div>
+
+            <!-- Set Frequency Slider -->
+            <div class="form-group" style="margin-bottom:0.25rem;">
+              <div class="form-label">
+                <span><i class="fa-solid fa-sliders"></i> กำหนดความถี่เป้าหมายผ่าน Modbus Register 2002H:</span>
+                <span class="form-val" id="set-freq-label">50.00 Hz</span>
+              </div>
+              <input type="range" id="freq-slider" min="0" max="60" step="0.5" value="50" oninput="updateSetFreq(this.value)">
+            </div>
+          </div>
+        </div>
+
+        <!-- Modbus RTU Packet Dissector & Protocol Analyzer -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="fa-solid fa-code" style="color:var(--accent-mint);"></i> เครื่องมือถอดรหัส Modbus RTU Frame
+            </div>
+            <span class="badge badge-green">CRC-16 Modbus</span>
+          </div>
+
+          <div style="font-size:0.84rem;color:var(--text-muted);margin-bottom:0.75rem;">
+            จำลองการสื่อสารแบบอนุกรม RS-485 (Baud: 9600, Data: 8, Parity: None, Stop: 1):
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Function Code (รหัสคำสั่ง):</label>
+            <select id="modbus-fc" class="input-field" onchange="generateModbusPacket()">
+              <option value="06">06H: Write Single Register (สั่งรัน/ความถี่)</option>
+              <option value="03">03H: Read Holding Registers (อ่านค่าสถานะ)</option>
+              <option value="16">10H (16): Write Multiple Registers (สั่งหลายค่า)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Target Register Address (Hex):</label>
+            <input type="text" id="modbus-reg" class="input-field" value="2001H (Control Word)" readonly>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Generated Raw TX Frame (Hex):</label>
+            <div id="tx-frame-display" style="background:#02070e;border:1px solid rgba(56,189,248,0.3);padding:0.6rem 0.85rem;border-radius:6px;font-family:var(--font-mono);font-size:0.85rem;color:#38bdf8;">
+              01 06 20 01 00 01 1A 0A
+            </div>
+          </div>
+
+          <label class="form-label" style="margin-top:0.5rem;">ประวัติการส่งข้อมูลแบบสด (Serial TX / RX Log):</label>
+          <div class="hex-terminal" id="serial-terminal">
+            <div class="tx">[TX] 01 03 21 02 00 02 6F DE -> Query Status Word</div>
+            <div class="rx">[RX] 01 03 04 00 01 00 00 3B 84 -> Status: Ready, No Fault</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ================= TAB 2: LOTO & DC DISCHARGE ================= -->
+    <div id="tab2" class="tab-pane">
+      <div class="grid-2">
+        
+        <!-- LOTO Step-by-Step Procedure -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="fa-solid fa-lock" style="color:var(--accent-amber);"></i> 6 ขั้นตอนความปลอดภัย Lockout / Tagout (LOTO)
+            </div>
+            <span class="badge badge-amber" id="loto-overall-badge">รอดำเนินการตัดแยก</span>
+          </div>
+
+          <p style="color:var(--text-muted);font-size:0.84rem;margin-bottom:1rem;">
+            มาตรฐานความปลอดภัย OSHA 29 CFR 1910.147 สำหรับการบำรุงรักษาตู้สวิตช์บอร์ดและอินเวอร์เตอร์อุตสาหกรรม (คลิกตามลำดับขั้นตอน):
+          </p>
+
+          <div class="loto-step" id="loto-step-1" onclick="toggleLotoStep(1)">
+            <div class="loto-step-num">1</div>
+            <div>
+              <div style="font-weight:700;color:#fff;font-size:0.9rem;">Preparation & Notification (แจ้งเตือนผู้ปฏิบัติงาน)</div>
+              <div style="font-size:0.8rem;color:var(--text-muted);">แจ้งหัวหน้าช่างและผู้คุมเครื่องจักรในไลน์ผลิตว่าจะทำการหยุดระบบเพื่อซ่อมบำรุง</div>
+            </div>
+          </div>
+
+          <div class="loto-step" id="loto-step-2" onclick="toggleLotoStep(2)">
+            <div class="loto-step-num">2</div>
+            <div>
+              <div style="font-weight:700;color:#fff;font-size:0.9rem;">System Shutdown (หยุดการทำงานของอินเวอร์เตอร์)</div>
+              <div style="font-size:0.8rem;color:var(--text-muted);">กดปุ่ม Stop ที่หน้าเครื่อง รอให้มอเตอร์หยุดหมุนสนิท (Ramp down to zero)</div>
+            </div>
+          </div>
+
+          <div class="loto-step" id="loto-step-3" onclick="toggleLotoStep(3)">
+            <div class="loto-step-num">3</div>
+            <div>
+              <div style="font-weight:700;color:#fff;font-size:0.9rem;">Energy Isolation (สับเบรกเกอร์ Main QF1 ตัดไฟ)</div>
+              <div style="font-size:0.8rem;color:var(--text-muted);">ปลดคันโยก Molded Case Circuit Breaker (MCCB) ขาเข้า 3 เฟส 380V สู่ตำแหน่ง OFF</div>
+            </div>
+          </div>
+
+          <div class="loto-step" id="loto-step-4" onclick="toggleLotoStep(4)">
+            <div class="loto-step-num">4</div>
+            <div>
+              <div style="font-weight:700;color:#fff;font-size:0.9rem;">Lockout & Tagout (ใส่กุญแจคล้องและป้ายเตือนอันตราย)</div>
+              <div style="font-size:0.8rem;color:var(--text-muted);">ใส่ Safety Hasps + คล้องแม่กุญแจส่วนบุคคล (Padlock) และผูกป้าย "DANGER - DO NOT OPERATE"</div>
+            </div>
+          </div>
+
+          <div class="loto-step" id="loto-step-5" onclick="toggleLotoStep(5)">
+            <div class="loto-step-num">5</div>
+            <div>
+              <div style="font-weight:700;color:#fff;font-size:0.9rem;">Stored Energy Discharge (คายประจุคาปาซิเตอร์ DC Bus)</div>
+              <div style="font-size:0.8rem;color:var(--text-muted);">รอและต่อวงจร Bleeder Resistor คายประจุแรงดัน 540V DC ที่ค้างในคาปาซิเตอร์ขนาดใหญ่</div>
+            </div>
+          </div>
+
+          <div class="loto-step" id="loto-step-6" onclick="toggleLotoStep(6)">
+            <div class="loto-step-num">6</div>
+            <div>
+              <div style="font-weight:700;color:#fff;font-size:0.9rem;">Zero Energy Verification (พิสูจน์สภาวะพลังงานศูนย์)</div>
+              <div style="font-size:0.8rem;color:var(--text-muted);">ใช้มัลติมิเตอร์วัดตามกฎ Live-Dead-Live จนมั่นใจว่าแรงดันตกค้าง &lt; 50V DC จึงปลอดภัย</div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:0.75rem;margin-top:1rem;">
+            <button class="btn btn-outline" onclick="resetLotoSteps()">
+              <i class="fa-solid fa-arrow-rotate-left"></i> รีเซ็ตขั้นตอน LOTO
+            </button>
+          </div>
+        </div>
+
+        <!-- DC Bus Capacitor Discharge Simulator -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="fa-solid fa-bolt" style="color:var(--accent-rose);"></i> จำลองการคายประจุ DC-Link Capacitor
+            </div>
+            <span class="badge badge-red" id="dc-hazard-badge">⚡ อันตราย: แรงดันสูง 540V DC</span>
+          </div>
+
+          <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(2,7,14,0.7);padding:0.75rem 1rem;border-radius:10px;border:1px solid rgba(255,255,255,0.08);margin-bottom:1rem;">
+            <div>
+              <div style="font-size:0.75rem;color:var(--text-muted);">แรงดันตกค้าง DC Bus (+ to -):</div>
+              <div style="font-size:2.2rem;font-family:var(--font-mono);font-weight:700;color:#f87171;" id="dc-volt-meter">540.0 V</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:0.75rem;color:var(--text-muted);">หลอดไฟเตือน Charge LED:</div>
+              <div id="charge-led" style="display:inline-block;width:24px;height:24px;border-radius:50%;background:#ef4444;box-shadow:0 0 15px #ef4444;margin-top:0.4rem;"></div>
+            </div>
+          </div>
+
+          <!-- Canvas Curve -->
+          <div style="background:#02070e;border-radius:8px;border:1px solid rgba(255,255,255,0.08);padding:0.5rem;margin-bottom:1rem;">
+            <canvas id="dischargeCanvas" width="480" height="200" style="width:100%;display:block;"></canvas>
+          </div>
+
+          <div style="display:flex;gap:0.75rem;">
+            <button class="btn btn-amber" id="btn-start-discharge" onclick="startDischargeSimulation()">
+              <i class="fa-solid fa-play"></i> เริ่มกระบวนการคายประจุ (Discharge)
+            </button>
+            <button class="btn btn-green" id="btn-verify-zero" onclick="verifyZeroEnergy()" disabled>
+              <i class="fa-solid fa-check-double"></i> ตรวจสอบสภาวะปลอดภัย (&lt;50V)
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ================= TAB 3: THERMAL IMAGING & HOTSPOTS ================= -->
+    <div id="tab3" class="tab-pane">
+      <div class="grid-2-1">
+        
+        <!-- Interactive Infrared Thermoscan Camera -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="fa-solid fa-camera-viewfinder" style="color:var(--accent-mint);"></i> กล้องถ่ายภาพความร้อนอินฟราเรด (Infrared Thermoscan Simulator)
+            </div>
+            <span class="badge badge-green" id="net-delta-badge">NETA: ตรวจสอบปกติ</span>
+          </div>
+
+          <p style="color:var(--text-muted);font-size:0.84rem;margin-bottom:0.75rem;">
+            เลื่อนเมาส์หรือแตะบนภาพเพื่อสแกนอุณหภูมิจุดต่อสาย R/S/T, ฮีตซิงก์ IGBT, คาปาซิเตอร์ และโช้กมอเตอร์:
+          </p>
+
+          <div class="thermo-container">
+            <canvas id="thermoCanvas" width="600" height="400"></canvas>
+            <div class="thermo-overlay" id="thermoInfoBox">
+              Point: Terminal R (Input)<br>
+              Temp: <strong>32.5 °C</strong> (Normal)
+            </div>
+          </div>
+
+          <div class="thermo-palette-bar"></div>
+          <div style="display:flex;justify-content:space-between;font-size:0.75rem;font-family:var(--font-mono);color:var(--text-muted);margin-top:0.25rem;">
+            <span>25 °C (เย็นสุด)</span>
+            <span>50 °C</span>
+            <span>75 °C</span>
+            <span>100 °C+ (จุดร้อนอันตราย)</span>
+          </div>
+        </div>
+
+        <!-- Thermal Settings & NETA Standard Analysis -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="fa-solid fa-chart-simple" style="color:var(--accent-cyan);"></i> วิเคราะห์เกณฑ์มาตรฐาน NETA / IEEE
+            </div>
+            <span class="badge badge-cyan">ΔT Analysis</span>
+          </div>
+
+          <div class="form-group">
+            <div class="form-label">
+              <span>ค่า Emissivity (ความแผ่รังสี ε):</span>
+              <span class="form-val" id="emissivity-val">0.95 (PVC/Matte)</span>
+            </div>
+            <input type="range" min="0.80" max="0.98" step="0.01" value="0.95" oninput="document.getElementById('emissivity-val').innerText = this.value">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">จานสีภาพความร้อน (Color Palette):</label>
+            <select id="palette-select" class="input-field" onchange="renderThermalImage()">
+              <option value="ironbow">Ironbow (เหล็กเผาไหม้ - นิยมสุด)</option>
+              <option value="rainbow">Rainbow (สีรุ้งคอนทราสต์สูง)</option>
+              <option value="grayscale">Grayscale (ขาว-ดำ)</option>
+            </select>
+          </div>
+
+          <div style="background:rgba(2,7,14,0.7);padding:0.85rem;border-radius:10px;border:1px solid rgba(255,255,255,0.08);margin-bottom:1rem;">
+            <div style="font-weight:700;color:#fff;font-size:0.88rem;margin-bottom:0.4rem;">ตารางเกณฑ์ผลต่างอุณหภูมิ (ΔT Criteria):</div>
+            <ul style="font-size:0.78rem;color:var(--text-muted);line-height:1.7;padding-left:1.1rem;">
+              <li><strong style="color:#34d399;">ΔT 1°C – 10°C:</strong> สภาพปกติ ไม่ต้องแก้ไขทันที (Normal)</li>
+              <li><strong style="color:#fbbf24;">ΔT 11°C – 20°C:</strong> ผิดปกติเล็กน้อย นัดตรวจสอบรอบถัดไป (Monitor)</li>
+              <li><strong style="color:#f97316;">ΔT 21°C – 40°C:</strong> จุดต่อสายหลวม ต้องซ่อมบำรุงเร็วที่สุด (Repair)</li>
+              <li><strong style="color:#ef4444;">ΔT &gt; 40°C:</strong> วิกฤต! เสี่ยงต่อการเกิดเพลิงไหม้ หยุดเครื่องทันที (Critical)</li>
+            </ul>
+          </div>
+
+          <div style="text-align:center;">
+            <button class="btn btn-green" onclick="simulateHotspotFix()">
+              <i class="fa-solid fa-wrench"></i> ขันแน่นขั้วต่อที่หลวม (Torque Tightening)
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ================= TAB 4: FAULT DIAGNOSTICS & PM CHECKLIST ================= -->
+    <div id="tab4" class="tab-pane">
+      <div class="grid-2">
+        
+        <!-- DMM Diode Mode IGBT Check Tool -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="fa-solid fa-gauge" style="color:var(--accent-amber);"></i> ทดสอบโมดูล IGBT ด้วยโหมดวัดไดโอด (Diode Check)
+            </div>
+            <span class="badge badge-amber">IGBT Health Test</span>
+          </div>
+
+          <p style="color:var(--text-muted);font-size:0.84rem;margin-bottom:1rem;">
+            การตรวจสอบสภาพความสมบูรณ์ของทรานซิสเตอร์ IGBT และ Flyback Diode ภายในโมดูล โดยการวัดแรงดันตกคร่อมไปข้างหน้า \(V_F\):
+          </p>
+
+          <div class="dmm-chassis">
+            <div class="dmm-screen" id="dmm-display">0.485 V</div>
+            <div style="text-align:center;font-size:0.8rem;color:#cbd5e1;margin-bottom:0.8rem;">
+              จุดวัดที่เลือก: <strong id="dmm-probe-label" style="color:#fbbf24;">ขั้ว U ไปยังขั้ว (+) DC Bus</strong>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+              <button class="btn btn-outline" style="font-size:0.75rem;padding:0.4rem;" onclick="testIgbtDiode('U_POS')">U -> (+) DC</button>
+              <button class="btn btn-outline" style="font-size:0.75rem;padding:0.4rem;" onclick="testIgbtDiode('POS_U')">(+) DC -> U</button>
+              <button class="btn btn-outline" style="font-size:0.75rem;padding:0.4rem;" onclick="testIgbtDiode('V_POS')">V -> (+) DC</button>
+              <button class="btn btn-outline" style="font-size:0.75rem;padding:0.4rem;" onclick="testIgbtDiode('POS_V')">(+) DC -> V</button>
+              <button class="btn btn-outline" style="font-size:0.75rem;padding:0.4rem;" onclick="testIgbtDiode('W_NEG')">W -> (-) DC</button>
+              <button class="btn btn-outline" style="font-size:0.75rem;padding:0.4rem;" onclick="testIgbtDiode('NEG_W')">(-) DC -> W</button>
+            </div>
+          </div>
+
+          <div style="margin-top:1rem;background:rgba(2,7,14,0.6);padding:0.75rem 1rem;border-radius:8px;font-size:0.8rem;color:var(--text-muted);">
+            💡 <strong>เกณฑ์ตัดสิน:</strong> ค่าปกติ \(V_F \approx 0.35\text{V} - 0.70\text{V}\) เมื่อต่อไบแอสตรง และ \(OL\) (Over Limit) เมื่อต่อไบแอสกลับ หากวัดได้ \(0.00\text{V}\) แสดงว่า IGBT ช็อตทะลุ
+          </div>
+        </div>
+
+        <!-- Inverter Fault Code Reference & Troubleshooting Tree -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="fa-solid fa-list-check" style="color:var(--accent-mint);"></i> รหัสข้อผิดพลาดและรายการตรวจซ่อมบำรุงเชิงป้องกัน (PM)
+            </div>
+            <span class="badge badge-green">Preventive Maintenance</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">จำลองรหัสฟอลต์ที่พบบนหน้าปัดอินเวอร์เตอร์:</label>
+            <select id="fault-sim-select" class="input-field" onchange="showFaultDetails(this.value)">
+              <option value="OC">OC (Overcurrent - กระแสเกินพิกัด)</option>
+              <option value="OV">OV (Overvoltage - แรงดันบัสสูงเกินขณะเบรก)</option>
+              <option value="UV">UV (Undervoltage - แรงดันแหล่งจ่ายตก)</option>
+              <option value="OH">OH (Overheat - ฮีตซิงก์ระบายความร้อนไม่ทัน)</option>
+              <option value="GF">GF (Ground Fault - กระแสไฟฟ้ารั่วลงกราวด์)</option>
+            </select>
+          </div>
+
+          <div id="fault-detail-box" style="background:rgba(2,7,14,0.7);padding:1rem;border-radius:10px;border-left:4px solid var(--accent-rose);margin-bottom:1rem;font-size:0.85rem;">
+            <strong style="color:#f87171;font-size:0.95rem;">รหัส OC: กระแสเกินพิกัด (Overcurrent)</strong><br>
+            <span style="color:#cbd5e1;"><strong>สาเหตุที่พบบ่อย:</strong> มอเตอร์ติดขัดทางกล, เวลาเร่งความเร็ว (Accel Time) สั้นเกินไป, หรือขดลวดมอเตอร์ลัดวงจร</span><br>
+            <span style="color:#34d399;"><strong>แนวทางแก้ไข:</strong> ปรับเพิ่มเวลาเร่งความเร็ว, ตรวจวัดความต้านทานฉนวน (Megger) ขดลวดมอเตอร์</span>
+          </div>
+
+          <div style="font-weight:700;color:#fff;font-size:0.88rem;margin-bottom:0.5rem;">รายการตรวจสอบรอบ 6 เดือน (PM Checklist):</div>
+          <div style="display:flex;flex-direction:column;gap:0.4rem;font-size:0.82rem;color:var(--text-muted);">
+            <label><input type="checkbox" checked> 1. ตรวจสอบการหมุนและทำความสะอาดพัดลมระบายความร้อน (Cooling Fan)</label>
+            <label><input type="checkbox" checked> 2. กวดขันนอตขั้วต่อสายไฟกำลัง R/S/T และ U/V/W ด้วยประแจปอนด์ (Torque Wrench)</label>
+            <label><input type="checkbox" checked> 3. ตรวจสอบสภาพบวม/รั่วซึมของคาปาซิเตอร์อิเล็กโทรไลต์ดีซีบัส</label>
+            <label><input type="checkbox" checked> 4. เป่าทำความสะอาดฝุ่นผงนำไฟฟ้าบนแผ่นวงจรคอนโทรลเลอร์ด้วยลมแห้ง</label>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ================= TAB 5: POST-TEST & WORKPIECE REPORT ================= -->
+    <div id="tab5" class="tab-pane">
+      <div class="grid-2">
+        
+        <!-- Post-Test Quiz (10 Questions) -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="fa-solid fa-graduation-cap" style="color:var(--accent-mint);"></i> แบบทดสอบวัดผลสัมฤทธิ์ หน่วยที่ 7 (10 ข้อ)
+            </div>
+            <span class="badge badge-green" id="quiz-score-badge">คะแนน: 0 / 10</span>
+          </div>
+
+          <div id="quiz-container" style="max-height:600px;overflow-y:auto;padding-right:0.5rem;">
+            <!-- Quiz questions generated via JavaScript -->
+          </div>
+
+          <div style="margin-top:1rem;display:flex;gap:0.75rem;">
+            <button class="btn btn-green" id="btn-submit-quiz" onclick="submitQuiz()">
+              <i class="fa-solid fa-clipboard-check"></i> ตรวจคะแนนแบบทดสอบ
+            </button>
+            <button class="btn btn-outline" onclick="resetQuiz()">
+              <i class="fa-solid fa-rotate-left"></i> ทำใหม่
+            </button>
+          </div>
+        </div>
+
+        <!-- Workpiece Submission Form & Report -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="fa-solid fa-file-invoice" style="color:var(--accent-cyan);"></i> รายงานผลการตรวจซ่อมบำรุงเชิงป้องกัน (Workpiece Report)
+            </div>
+            <span class="badge badge-cyan">ชิ้นงานหน่วยที่ 7</span>
+          </div>
+
+          <form id="submission-form" onsubmit="submitWorkpiece(event)">
+            <div class="form-group">
+              <label class="form-label">ชื่อ-นามสกุล ผู้ปฏิบัติงาน:</label>
+              <input type="text" id="student-name" class="input-field" placeholder="นาย/นางสาว..." required>
+            </div>
+
+            <div class="form-group">
+              <div class="form-label">
+                <span>รหัสประจำตัวนักศึกษา:</span>
+                <span id="id-warn" style="color:#ef4444;display:none;font-size:0.75rem;">⚠️ รหัสนี้เคยส่งงานแล้ว ห้ามส่งซ้ำ!</span>
+              </div>
+              <input type="text" id="student-id" class="input-field" placeholder="เช่น 6630105001" oninput="validateStudentId(this.value)" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">กลุ่ม/ตอนเรียน:</label>
+              <input type="text" id="student-group" class="input-field" placeholder="เช่น สฟ.2/1" required>
+            </div>
+
+            <!-- Auto-Populated Summary Box -->
+            <div style="background:rgba(2,7,14,0.8);border:1px solid rgba(16,185,129,0.25);border-radius:10px;padding:1rem;margin-bottom:1.25rem;font-size:0.84rem;color:#cbd5e1;">
+              <div style="font-weight:700;color:var(--accent-mint);margin-bottom:0.5rem;font-size:0.9rem;">
+                📋 ข้อมูลสรุปผลการปฏิบัติการ:
+              </div>
+              <div>• สั่งการผ่าน Modbus RTU: <span id="rep-modbus" style="color:#fff;">Slave 01: Freq 50.00 Hz</span></div>
+              <div>• กระบวนการ LOTO 6 ขั้นตอน: <span id="rep-loto" style="color:#fff;">ผ่านการตัดแยกพลังงานสมบูรณ์</span></div>
+              <div>• แรงดันคายประจุ DC Bus: <span id="rep-dc" style="color:#fff;">12.4 V (ปลอดภัยต่อการสัมผัส &lt;50V)</span></div>
+              <div>• ผลตรวจวัดเทอร์โมสแกน: <span id="rep-thermo" style="color:#fff;">ΔT = 4.2°C (NETA Normal)</span></div>
+              <div>• การทดสอบไดโอด IGBT: <span id="rep-igbt" style="color:#fff;">สมบูรณ์ปกติทุกเฟส (VF 0.485V)</span></div>
+              <div>• คะแนนแบบทดสอบ: <strong id="rep-quiz-score" style="color:var(--accent-mint);">0 / 10</strong></div>
+            </div>
+
+            <div class="btn-submit-area" style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+              <button type="submit" class="btn btn-green" id="btn-submit-all" style="flex:1;">
+                <i class="fa-solid fa-paper-plane"></i> บันทึกข้อมูลเข้า Google Sheets
+              </button>
+              <button type="button" class="btn btn-outline" onclick="window.print()">
+                <i class="fa-solid fa-print"></i> พิมพ์รายงาน PDF
+              </button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Teacher Settings Modal -->
+  <div id="teacher-modal" class="modal-backdrop">
+    <div class="modal-content">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
+        <h3 style="color:#fff;font-family:var(--font-display);font-size:1.2rem;display:flex;align-items:center;gap:0.5rem;">
+          <i class="fa-solid fa-chalkboard-user" style="color:var(--accent-mint);"></i> ระบบตั้งค่าสำหรับครูผู้สอน (Unit 7)
+        </h3>
+        <button onclick="toggleTeacherModal(false)" style="background:none;border:none;color:#94a3b8;font-size:1.2rem;cursor:pointer;">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Google Apps Script Web App URL สำหรับ Unit 7:</label>
+        <input type="text" id="teacher-gas-url" class="input-field" placeholder="https://script.google.com/macros/s/.../exec">
+        <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.35rem;">
+          * หากบันทึกแล้ว ระบบจะจัดเก็บใน LocalStorage ของเครื่องนี้ และใช้ส่งคะแนนอัตโนมัติ
+        </div>
+      </div>
+
+      <div style="display:flex;gap:0.75rem;margin-bottom:1.5rem;">
+        <button class="btn btn-green" onclick="saveTeacherGasUrl()">
+          <i class="fa-solid fa-floppy-disk"></i> บันทึก URL
+        </button>
+        <button class="btn btn-outline" onclick="copyShareLink()">
+          <i class="fa-solid fa-link"></i> คัดลอกลิงก์ให้นักเรียน (?gas=)
+        </button>
+      </div>
+
+      <div style="border-top:1px solid rgba(255,255,255,0.08);padding-top:1rem;">
+        <div style="font-weight:700;color:#fff;font-size:0.9rem;margin-bottom:0.5rem;">ระบบล้างแคชประวัติการส่งซ้ำ (Anti-Cheat Reset):</div>
+        <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:0.75rem;">
+          ใช้สำหรับเปิดโอกาสให้นักศึกษาทดสอบส่งคะแนนใหม่ในเครื่องนี้
+        </p>
+        <button class="btn btn-red" onclick="resetUnitAntiCheat()">
+          <i class="fa-solid fa-trash-can"></i> ล้างประวัติส่งซ้ำเฉพาะหน่วยที่ 7
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast"></div>
+
+  <!-- JavaScript Implementation -->
+  <script>
+    // --- Global Storage & Keys ---
+    const UNIT7_GAS_KEY = 'power_unit7_gas_url';
+    const MASTER_GAS_KEY = 'elec_power_master_gas_url';
+    const SUBMITTED_KEY = 'submitted_student_ids_unit7';
+
+    // --- Tab Navigation ---
+    function switchTab(tabId, btn) {
+      document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-tab-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      if (btn) btn.classList.add('active');
+      if (tabId === 'tab2') renderDischargeGraph(dcVoltage);
+      if (tabId === 'tab3') renderThermalImage();
+    }
+
+    // --- Toast Notification ---
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.innerText = msg;
+      t.style.display = 'block';
+      setTimeout(() => { t.style.display = 'none'; }, 3500);
+    }
+
+    // ================= TAB 1: MODBUS RTU LOGIC =================
+    let targetFreq = 50.0;
+    let actualFreq = 0.0;
+    let motorRpm = 0;
+    let motorCurrent = 0.0;
+    let motorRunning = false;
+    let motorDirection = 1; // 1 = FWD, -1 = REV
+    let animTimer = null;
+
+    function updateSetFreq(val) {
+      targetFreq = parseFloat(val);
+      document.getElementById('set-freq-label').innerText = targetFreq.toFixed(2) + ' Hz';
+      generateModbusPacket();
+      if (motorRunning) {
+        logModbus('TX', `01 06 20 02 ${toHex16(Math.round(targetFreq * 100))} -> Set Freq ${targetFreq.toFixed(2)}Hz`);
+      }
+    }
+
+    function toHex16(num) {
+      return ('0000' + (num & 0xFFFF).toString(16).toUpperCase()).slice(-4).match(/.{2}/g).join(' ');
+    }
+
+    function generateModbusPacket() {
+      const fc = document.getElementById('modbus-fc').value;
+      let pdu = '';
+      if (fc === '06') {
+        const valHex = toHex16(Math.round(targetFreq * 100));
+        pdu = `01 06 20 02 ${valHex} 4C 18`;
+      } else if (fc === '03') {
+        pdu = '01 03 21 00 00 04 4F 35';
+      } else {
+        pdu = '01 10 20 01 00 02 04 00 01 13 88 74 1A';
+      }
+      document.getElementById('tx-frame-display').innerText = pdu;
+    }
+
+    function sendHmiCommand(cmd) {
+      const statusBadge = document.getElementById('hmi-comm-badge');
+      statusBadge.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Transmitting...';
+      setTimeout(() => {
+        statusBadge.innerHTML = '<i class="fa-solid fa-circle" style="font-size:0.55rem;"></i> RS-485 Modbus Online';
+      }, 300);
+
+      if (cmd === 'RUN_FWD') {
+        motorRunning = true;
+        motorDirection = 1;
+        document.getElementById('hmi-status-word').innerText = 'STATUS: RUNNING (FWD)';
+        logModbus('TX', '01 06 20 01 00 01 1A 0A -> Command RUN FWD');
+        logModbus('RX', '01 06 20 01 00 01 1A 0A -> Ack Success (Motor Accelerating)');
+        startMotorAnimation();
+      } else if (cmd === 'RUN_REV') {
+        motorRunning = true;
+        motorDirection = -1;
+        document.getElementById('hmi-status-word').innerText = 'STATUS: RUNNING (REV)';
+        logModbus('TX', '01 06 20 01 00 02 5A 0B -> Command RUN REV');
+        logModbus('RX', '01 06 20 01 00 02 5A 0B -> Ack Success (Motor Reversing)');
+        startMotorAnimation();
+      } else if (cmd === 'STOP') {
+        motorRunning = false;
+        document.getElementById('hmi-status-word').innerText = 'STATUS: STOPPING (DECEL)';
+        logModbus('TX', '01 06 20 01 00 05 9B CA -> Command DECEL STOP');
+        logModbus('RX', '01 06 20 01 00 05 9B CA -> Ack Success');
+      } else if (cmd === 'RESET') {
+        document.getElementById('hmi-status-word').innerText = 'STATUS: READY / NO FAULT';
+        logModbus('TX', '01 06 20 01 00 08 DB CD -> Command FAULT RESET');
+        logModbus('RX', '01 06 20 01 00 08 DB CD -> Ack Reset Complete');
+      }
+    }
+
+    function startMotorAnimation() {
+      if (animTimer) clearInterval(animTimer);
+      animTimer = setInterval(() => {
+        if (motorRunning) {
+          if (actualFreq < targetFreq) {
+            actualFreq = Math.min(targetFreq, actualFreq + 1.5);
+          } else if (actualFreq > targetFreq) {
+            actualFreq = Math.max(targetFreq, actualFreq - 1.5);
+          }
+        } else {
+          actualFreq = Math.max(0, actualFreq - 2.0);
+          if (actualFreq === 0) {
+            document.getElementById('hmi-status-word').innerText = 'STATUS: READY / STOP';
+            clearInterval(animTimer);
+          }
+        }
+
+        motorRpm = Math.round((actualFreq * 120 / 4) * 0.96) * motorDirection; // 4-pole motor slip
+        motorCurrent = actualFreq > 0 ? (2.1 + (actualFreq / 50) * 3.4).toFixed(1) : '0.0';
+        const vOut = actualFreq > 0 ? Math.round((actualFreq / 50) * 380) : 0;
+        const pwr = actualFreq > 0 ? ((parseFloat(motorCurrent) * vOut * 1.732 * 0.85) / 1000).toFixed(2) : '0.00';
+
+        document.getElementById('hmi-freq-val').innerText = actualFreq.toFixed(2);
+        document.getElementById('hmi-rpm-val').innerText = motorRpm;
+        document.getElementById('hmi-curr-val').innerText = motorCurrent;
+        document.getElementById('hmi-vout-val').innerText = vOut + ' V';
+        document.getElementById('hmi-pwr-val').innerText = pwr + ' kW';
+
+        // Update workpiece summary
+        document.getElementById('rep-modbus').innerText = `Slave 01: Freq ${actualFreq.toFixed(2)} Hz, ${motorRpm} RPM, ${motorCurrent} A`;
+      }, 100);
+    }
+
+    function logModbus(type, text) {
+      const term = document.getElementById('serial-terminal');
+      const div = document.createElement('div');
+      div.className = type.toLowerCase();
+      div.innerText = `[${type}] ${text}`;
+      term.appendChild(div);
+      term.scrollTop = term.scrollHeight;
+    }
+
+    // ================= TAB 2: LOTO & DC DISCHARGE =================
+    let lotoSteps = [false, false, false, false, false, false];
+    let dcVoltage = 540.0;
+    let dischargeTimer = null;
+
+    function toggleLotoStep(stepNum) {
+      // Must follow order
+      if (stepNum > 1 && !lotoSteps[stepNum - 2]) {
+        showToast(`⚠️ กรุณาดำเนินการขั้นตอนที่ ${stepNum - 1} ให้เรียบร้อยก่อน`);
+        return;
+      }
+      lotoSteps[stepNum - 1] = true;
+      document.getElementById(`loto-step-${stepNum}`).classList.add('done');
+
+      const completed = lotoSteps.filter(Boolean).length;
+      if (completed === 6) {
+        document.getElementById('loto-overall-badge').innerText = 'ตัดแยกพลังงานสมบูรณ์ (LOTO 100%)';
+        document.getElementById('loto-overall-badge').className = 'badge badge-green';
+        document.getElementById('rep-loto').innerText = 'ผ่านการตัดแยกพลังงาน 6 ขั้นตอนตามมาตรฐาน OSHA';
+      }
+    }
+
+    function resetLotoSteps() {
+      lotoSteps = [false, false, false, false, false, false];
+      for (let i = 1; i <= 6; i++) {
+        document.getElementById(`loto-step-${i}`).classList.remove('done');
+      }
+      document.getElementById('loto-overall-badge').innerText = 'รอดำเนินการตัดแยก';
+      document.getElementById('loto-overall-badge').className = 'badge badge-amber';
+    }
+
+    function startDischargeSimulation() {
+      if (!lotoSteps[2]) {
+        showToast('⚠️ ต้องสับเบรกเกอร์ Main QF1 ตัดไฟก่อนเริ่มคายประจุ (LOTO Step 3)');
+        return;
+      }
+      document.getElementById('btn-start-discharge').disabled = true;
+      const startTime = Date.now();
+      const initialV = 540.0;
+      const tau = 4.2; // seconds
+
+      if (dischargeTimer) clearInterval(dischargeTimer);
+      dischargeTimer = setInterval(() => {
+        const elapsed = (Date.now() - startTime) / 1000;
+        dcVoltage = Math.max(12.0, initialV * Math.exp(-elapsed / tau));
+        document.getElementById('dc-volt-meter').innerText = dcVoltage.toFixed(1) + ' V';
+        renderDischargeGraph(dcVoltage);
+
+        if (dcVoltage < 50.0) {
+          document.getElementById('charge-led').style.background = '#34d399';
+          document.getElementById('charge-led').style.boxShadow = '0 0 10px #34d399';
+          document.getElementById('dc-hazard-badge').className = 'badge badge-green';
+          document.getElementById('dc-hazard-badge').innerText = '✓ ปลอดภัยต่อการสัมผัส (<50V)';
+          document.getElementById('btn-verify-zero').disabled = false;
+          toggleLotoStep(5);
+        }
+
+        if (dcVoltage <= 12.0) {
+          clearInterval(dischargeTimer);
+        }
+      }, 50);
+    }
+
+    function verifyZeroEnergy() {
+      toggleLotoStep(6);
+      document.getElementById('rep-dc').innerText = `${dcVoltage.toFixed(1)} V (กฎ Live-Dead-Live ผ่านเกณฑ์ ปลอดภัย)`;
+      showToast('✓ พิสูจน์สภาวะพลังงานศูนย์ (Zero Energy Verification) เรียบร้อย ปลอดภัยต่อการทำงาน!');
+    }
+
+    function renderDischargeGraph(currentV) {
+      const canvas = document.getElementById('dischargeCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width;
+      const h = canvas.height;
+
+      ctx.fillStyle = '#02070e';
+      ctx.fillRect(0, 0, w, h);
+
+      // Grid lines
+      ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+      ctx.lineWidth = 1;
+      for (let y = 30; y < h; y += 40) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+      }
+
+      // 50V Safety threshold line
+      const safeY = h - (50 / 600) * (h - 40) - 20;
+      ctx.strokeStyle = 'rgba(16, 185, 129, 0.4)';
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.moveTo(0, safeY);
+      ctx.lineTo(w, safeY);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#34d399';
+      ctx.font = '10px JetBrains Mono';
+      ctx.fillText('Safety Limit 50V DC', 10, safeY - 5);
+
+      // Curve
+      ctx.strokeStyle = '#ef4444';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      for (let x = 0; x < w; x++) {
+        const t = (x / w) * 15;
+        const v = 540 * Math.exp(-t / 4.2);
+        const y = h - (v / 600) * (h - 40) - 20;
+        if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    }
+
+    // ================= TAB 3: THERMOSCAN SIMULATOR =================
+    let hotspotFixed = false;
+    const hotSpots = [
+      { name: 'Terminal R (Input Bolt)', x: 120, y: 80, normalT: 34.0, faultT: 86.5 },
+      { name: 'Terminal S (Input Bolt)', x: 180, y: 80, normalT: 33.5, faultT: 33.5 },
+      { name: 'Terminal T (Input Bolt)', x: 240, y: 80, normalT: 34.0, faultT: 34.0 },
+      { name: 'IGBT Module Heat Sink', x: 200, y: 220, normalT: 52.0, faultT: 55.0 },
+      { name: 'DC-Link Capacitor Bank', x: 380, y: 160, normalT: 41.0, faultT: 42.5 },
+      { name: 'Motor Output Choke', x: 420, y: 290, normalT: 48.0, faultT: 49.0 }
+    ];
+
+    function renderThermalImage() {
+      const canvas = document.getElementById('thermoCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width;
+      const h = canvas.height;
+
+      // Dark background
+      ctx.fillStyle = '#060f1c';
+      ctx.fillRect(0, 0, w, h);
+
+      // Draw cabinet outline
+      ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+      ctx.strokeRect(50, 40, 500, 320);
+
+      // Render heat zones
+      hotSpots.forEach(pt => {
+        const t = (hotspotFixed && pt.name.includes('Terminal R')) ? pt.normalT : pt.faultT;
+        const rad = 50 + (t / 100) * 35;
+        const grad = ctx.createRadialGradient(pt.x, pt.y, 4, pt.x, pt.y, rad);
+
+        if (t > 75) {
+          grad.addColorStop(0, '#ffffff');
+          grad.addColorStop(0.3, '#ff0000');
+          grad.addColorStop(0.7, '#ffaa00');
+          grad.addColorStop(1, 'transparent');
+        } else if (t > 50) {
+          grad.addColorStop(0, '#ffbb00');
+          grad.addColorStop(0.5, '#00ff00');
+          grad.addColorStop(1, 'transparent');
+        } else {
+          grad.addColorStop(0, '#00ffff');
+          grad.addColorStop(0.6, '#0000ff');
+          grad.addColorStop(1, 'transparent');
+        }
+
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, rad, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Draw component label
+        ctx.fillStyle = 'rgba(255,255,255,0.7)';
+        ctx.font = '11px Sarabun';
+        ctx.fillText(`${pt.name}: ${t.toFixed(1)}°C`, pt.x - 40, pt.y + 40);
+      });
+    }
+
+    // Canvas Mousemove handler for Crosshair Point Probe
+    document.addEventListener('DOMContentLoaded', () => {
+      const canvas = document.getElementById('thermoCanvas');
+      if (canvas) {
+        canvas.addEventListener('mousemove', (e) => {
+          const rect = canvas.getBoundingClientRect();
+          const scaleX = canvas.width / rect.width;
+          const scaleY = canvas.height / rect.height;
+          const mouseX = (e.clientX - rect.left) * scaleX;
+          const mouseY = (e.clientY - rect.top) * scaleY;
+
+          // Find nearest hot spot
+          let nearest = hotSpots[0];
+          let minDist = 9999;
+          hotSpots.forEach(pt => {
+            const d = Math.hypot(pt.x - mouseX, pt.y - mouseY);
+            if (d < minDist) { minDist = d; nearest = pt; }
+          });
+
+          const currentT = (hotspotFixed && nearest.name.includes('Terminal R')) ? nearest.normalT : nearest.faultT;
+          const box = document.getElementById('thermoInfoBox');
+          box.innerHTML = `Component: <strong>${nearest.name}</strong><br>Measured Temp: <strong style="color:${currentT > 60 ? '#f87171' : '#34d399'}">${currentT.toFixed(1)} °C</strong>`;
+
+          const deltaT = currentT - 30.0; // Ambient is 30C
+          const badge = document.getElementById('net-delta-badge');
+          if (deltaT > 40) {
+            badge.className = 'badge badge-red';
+            badge.innerText = `NETA Critical: ΔT = ${deltaT.toFixed(1)}°C`;
+          } else {
+            badge.className = 'badge badge-green';
+            badge.innerText = `NETA Normal: ΔT = ${deltaT.toFixed(1)}°C`;
+          }
+        });
+      }
+    });
+
+    function simulateHotspotFix() {
+      hotspotFixed = true;
+      renderThermalImage();
+      document.getElementById('net-delta-badge').className = 'badge badge-green';
+      document.getElementById('net-delta-badge').innerText = 'NETA: ขันแน่นแล้ว ΔT = 4.0°C (ปกติ)';
+      document.getElementById('rep-thermo').innerText = 'ΔT = 4.0°C หลังขันแน่นขั้วต่อ R/S/T (NETA Normal)';
+      showToast('✓ ดำเนินการขันกวดแน่นขั้วต่อ Terminal R ด้วยประแจปอนด์ (15 Nm) เรียบร้อย อุณหภูมิลดลงสู่เกณฑ์ปกติ!');
+    }
+
+    // ================= TAB 4: FAULT DIAGNOSTICS LOGIC =================
+    function testIgbtDiode(point) {
+      const d = document.getElementById('dmm-display');
+      const label = document.getElementById('dmm-probe-label');
+
+      if (point.startsWith('U_') || point.startsWith('V_') || point.startsWith('W_')) {
+        d.innerText = '0.485 V';
+        d.style.color = '#0f172a';
+        label.innerText = `ไบแอสตรง (${point}): นำกระแสปกติ`;
+      } else {
+        d.innerText = 'OL';
+        d.style.color = '#0f172a';
+        label.innerText = `ไบแอสกลับ (${point}): ไม่นำกระแส (Over Limit ปกติ)`;
+      }
+    }
+
+    function showFaultDetails(code) {
+      const box = document.getElementById('fault-detail-box');
+      if (code === 'OC') {
+        box.innerHTML = '<strong style="color:#f87171;font-size:0.95rem;">รหัส OC: กระแสเกินพิกัด (Overcurrent)</strong><br><span style="color:#cbd5e1;"><strong>สาเหตุ:</strong> มอเตอร์ติดขัดทางกล, เวลาเร่งความเร็วสั้นเกินไป, หรือขดลวดลัดวงจร</span><br><span style="color:#34d399;"><strong>แนวทางแก้ไข:</strong> เพิ่มเวลา Accel Time, ตรวจวัดฉนวนขดลวดมอเตอร์ด้วย Megger</span>';
+      } else if (code === 'OV') {
+        box.innerHTML = '<strong style="color:#fbbf24;font-size:0.95rem;">รหัส OV: แรงดันดีซีบัสสูงเกิน (Overvoltage)</strong><br><span style="color:#cbd5e1;"><strong>สาเหตุ:</strong> พลังงานป้อนกลับขณะเบรก (Regenerative Braking) โดยไม่มี Braking Resistor</span><br><span style="color:#34d399;"><strong>แนวทางแก้ไข:</strong> เพิ่มเวลา Decel Time หรือติดตั้งตัวต้านทานเบรกภายนอก (Braking Resistor)</span>';
+      } else if (code === 'UV') {
+        box.innerHTML = '<strong style="color:#38bdf8;font-size:0.95rem;">รหัส UV: แรงดันไฟตกชั่วขณะ (Undervoltage)</strong><br><span style="color:#cbd5e1;"><strong>สาเหตุ:</strong> ไฟฟ้าต้นทางตกชั่วขณะ (Voltage Sag) หรือแมกเนติกคอนแทกเตอร์ขาเข้าอาร์ก</span><br><span style="color:#34d399;"><strong>แนวทางแก้ไข:</strong> ตรวจวัดแรงดันไฟ 3 เฟส 380V และตรวจสอบขั้วต่อ Main Breaker</span>';
+      } else if (code === 'OH') {
+        box.innerHTML = '<strong style="color:#f87171;font-size:0.95rem;">รหัส OH: ฮีตซิงก์อินเวอร์เตอร์ร้อนเกิน (Overheat)</strong><br><span style="color:#cbd5e1;"><strong>สาเหตุ:</strong> พัดลมระบายความร้อนเสีย ฝุ่นผงอุดตันรังผึ้ง หรืออุณหภูมิห้องควบคุมสูงเกิน 40°C</span><br><span style="color:#34d399;"><strong>แนวทางแก้ไข:</strong> เป่าฝุ่นทำความสะอาดฮีตซิงก์ และเปลี่ยนพัดลมระบายความร้อนตัวใหม่</span>';
+      } else if (code === 'GF') {
+        box.innerHTML = '<strong style="color:#f87171;font-size:0.95rem;">รหัส GF: กระแสรั่วลงกราวด์ (Ground Fault)</strong><br><span style="color:#cbd5e1;"><strong>สาเหตุ:</strong> ฉนวนสายเคเบิลมอเตอร์ฉีกขาด หรือขดลวดมอเตอร์ชื้นรั่วลงโครงโลหะ</span><br><span style="color:#34d399;"><strong>แนวทางแก้ไข:</strong> ใช้ Insulation Tester วัดความต้านทานเทียบกราวด์ (ต้อง &gt; 5 Megaohms)</span>';
+      }
+    }
+
+    // ================= TAB 5: QUIZ LOGIC (10 QUESTIONS) =================
+    const quizData = [
+      {
+        q: "1. ในการสื่อสารเครือข่าย Modbus RTU รหัสคำสั่ง Function Code 06H มีหน้าที่ตรงกับข้อใด?",
+        options: ["อ่านค่า Holding Registers", "เขียนค่าลงในรีจิสเตอร์เดี่ยว (Write Single Register)", "อ่านสถานะอินพุตดิจิทัล", "ตรวจสอบอัตราความเร็ว Baud Rate"],
+        ans: 1,
+        exp: "FC 06H ใช้สำหรับเขียนค่าลงในรีจิสเตอร์ตำแหน่งเดียว เช่น ส่งคำสั่งรันหรือตั้งความถี่"
+      },
+      {
+        q: "2. การตรวจสอบความถูกต้องของข้อมูลในโปรโตคอล Modbus RTU ท้ายเฟรมใช้การคำนวณแบบใด?",
+        options: ["Parity Bit แบบคู่", "Checksum 8-bit", "CRC-16 (Cyclic Redundancy Check)", "LRC (Longitudinal Redundancy)"],
+        ans: 2,
+        exp: "Modbus RTU ใช้รหัสตรวจสอบข้อผิดพลาดขนาด 16 บิต (CRC-16)"
+      },
+      {
+        q: "3. มาตรฐานความปลอดภัย LOTO มีวัตถุประสงค์หลักเพื่อสิ่งใด?",
+        options: ["เพิ่มความเร็วในการผลิต", "ป้องกันการเปิดจ่ายพลังงานโดยไม่ตั้งใจขณะซ่อมบำรุง", "ลดค่าไฟฟ้าของโรงงาน", "ตั้งรหัสผ่านล็อกหน้าจอ HMI"],
+        ans: 1,
+        exp: "LOTO ป้องกันอันตรายจากการจ่ายกระแสไฟฟ้าหรือพลังงานสะสมขณะมีผู้ปฏิบัติงานอยู่ในจุดอันตราย"
+      },
+      {
+        q: "4. หลังตัดกระแสไฟฟ้าหลักของอินเวอร์เตอร์ 3 เฟส 380V แรงดันตกค้างที่ DC Bus จะมีค่าเริ่มต้นประมาณกี่โวลต์?",
+        options: ["220 V DC", "380 V DC", "ประมาณ 540 V DC (380 x √2)", "0 V ทันที"],
+        ans: 2,
+        exp: "แรงดัน DC Bus ได้จากการเรียงกระแส 3 เฟส 380V x √2 ≈ 537V - 540V DC"
+      },
+      {
+        q: "5. ตามมาตรฐานความปลอดภัย แรงดันตกค้างที่ DC Bus ต้องลดลงต่ำกว่ากี่โวลต์ จึงจะถือว่าปลอดภัยต่อการสัมผัส?",
+        options: ["ต่ำกว่า 100 V DC", "ต่ำกว่า 50 V DC", "ต่ำกว่า 24 V DC", "ต่ำกว่า 12 V DC"],
+        ans: 1,
+        exp: "ตามข้อกำหนด OSHA / NFPA แรงดันไฟฟ้าที่ต่ำกว่า 50V ถือว่าปลอดภัยต่อการสัมผัสและไม่เกิดประกายไฟอันตราย"
+      },
+      {
+        q: "6. กฎ 'Live-Dead-Live' ในการใช้มัลติมิเตอร์วัดความปลอดภัย มีลำดับขั้นตอนอย่างไร?",
+        options: ["วัดจุดซ่อม -> วัดแบตเตอรี่ -> วัดจุดซ่อม", "วัดแหล่งไฟที่มีอยู่ -> วัดจุดที่ตัดไฟแล้ว -> วัดแหล่งไฟที่มีอยู่อีกครั้งเพื่อทดสอบมิเตอร์", "วัดกระแส -> วัดแรงดัน -> วัดความต้านทาน", "วัดสายดิน -> วัดเฟส -> วัดนิวทรัล"],
+        ans: 1,
+        exp: "Live-Dead-Live คือการยืนยันว่ามิเตอร์ทำงานปกติทั้งก่อนและหลังการวัดจุดที่ตัดไฟแล้ว"
+      },
+      {
+        q: "7. ในการถ่ายภาพความร้อนด้วยกล้อง Thermoscan หากพบผลต่างอุณหภูมิระหว่างเฟส ΔT = 25°C ตามเกณฑ์ NETA จัดอยู่ในระดับใด?",
+        options: ["ปกติ ไม่ต้องแก้ไข", "ผิดปกติเล็กน้อย เฝ้าระวังรอบถัดไป", "ผิดปกติ ต้องซ่อมแซมกวดขันแน่นโดยเร็วที่สุด (Repair)", "ไม่สามารถวิเคราะห์ได้"],
+        ans: 2,
+        exp: "ΔT 21°C - 40°C บ่งชี้ว่าจุดต่อสายมีความต้านทานสัมผัสสูง ต้องขันแน่นหรือแก้ไขโดยเร็ว"
+      },
+      {
+        q: "8. การทดสอบโมดูล IGBT ขาออกไปยังขั้วบวก (+) DC Bus ในโหมดไดโอด หากวัดได้ค่า 0.00 V ทั้งสองทิศทาง หมายความว่าอย่างไร?",
+        options: ["IGBT ทำงานสมบูรณ์แบบ", "IGBT ลัดวงจรทะลุ (Short-Circuit) เสียหาย", "IGBT เปิดวงจร (Open-Circuit)", "สายมิเตอร์ขาด"],
+        ans: 1,
+        exp: "หากวัดได้ 0.00V แสดงว่าชั้นสารกึ่งตัวนำภายในทะลุช็อตเข้าหากัน"
+      },
+      {
+        q: "9. เมื่ออินเวอร์เตอร์แสดงรหัสฟอลต์ 'OV' (Overvoltage) ขณะมอเตอร์กำลังหยุด สาเหตุหลักเกิดจากสิ่งใด?",
+        options: ["สายมอเตอร์หลุด", "มอเตอร์เกิดการเหนี่ยวนำพลังงานป้อนกลับ (Regeneration) สู่ DC Bus มากเกินไป", "ไฟตกชั่วขณะ", "พัดลมเสีย"],
+        ans: 1,
+        exp: "ขณะลดความเร็ว มอเตอร์จะกลายเป็นเครื่องกำเนิดไฟฟ้าส่งพลังงานกลับเข้า DC Bus ทำให้แรงดันพุ่งสูงเกินพิกัด"
+      },
+      {
+        q: "10. การบำรุงรักษาเชิงป้องกัน (PM) ของอินเวอร์เตอร์รอบ 6 เดือน ข้อใดมีความสำคัญในการป้องกันความร้อนสะสม?",
+        options: ["การเปลี่ยนสีตู้คอนโทรล", "การเป่าฝุ่นทำความสะอาดครีบระบายความร้อนและตรวจสภาพพัดลม", "การลดความเร็วรอบมอเตอร์ลงครึ่งหนึ่ง", "การปิดเครื่องทิ้งไว้ 3 วัน"],
+        ans: 1,
+        exp: "ฝุ่นผงที่อุดตันครีบระบายความร้อนและพัดลมที่ฝืดจะทำให้ IGBT ร้อนจัดและตัดการทำงานด้วยฟอลต์ Overheat"
+      }
+    ];
+
+    let quizScore = 0;
+    let quizDone = false;
+
+    function renderQuiz() {
+      const c = document.getElementById('quiz-container');
+      c.innerHTML = quizData.map((item, idx) => `
+        <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:1rem;margin-bottom:1rem;">
+          <div style="font-weight:700;color:#fff;font-size:0.9rem;margin-bottom:0.75rem;">${item.q}</div>
+          <div>
+            ${item.options.map((opt, optIdx) => `
+              <label class="quiz-option" id="q${idx}_opt${optIdx}">
+                <input type="radio" name="quiz_q${idx}" value="${optIdx}">
+                <span>${opt}</span>
+              </label>
+            `).join('')}
+          </div>
+          <div id="q${idx}_exp" style="display:none;font-size:0.8rem;color:#38bdf8;margin-top:0.5rem;padding:0.4rem 0.6rem;background:rgba(56,189,248,0.1);border-radius:6px;"></div>
+        </div>
+      `).join('');
+    }
+
+    function submitQuiz() {
+      quizScore = 0;
+      let unanswered = 0;
+
+      quizData.forEach((item, idx) => {
+        const selected = document.querySelector(`input[name="quiz_q${idx}"]:checked`);
+        const expBox = document.getElementById(`q${idx}_exp`);
+        if (expBox) expBox.style.display = 'none'; // Keep hidden, do not reveal explanation
+
+        if (selected) {
+          const val = parseInt(selected.value);
+          if (val === item.ans) {
+            quizScore++;
+          }
+        } else {
+          unanswered++;
+        }
+      });
+
+      quizDone = true;
+      document.getElementById('quiz-score-badge').innerText = `คะแนนที่ได้: ${quizScore} / 10`;
+      document.getElementById('rep-quiz-score').innerText = `${quizScore} / 10`;
+      showToast(`✓ ตรวจคะแนนเสร็จสิ้น คุณได้คะแนน: ${quizScore} / 10`);
+    }
+
+    function resetQuiz() {
+      quizScore = 0;
+      quizDone = false;
+      document.getElementById('quiz-score-badge').innerText = 'คะแนน: 0 / 10';
+      document.getElementById('rep-quiz-score').innerText = '0 / 10';
+      renderQuiz();
+    }
+
+    // ================= ANTI-DUPLICATE & WORKPIECE SUBMISSION =================
+    function validateStudentId(id) {
+      const cleanId = String(id).trim();
+      const submitted = JSON.parse(localStorage.getItem(SUBMITTED_KEY) || '[]');
+      const warn = document.getElementById('id-warn');
+      const btn = document.getElementById('btn-submit-all');
+
+      if (cleanId && submitted.includes(cleanId)) {
+        warn.style.display = 'inline';
+        btn.disabled = true;
+        btn.style.opacity = '0.5';
+      } else {
+        warn.style.display = 'none';
+        btn.disabled = false;
+        btn.style.opacity = '1';
+      }
+    }
+
+    async function submitWorkpiece(e) {
+      e.preventDefault();
+      const studentId = document.getElementById('student-id').value.trim();
+      const studentName = document.getElementById('student-name').value.trim();
+      const studentGroup = document.getElementById('student-group').value.trim();
+
+      if (!studentId || !studentName) {
+        showToast('⚠️ กรุณากรอกชื่อและรหัสนักศึกษาให้ครบถ้วน');
+        return;
+      }
+
+      // Check client anti-duplicate
+      const submitted = JSON.parse(localStorage.getItem(SUBMITTED_KEY) || '[]');
+      if (submitted.includes(studentId)) {
+        showToast('❌ รหัสนักศึกษานี้เคยส่งงานแล้ว ห้ามส่งซ้ำ!');
+        return;
+      }
+
+      const gasUrl = localStorage.getItem(UNIT7_GAS_KEY) || localStorage.getItem(MASTER_GAS_KEY) || '';
+      if (!gasUrl) {
+        if (!confirm('ยังไม่ได้ระบุ Google Apps Script URL ในระบบครูผู้สอน คุณต้องการบันทึกในเครื่องและพิมพ์รายงานแทนใช่หรือไม่?')) {
+          toggleTeacherModal(true);
+          return;
+        }
+      }
+
+      const payload = {
+        studentId: studentId,
+        studentName: studentName,
+        studentGroup: studentGroup,
+        modbusCommand: `Slave 01: Freq ${actualFreq.toFixed(2)} Hz`,
+        setFrequency: actualFreq.toFixed(2),
+        rpmAndCurrent: `${motorRpm} RPM / ${motorCurrent} A`,
+        lotoStatus: lotoSteps.filter(Boolean).length === 6 ? 'Verified Zero Energy (LOTO 6-Step Done)' : 'LOTO Incomplete',
+        dcDischargeVoltage: dcVoltage.toFixed(1),
+        thermoscanTemp: hotspotFixed ? '34.0' : '86.5',
+        deltaTStatus: hotspotFixed ? 'Normal (ΔT 4.0°C)' : 'NETA Critical (ΔT 56.5°C)',
+        faultDiagnosis: 'IGBT V_F 0.485V Normal / PM Checked',
+        quizScore: quizScore,
+        quizTotal: 10,
+        status: 'Submitted'
+      };
+
+      const submitBtn = document.getElementById('btn-submit-all');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังส่งข้อมูล...';
+
+      if (gasUrl) {
+        try {
+          const resp = await fetch(gasUrl, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          // With no-cors, we assume success if no error thrown
+          markSubmitted(studentId);
+          showToast('✓ บันทึกผลการเรียนรู้และชิ้นงาน Unit 7 เข้า Google Sheets สำเร็จ!');
+        } catch (err) {
+          console.error(err);
+          showToast('❌ ไม่สามารถเชื่อมต่อ Google Sheets ได้ กรุณาตรวจสอบ URL หรือเครือข่าย');
+        }
+      } else {
+        markSubmitted(studentId);
+        showToast('✓ บันทึกประวัติในเครื่องเรียบร้อย (พิมพ์รายงาน PDF ได้ทันที)');
+      }
+
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> บันทึกข้อมูลเข้า Google Sheets';
+    }
+
+    function markSubmitted(id) {
+      const submitted = JSON.parse(localStorage.getItem(SUBMITTED_KEY) || '[]');
+      if (!submitted.includes(id)) {
+        submitted.push(id);
+        localStorage.setItem(SUBMITTED_KEY, JSON.stringify(submitted));
+      }
+      validateStudentId(id);
+    }
+
+    // ================= TEACHER PORTAL & SHARING =================
+    function toggleTeacherModal(show) {
+      const modal = document.getElementById('teacher-modal');
+      if (show) {
+        const gasUrl = localStorage.getItem(UNIT7_GAS_KEY) || localStorage.getItem(MASTER_GAS_KEY) || '';
+        document.getElementById('teacher-gas-url').value = gasUrl;
+        modal.style.display = 'flex';
+      } else {
+        modal.style.display = 'none';
+      }
+    }
+
+    function saveTeacherGasUrl() {
+      const url = document.getElementById('teacher-gas-url').value.trim();
+      localStorage.setItem(UNIT7_GAS_KEY, url);
+      showToast('✓ บันทึก URL ประจำหน่วยที่ 7 เรียบร้อยแล้ว');
+    }
+
+    function copyShareLink() {
+      const url = localStorage.getItem(UNIT7_GAS_KEY) || localStorage.getItem(MASTER_GAS_KEY) || '';
+      let shareUrl = window.location.href.split('?')[0];
+      if (url) {
+        shareUrl += '?gas=' + encodeURIComponent(url);
+      }
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        showToast('📋 คัดลอกลิงก์แชร์ 1-Click สำเร็จ (แนบ ?gas= เรียบร้อย)');
+      }).catch(() => {
+        showToast('📋 คัดลอกลิงก์: ' + shareUrl);
+      });
+    }
+
+    function resetUnitAntiCheat() {
+      if (confirm('คุณต้องการล้างประวัติการส่งงาน/แบบทดสอบของเครื่องนี้สำหรับหน่วยที่ 7 ใช่หรือไม่?')) {
+        localStorage.removeItem(SUBMITTED_KEY);
+        validateStudentId(document.getElementById('student-id').value);
+        showToast('✓ ล้างประวัติส่งซ้ำเฉพาะหน่วยที่ 7 เรียบร้อยแล้ว');
+      }
+    }
+
+    // ================= INITIALIZATION =================
+    window.addEventListener('DOMContentLoaded', () => {
+      // 1. Check URL parameters for ?gas=
+      const urlParams = new URLSearchParams(window.location.search);
+      const gasParam = urlParams.get('gas');
+      if (gasParam) {
+        localStorage.setItem(UNIT7_GAS_KEY, gasParam);
+      }
+
+      // 2. Render Quiz & Canvas
+      renderQuiz();
+      renderDischargeGraph(540.0);
+      renderThermalImage();
+      generateModbusPacket();
+    });
+  </script>
+</body>
+</html>

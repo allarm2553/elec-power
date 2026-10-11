@@ -1,0 +1,24 @@
+{
+  "name": "power-elec-web-portal",
+  "version": "1.0.0",
+  "description": "Power Electronics Web Learning Lab & Virtual Simulator Master Portal (30105-2019)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "power-electronics",
+    "simulator",
+    "virtual-lab",
+    "switching-devices",
+    "rectifiers",
+    "dc-dc-converters",
+    "inverters",
+    "ups",
+    "vfd-motor-drive",
+    "plc-safety",
+    "education"
+  ],
+  "author": "Antigravity & allarm2553",
+  "license": "MIT"
+}

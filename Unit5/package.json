@@ -1,0 +1,20 @@
+{
+  "name": "power-electronics-unit5",
+  "version": "1.0.0",
+  "description": "Unit 5: UPS & Emergency Power Systems Lab - Power Electronics (30105-2019)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "power-electronics",
+    "ups",
+    "emergency-lighting",
+    "transfer-time",
+    "battery-charger",
+    "vrla",
+    "backup-power"
+  ],
+  "author": "Power Electronics Lab Division",
+  "license": "MIT"
+}

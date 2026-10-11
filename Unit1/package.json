@@ -1,0 +1,20 @@
+{
+  "name": "power-switching-devices-lab",
+  "version": "1.0.0",
+  "description": "Power Switching Devices Learning Lab (Unit 1 - Course 30105-2019)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "power-switching",
+    "mosfet",
+    "igbt",
+    "power-diode",
+    "power-bjt",
+    "gate-drive",
+    "simulator"
+  ],
+  "author": "Antigravity & allarm2553",
+  "license": "MIT"
+}

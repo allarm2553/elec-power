@@ -1,0 +1,21 @@
+{
+  "name": "power-electronics-unit3",
+  "version": "1.0.0",
+  "description": "Unit 3: DC-to-DC Converters Lab - Power Electronics (30105-2019)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "power-electronics",
+    "dc-dc-converter",
+    "buck",
+    "boost",
+    "buck-boost",
+    "pwm",
+    "snubber",
+    "emi"
+  ],
+  "author": "Power Electronics Lab Division",
+  "license": "MIT"
+}

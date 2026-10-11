@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>คู่มือการใช้งานระบบ — Power Electronics Web Learning Lab (รหัส 30105-2019)</title>
+  
+  <!-- Google Fonts & Font Awesome -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    :root {
+      --bg-main: #050b14;
+      --bg-surface: #0a1322;
+      --bg-card: rgba(15, 23, 42, 0.75);
+      --card-border: rgba(56, 189, 248, 0.18);
+      --card-border-hover: rgba(56, 189, 248, 0.5);
+      --accent-blue: #38bdf8;
+      --accent-cyan: #06b6d4;
+      --accent-green: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --accent-purple: #a855f7;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --font-display: 'Chakra Petch', sans-serif;
+      --font-body: 'Sarabun', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.6;
+      background-image: 
+        radial-gradient(ellipse at 15% 15%, rgba(56, 189, 248, 0.08) 0%, transparent 40%),
+        radial-gradient(ellipse at 85% 80%, rgba(168, 85, 247, 0.07) 0%, transparent 40%),
+        radial-gradient(ellipse at 50% 50%, rgba(16, 185, 129, 0.04) 0%, transparent 50%);
+      background-attachment: fixed;
+    }
+
+    /* Top Sticky Header */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(5, 11, 20, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--card-border);
+      padding: 0.75rem 2rem;
+    }
+
+    .header-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .brand-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #0284c7, #38bdf8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      color: #020617;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.4);
+    }
+
+    .brand-title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: #ffffff;
+      letter-spacing: 0.5px;
+    }
+
+    .brand-subtitle {
+      font-size: 0.75rem;
+      color: var(--accent-blue);
+      font-weight: 500;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .btn-nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.55rem 1rem;
+      border-radius: 10px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      font-family: var(--font-display);
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid var(--card-border);
+      background: rgba(15, 23, 42, 0.8);
+      color: var(--text-main);
+    }
+
+    .btn-nav:hover {
+      border-color: var(--accent-blue);
+      color: var(--accent-blue);
+      transform: translateY(-1px);
+    }
+
+    .btn-nav-primary {
+      background: linear-gradient(135deg, #0284c7, #38bdf8);
+      color: #020617;
+      border: none;
+      box-shadow: 0 2px 10px rgba(56, 189, 248, 0.3);
+    }
+
+    .btn-nav-primary:hover {
+      background: linear-gradient(135deg, #38bdf8, #7dd3fc);
+      color: #020617;
+    }
+
+    /* Hero Section */
+    .hero-wrap {
+      max-width: 1400px;
+      margin: 1.5rem auto 0;
+      padding: 0 2rem;
+    }
+
+    .hero-card {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.6));
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 2rem 2.5rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    }
+
+    .hero-card::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -10%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: 20px;
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: var(--accent-blue);
+      font-size: 0.75rem;
+      font-weight: 700;
+      font-family: var(--font-display);
+      margin-bottom: 0.75rem;
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.6rem;
+    }
+
+    .hero-desc {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      max-width: 800px;
+      line-height: 1.7;
+    }
+
+    /* Tabs Navigation */
+    .tabs-nav-wrap {
+      max-width: 1400px;
+      margin: 1.5rem auto 0;
+      padding: 0 2rem;
+    }
+
+    .tabs-nav {
+      display: flex;
+      gap: 0.5rem;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 0.5rem;
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.7rem 1.25rem;
+      border-radius: 12px;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .tab-btn:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .tab-btn.active {
+      color: var(--accent-blue);
+      background: rgba(56, 189, 248, 0.12);
+      border-color: rgba(56, 189, 248, 0.3);
+    }
+
+    /* Main Content Container */
+    main {
+      max-width: 1400px;
+      margin: 1.5rem auto 3rem;
+      padding: 0 2rem;
+      flex: 1;
+      width: 100%;
+    }
+
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Glass Cards */
+    .glass-card {
+      background: var(--bg-card);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 1.75rem;
+      margin-bottom: 1.5rem;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    }
+
+    .card-title {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 0.75rem;
+    }
+
+    /* Instruction Steps */
+    .step-item {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .step-num {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid var(--accent-blue);
+      color: var(--accent-blue);
+      font-family: var(--font-display);
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 0.9rem;
+    }
+
+    .step-content {
+      flex: 1;
+    }
+
+    .step-title {
+      font-weight: 700;
+      color: #fff;
+      font-size: 0.95rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .step-desc {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      line-height: 1.6;
+    }
+
+    /* Code Blocks */
+    pre, code {
+      font-family: var(--font-mono);
+    }
+
+    code {
+      background: rgba(15, 23, 42, 0.9);
+      padding: 0.2rem 0.4rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      color: #38bdf8;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    pre {
+      background: #070d19;
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      color: #e2e8f0;
+      font-size: 0.85rem;
+      overflow-x: auto;
+      margin: 0.75rem 0;
+      line-height: 1.6;
+    }
+
+    /* Badges & Callouts */
+    .callout {
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      margin: 1rem 0;
+      display: flex;
+      gap: 0.85rem;
+      align-items: flex-start;
+      font-size: 0.88rem;
+      line-height: 1.6;
+    }
+
+    .callout-info {
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: #7dd3fc;
+    }
+
+    .callout-warning {
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      color: #fcd34d;
+    }
+
+    .callout-success {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #6ee7b7;
+    }
+
+    /* Unit Grid for Labs */
+    .unit-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .unit-card-manual {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 1.25rem;
+      transition: all 0.2s;
+    }
+
+    .unit-card-manual:hover {
+      border-color: var(--accent-blue);
+      transform: translateY(-2px);
+    }
+
+    .unit-badge {
+      display: inline-block;
+      padding: 0.2rem 0.55rem;
+      border-radius: 6px;
+      font-family: var(--font-display);
+      font-size: 0.72rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    /* FAQ accordion */
+    .faq-item {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      margin-bottom: 0.85rem;
+      overflow: hidden;
+    }
+
+    .faq-q {
+      padding: 1rem 1.25rem;
+      font-weight: 700;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+    }
+
+    .faq-q:hover {
+      background: rgba(56, 189, 248, 0.05);
+      color: var(--accent-blue);
+    }
+
+    .faq-a {
+      padding: 0 1.25rem 1.25rem;
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      line-height: 1.7;
+      display: block;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 1rem;
+    }
+
+    /* Footer */
+    footer {
+      margin-top: auto;
+      border-top: 1px solid var(--card-border);
+      background: rgba(10, 19, 34, 0.8);
+      padding: 1.5rem 2rem;
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--text-dim);
+    }
+
+    @media (max-width: 768px) {
+      .header-container { flex-direction: column; align-items: stretch; }
+      .unit-grid { grid-template-columns: 1fr; }
+      .hero-title { font-size: 1.6rem; }
+      .step-item { flex-direction: column; gap: 0.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Sticky Header -->
+  <header>
+    <div class="header-container">
+      <a href="./" class="brand-logo">
+        <div class="brand-icon">
+          <i class="fa-solid fa-bolt-lightning"></i>
+        </div>
+        <div>
+          <div class="brand-title">PowerLab Manual</div>
+          <div class="brand-subtitle">คู่มือการใช้งานระบบห้องปฏิบัติการเสมือนจริง (Course 30105-2019)</div>
+        </div>
+      </a>
+
+      <div class="header-actions">
+        <a href="./" class="btn-nav">
+          <i class="fa-solid fa-house"></i> หน้าหลัก Master Portal
+        </a>
+        <a href="./MANUAL.md" download="PowerLab_Manual.md" class="btn-nav">
+          <i class="fa-solid fa-download"></i> ดาวน์โหลด MANUAL.md
+        </a>
+        <button onclick="window.print()" class="btn-nav btn-nav-primary">
+          <i class="fa-solid fa-print"></i> พิมพ์คู่มือ PDF
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Header -->
+  <div class="hero-wrap">
+    <div class="hero-card">
+      <div class="hero-tag">
+        <i class="fa-solid fa-book-bookmark"></i> Comprehensive User & Instructor Manual
+      </div>
+      <h1 class="hero-title">คู่มือการใช้งานและจัดการเรียนรู้อิเล็กทรอนิกส์กำลัง</h1>
+      <p class="hero-desc">
+        คู่มือฉบับสมบูรณ์ครอบคลุมทั้งขั้นตอนสำหรับครูผู้สอนในการตั้งค่า Google Sheets และระบบป้องกันการส่งงานซ้ำแยกรายหน่วย (Anti-Duplicate Submission) ตลอดจนคู่มือการทดลอง การวัดรูปคลื่น และการส่งรายงานชิ้นงานสำหรับนักศึกษา
+      </p>
+    </div>
+  </div>
+
+  <!-- Tabs Navigation -->
+  <div class="tabs-nav-wrap">
+    <div class="tabs-nav">
+      <button class="tab-btn active" onclick="switchManualTab('tab-overview')">
+        <i class="fa-solid fa-circle-info"></i> 1. เริ่มต้นใช้งาน & โครงสร้างระบบ
+      </button>
+      <button class="tab-btn" onclick="switchManualTab('tab-teacher')">
+        <i class="fa-solid fa-chalkboard-user"></i> 2. คู่มือสำหรับครูผู้สอน
+      </button>
+      <button class="tab-btn" onclick="switchManualTab('tab-student')">
+        <i class="fa-solid fa-user-graduate"></i> 3. คู่มือสำหรับนักศึกษา
+      </button>
+      <button class="tab-btn" onclick="switchManualTab('tab-units')">
+        <i class="fa-solid fa-microchip"></i> 4. รายละเอียดห้องแล็บ 6 หน่วย
+      </button>
+      <button class="tab-btn" onclick="switchManualTab('tab-faq')">
+        <i class="fa-solid fa-circle-question"></i> 5. คำถามที่พบบ่อย (FAQ)
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Content Tabs -->
+  <main>
+
+    <!-- TAB 1: OVERVIEW & QUICK START -->
+    <div id="tab-overview" class="tab-content active">
+      <div class="glass-card">
+        <div class="card-title">
+          <i class="fa-solid fa-rocket" style="color:var(--accent-blue);"></i> ข้อมูลหลักสูตรและการเปิดระบบใช้งาน (Quick Start)
+        </div>
+        <p style="color:var(--text-muted);margin-bottom:1.25rem;">
+          ระบบห้องปฏิบัติการวิศวกรรมอิเล็กทรอนิกส์กำลังเสมือนจริง (Power Electronics Web Learning Lab) ออกแบบตามเกณฑ์มาตรฐานหลักสูตรระดับ <strong>ประกาศนียบัตรวิชาชีพชั้นสูง (ปวส.) รหัสวิชา 30105-2019</strong> โดยจำลองฟิสิกส์ การควบคุมสวิตชิ่ง และการวัดสัญญาณทางไฟฟ้าผ่านเทคโนโลยี HTML5 Canvas 2D Vector แบบ 60 FPS
+        </p>
+
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <div class="step-title">ตรวจสอบความพร้อมของระบบ (System Requirements)</div>
+            <div class="step-desc">
+              ติดตั้ง <strong>Node.js (v14.0 ขึ้นไป)</strong> และใช้งานผ่านเบราว์เซอร์มาตรฐาน เช่น Google Chrome, Microsoft Edge, Mozilla Firefox หรือ Safari บนคอมพิวเตอร์ แท็บเล็ต หรือสมาร์ตโฟน
+            </div>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <div class="step-title">คำสั่งเปิดรันเซิร์ฟเวอร์ Localhost</div>
+            <div class="step-desc">
+              เปิดโปรแกรม Terminal หรือ Command Prompt เข้าไปยังโฟลเดอร์โปรเจกต์ แล้วรันคำสั่ง:
+              <pre><code>cd /path/to/Elec_Power
+node server.js</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <div class="step-title">การเข้าใช้งานผ่าน Web Browser</div>
+            <div class="step-desc">
+              เปิดเบราว์เซอร์แล้วเข้าสู่หน้าหลักที่: <a href="http://localhost:8082/" target="_blank" style="color:var(--accent-blue);font-weight:700;">http://localhost:8082/</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-info">
+          <i class="fa-solid fa-lightbulb" style="font-size:1.2rem;color:var(--accent-blue);"></i>
+          <div>
+            <strong>คำแนะนำการใช้งาน:</strong> หากใช้งานบนอุปกรณ์แท็บเล็ตหรือสมาร์ตโฟน แนะนำให้หมุนหน้าจอเป็นแนวนอน (Landscape Mode) เพื่อให้การแสดงผลออสซิลโลสโคป กราฟ และผังวงจรมีความกว้างเต็มประสิทธิภาพ
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: INSTRUCTOR GUIDE -->
+    <div id="tab-teacher" class="tab-content">
+      <div class="glass-card">
+        <div class="card-title">
+          <i class="fa-solid fa-chalkboard-user" style="color:var(--accent-amber);"></i> คู่มือการจัดการสำหรับครูผู้สอน (Instructor Workflow)
+        </div>
+        <p style="color:var(--text-muted);margin-bottom:1.5rem;">
+          ครูผู้สอนสามารถรวบรวมคะแนนและผลการทดลองของนักศึกษาทุกคนเข้าสู่ <strong>Google Sheets</strong> ของตนเองแบบเรียลไทม์ โดยใช้สคริปต์ <code>Code.gs</code> ที่แนบมากับระบบ
+        </p>
+
+        <h3 style="color:#fff;font-family:var(--font-display);font-size:1.1rem;margin-bottom:1rem;">
+          <i class="fa-solid fa-1"></i> ขั้นตอนการสร้างและติดตั้ง Google Apps Script (Code.gs)
+        </h3>
+
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <div class="step-title">สร้าง Google Sheet ใหม่</div>
+            <div class="step-desc">
+              สร้างชีตใหม่บน Google Drive ของครูผู้สอน เช่น ตั้งชื่อ <code>คะแนนวิชาอิเล็กทรอนิกส์กำลัง_2569</code>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <div class="step-title">เปิดหน้าเขียนสคริปต์ (Apps Script)</div>
+            <div class="step-desc">
+              ไปที่เมนู <strong>ส่วนขยาย (Extensions)</strong> &gt; คลิก <strong>Apps Script</strong> ลบโค้ดเดิมออกทั้งหมด
+            </div>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <div class="step-title">นำโค้ดในไฟล์ Code.gs มาวาง (เลือกลิงก์เดียว หรือ แยกหน่วย)</div>
+            <div class="step-desc">
+              • <strong>แบบลิงก์เดียวจบ (แนะนำ):</strong> ใช้โค้ดจาก <code>Master_Code.gs</code> วางใน Google Sheet ไฟล์เดียว จะจัดการแยกชีตให้อัตโนมัติ 7 แท็บ (Unit 1 - 7)<br>
+              • <strong>แบบแยกแต่ละหน่วย:</strong> คัดลอกโค้ดจากไฟล์ <code>Unit1/Code.gs</code> ถึง <code>Unit7/Code.gs</code> นำไปวางในชีตของแต่ละหน่วยแยกกัน 7 ไฟล์<br>
+              จากนั้นกดปุ่ม <strong>Save (บันทึก)</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <div class="step-title">ทำให้ใช้งานได้เป็นเว็บแอป (Deploy as Web App)</div>
+            <div class="step-desc">
+              กดปุ่มสีน้ำเงิน <strong>Deploy (การทำให้ใช้งานได้)</strong> &gt; เลือก <strong>New deployment (รายการใหม่)</strong> &gt; เลือกประเภทเป็น <strong>Web app</strong>:<br>
+              • <strong>Execute as (ดำเนินการในฐานะ):</strong> <code>Me (ฉัน / เจ้าของชีต)</code><br>
+              • <strong>Who has access (ผู้มีสิทธิ์เข้าถึง):</strong> <strong style="color:#ef4444;"><code>Anyone (ทุกคน)</code></strong> *(จำเป็นต้องเลือก Anyone เพื่อให้นักเรียนส่งคะแนนได้)*<br>
+              กดปุ่ม <strong>Deploy</strong> และคัดลอก URL ที่ลงท้ายด้วย <code>/exec</code>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-warning">
+          <i class="fa-solid fa-triangle-exclamation" style="font-size:1.2rem;color:var(--accent-amber);"></i>
+          <div>
+            <strong>ข้อสำคัญ:</strong> สิทธิ์การเข้าถึง (Who has access) ต้องเลือกเป็น <strong>"Anyone" (ทุกคน)</strong> เสมอ หากเลือก "Only myself" หรือกำหนดเฉพาะองค์กร นักศึกษาจะไม่สามารถส่งผลการทดลองเข้ามาได้
+          </div>
+        </div>
+
+        <h3 style="color:#fff;font-family:var(--font-display);font-size:1.1rem;margin:1.5rem 0 1rem;">
+          <i class="fa-solid fa-2"></i> การบันทึก URL กลางและการแชร์ลิงก์ 1-Click (?gas=)
+        </h3>
+
+        <div class="step-item">
+          <div class="step-num">5</div>
+          <div class="step-content">
+            <div class="step-title">บันทึก URL กลางผ่าน Master Portal</div>
+            <div class="step-desc">
+              เปิดหน้าหลัก <a href="./" style="color:var(--accent-blue);">Master Dashboard</a> &gt; คลิกปุ่ม <strong>"สำหรับครูผู้สอน"</strong> ด้านบนขวา &gt; วาง Web App URL ในช่องแล้วกด <strong>"บันทึก URL กลาง"</strong> ระบบจะเชื่อมต่อไปยังทุกหน่วยทันที
+            </div>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-num">6</div>
+          <div class="step-content">
+            <div class="step-title">แชร์ลิงก์ให้นักเรียน (?gas=)</div>
+            <div class="step-desc">
+              ในตารางด้านล่างของหน้าต่างครูผู้สอน กดปุ่ม <strong>"📋 คัดลอกลิงก์ให้นักเรียน"</strong> ในหน่วยที่ต้องการสอน ลิงก์จะแนบพารามิเตอร์ <code>?gas=...</code> อัตโนมัติ เช่น:<br>
+              <code>https://&lt;username&gt;.github.io/Elec_Power/Unit1/?gas=https://script.google.com/macros/s/AKfycb.../exec</code><br>
+              เมื่อนักศึกษาเปิดลิงก์นี้ เครื่องของนักศึกษาจะผูกกับชีตของครูทันทีโดยที่ <strong>นักศึกษาไม่ต้องกรอก URL เอง</strong>
+            </div>
+          </div>
+        </div>
+
+        <h3 style="color:#fff;font-family:var(--font-display);font-size:1.1rem;margin:1.5rem 0 1rem;">
+          <i class="fa-solid fa-3"></i> ระบบป้องกันการส่งงานซ้ำแยกรายหน่วย (Anti-Duplicate Submission)
+        </h3>
+        <p style="color:var(--text-muted);font-size:0.88rem;line-height:1.6;margin-bottom:1rem;">
+          ระบบใช้การตรวจสอบ 2 ชั้น (Two-Layer Isolation):<br>
+          1. <strong>ระดับ Client:</strong> จัดเก็บประวัติรหัสที่เคยส่งแยกตามรายหน่วย (<code>submitted_student_ids_unit1</code> ถึง <code>unit7</code>) หากพิมพ์รหัสเดิมจะขึ้นเตือนสีแดงและล็อกปุ่มส่งทันที<br>
+          2. <strong>ระดับ Server (Code.gs):</strong> ฟังก์ชัน <code>checkDuplicate()</code> ตรวจสอบคอลัมน์ C (รหัสนักศึกษา) ก่อนบันทึกข้อมูล ป้องกันการส่งซ้ำ<br>
+          3. <strong>การล้างแคชส่งซ้ำ:</strong> ครูสามารถกดปุ่ม <strong>"ล้างประวัติส่งซ้ำ"</strong> ในหน้าต่างครูผู้สอนเฉพาะหน่วยนั้น หรือกดปุ่ม Master Reset ในหน้าหลักเพื่อล้างประวัติทุกหน่วยพร้อมกัน
+        </p>
+      </div>
+    </div>
+
+    <!-- TAB 3: STUDENT GUIDE -->
+    <div id="tab-student" class="tab-content">
+      <div class="glass-card">
+        <div class="card-title">
+          <i class="fa-solid fa-user-graduate" style="color:var(--accent-green);"></i> คู่มือการปฏิบัติงานสำหรับนักศึกษา (Student Guide)
+        </div>
+
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <div class="step-title">การเข้าสู่ห้องปฏิบัติการ</div>
+            <div class="step-desc">
+              เปิดลิงก์ที่ได้รับจากครูผู้สอน (ซึ่งแนบ <code>?gas=</code> มาด้วย) หรือเปิดหน้า <a href="./" style="color:var(--accent-blue);">Master Portal</a> แล้วเลือกหน่วยการเรียนรู้ที่ครูมอบหมาย
+            </div>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <div class="step-title">การศึกษาทฤษฎีและปรับแต่งพารามิเตอร์</div>
+            <div class="step-desc">
+              ศึกษาเนื้อหาตามลำดับแท็บ ใช้สไลเดอร์และปุ่มควบคุมในการเปลี่ยนค่า เช่น แรงดัน, กระแส, ความถี่, มุมจุดชนวน α, หรือดิวตี้ไซเคิล พร้อมสังเกตการเคลื่อนที่ของประจุและรูปคลื่นไฟฟ้าบนออสซิลโลสโคป
+            </div>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <div class="step-title">การบันทึกผลการทดลอง (Data Logger)</div>
+            <div class="step-desc">
+              เมื่อปรับสภาวะการทำงานตามใบงาน ให้กดปุ่ม <strong>"💾 บันทึกค่าลงใน Data Logger"</strong> ข้อมูลจะถูกบันทึกลงในตารางด้านล่าง สามารถกดปุ่ม <strong>"Export CSV"</strong> เพื่อดาวน์โหลดข้อมูลเป็นไฟล์สเปรดชีต
+            </div>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <div class="step-title">การทำแบบทดสอบท้ายหน่วย (Quiz Evaluation)</div>
+            <div class="step-desc">
+              ไปยังแท็บ <strong>แบบทดสอบ (Quiz)</strong> อ่านคำถามและเลือกคำตอบให้ครบทุกข้อ ระบบจะแสดงผลคะแนนและเฉลยละเอียดโดยอัตโนมัติ
+            </div>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-num">5</div>
+          <div class="step-content">
+            <div class="step-title">การกรอกข้อมูลและส่งผลการทดลองเข้าสู่ระบบครู</div>
+            <div class="step-desc">
+              เลื่อนไปยังส่วนกรอกข้อมูลผู้ทำการทดลอง:
+              <ul style="margin: 0.5rem 0 0.5rem 1.25rem;">
+                <li>กรอก <strong>ชื่อ-นามสกุล</strong> ผู้เรียน</li>
+                <li>กรอก <strong>รหัสประจำตัวนักศึกษา</strong> (เช่น <code>66301050012</code>)</li>
+                <li>กรอก <strong>กลุ่มเรียน/แผนกวิชา</strong> (เช่น ปวส.2 ชอ.2)</li>
+              </ul>
+              หากรหัสนักศึกษาถูกต้องและยังไม่เคยส่งงานในหน่วยนี้ ปุ่ม <strong>"ส่งข้อมูลเข้า Google Sheets"</strong> จะพร้อมใช้งาน กดส่งแล้วรอจนขึ้นเครื่องหมายถูกสีเขียว <strong>"✓ ส่งข้อมูลสำเร็จเรียบร้อย!"</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-success">
+          <i class="fa-solid fa-check-circle" style="font-size:1.2rem;color:var(--accent-green);"></i>
+          <div>
+            <strong>การส่งรายงาน PDF:</strong> นักศึกษาสามารถกดปุ่ม <strong>"พิมพ์รายงาน PDF"</strong> เพื่อสั่งพิมพ์หรือบันทึกหน้าจอรายงานผลพร้อมคะแนนสอบและตารางแล็บเป็นไฟล์ PDF ส่งให้อาจารย์เป็นหลักฐานได้ทันที
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: 6 VIRTUAL LABS -->
+    <div id="tab-units" class="tab-content">
+      <div class="glass-card">
+        <div class="card-title">
+          <i class="fa-solid fa-microchip" style="color:var(--accent-cyan);"></i> สรุปเนื้อหาห้องปฏิบัติการทั้ง 6 หน่วย (Virtual Labs 1–6)
+        </div>
+
+        <div class="unit-grid">
+          <!-- Unit 1 -->
+          <div class="unit-card-manual">
+            <span class="unit-badge" style="background:rgba(245,158,11,0.2);color:#fbbf24;">หน่วยที่ 1 (Course 30105-2019)</span>
+            <h3 style="color:#fff;font-family:var(--font-display);font-size:1.1rem;margin-bottom:0.5rem;">
+              การทดสอบอุปกรณ์สวิตชิ่งกำลัง (Power Switching Devices)
+            </h3>
+            <p style="color:var(--text-muted);font-size:0.84rem;margin-bottom:0.75rem;">
+              ศึกษาโครงสร้างฟิสิกส์ชั้นสารกึ่งตัวนำ PN Junction, SCR, Power MOSFET, IGBT, กราฟ Curve Tracer I-V Characteristic, วงจรเหนี่ยวนำ R-L Load, ปรากฏการณ์ Miller Plateau และการคำนวณกำลังสูญเสียสวิตชิ่ง
+            </p>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <code style="font-size:0.78rem;">Route: ./Unit1/</code>
+              <a href="./Unit1/" class="btn-nav" style="padding:0.35rem 0.75rem;font-size:0.75rem;">เปิดห้องแล็บ <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+          </div>
+
+          <!-- Unit 2 -->
+          <div class="unit-card-manual">
+            <span class="unit-badge" style="background:rgba(56,189,248,0.2);color:#38bdf8;">หน่วยที่ 2 (Course 30105-2019)</span>
+            <h3 style="color:#fff;font-family:var(--font-display);font-size:1.1rem;margin-bottom:0.5rem;">
+              วงจรเรียงกระแสควบคุมแรงดันได้ (Phase-Controlled Rectifiers)
+            </h3>
+            <p style="color:var(--text-muted);font-size:0.84rem;margin-bottom:0.75rem;">
+              การควบคุมมุมจุดชนวนเกตไทริสเตอร์ α (0°–180°), วงจร 1 เฟส Half-wave / Full-Bridge, วงจร 3 เฟส 6-Pulse Rectifier, คำนวณค่าเฉลี่ย V_dc และการวิเคราะห์ฮาร์มอนิกส์ THD
+            </p>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <code style="font-size:0.78rem;">Route: ./Unit2/</code>
+              <a href="./Unit2/" class="btn-nav" style="padding:0.35rem 0.75rem;font-size:0.75rem;">เปิดห้องแล็บ <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+          </div>
+
+          <!-- Unit 3 -->
+          <div class="unit-card-manual">
+            <span class="unit-badge" style="background:rgba(16,185,129,0.2);color:#34d399;">หน่วยที่ 3 (Course 30105-2019)</span>
+            <h3 style="color:#fff;font-family:var(--font-display);font-size:1.1rem;margin-bottom:0.5rem;">
+              วงจรแปลงผันไฟตรงดีซีสู่ดีซี (DC-to-DC Converters)
+            </h3>
+            <p style="color:var(--text-muted);font-size:0.84rem;margin-bottom:0.75rem;">
+              ทอพอโลยี Buck (Step-Down), Boost (Step-Up), Buck-Boost, โหมดต่อเนื่อง CCM / DCM, การปรับ Duty Cycle และความถี่สวิตชิ่ง f_sw (10–100 kHz), คำนวณประสิทธิภาพและระลอกคลื่น
+            </p>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <code style="font-size:0.78rem;">Route: ./Unit3/</code>
+              <a href="./Unit3/" class="btn-nav" style="padding:0.35rem 0.75rem;font-size:0.75rem;">เปิดห้องแล็บ <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+          </div>
+
+          <!-- Unit 4 -->
+          <div class="unit-card-manual">
+            <span class="unit-badge" style="background:rgba(168,85,247,0.2);color:#c084fc;">หน่วยที่ 4 (Course 30105-2019)</span>
+            <h3 style="color:#fff;font-family:var(--font-display);font-size:1.1rem;margin-bottom:0.5rem;">
+              วงจรอินเวอร์เตอร์แปลงผันไฟฟ้า (Inverters & SPWM)
+            </h3>
+            <p style="color:var(--text-muted);font-size:0.84rem;margin-bottom:0.75rem;">
+              อินเวอร์เตอร์ 1 เฟส Full Bridge และ 3 เฟส 6 สวิตช์, การสังเคราะห์ SPWM, ดัชนีมอดูเลต m_a และ m_f, การตั้งค่า Dead-Time ป้องกันการลัดวงจร Shoot-through และวงจรกรอง LC Filter
+            </p>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <code style="font-size:0.78rem;">Route: ./Unit4/</code>
+              <a href="./Unit4/" class="btn-nav" style="padding:0.35rem 0.75rem;font-size:0.75rem;">เปิดห้องแล็บ <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+          </div>
+
+          <!-- Unit 5 -->
+          <div class="unit-card-manual">
+            <span class="unit-badge" style="background:rgba(244,63,94,0.2);color:#fb7185;">หน่วยที่ 5 (Course 30105-2019)</span>
+            <h3 style="color:#fff;font-family:var(--font-display);font-size:1.1rem;margin-bottom:0.5rem;">
+              เครื่องสำรองไฟฟ้าและไฟฉุกเฉิน (UPS & Emergency Power)
+            </h3>
+            <p style="color:var(--text-muted);font-size:0.84rem;margin-bottom:0.75rem;">
+              สถาปัตยกรรม Offline, Line-Interactive (AVR), True Online Double Conversion, จำลองไฟดับวัด Transfer Time (ms), ระบบชาร์จแบตเตอรี่ 3-Stage และการคำนวณ Battery Sizing & Backup Time
+            </p>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <code style="font-size:0.78rem;">Route: ./Unit5/</code>
+              <a href="./Unit5/" class="btn-nav" style="padding:0.35rem 0.75rem;font-size:0.75rem;">เปิดห้องแล็บ <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+          </div>
+
+          <!-- Unit 6 -->
+          <div class="unit-card-manual">
+            <span class="unit-badge" style="background:rgba(6,182,212,0.2);color:#22d3ee;">หน่วยที่ 6 (Course 30105-2019)</span>
+            <h3 style="color:#fff;font-family:var(--font-display);font-size:1.1rem;margin-bottom:0.5rem;">
+              การควบคุมความเร็วมอเตอร์อุตสาหกรรม (Motor Speed Control & Drives)
+            </h3>
+            <p style="color:var(--text-muted);font-size:0.84rem;margin-bottom:0.75rem;">
+              DC Motor Drive 4 ควอดรันต์ (เดินหน้า/ถอยหลัง/เบรก Regenerative), อินเวอร์เตอร์ VFD ขับมอเตอร์เหนี่ยวนำ 3 เฟสด้วย V/f Constant Control, Ramp Acceleration/Deceleration และมอเตอร์ BLDC 6-Step
+            </p>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <code style="font-size:0.78rem;">Route: ./Unit6/</code>
+              <a href="./Unit6/" class="btn-nav" style="padding:0.35rem 0.75rem;font-size:0.75rem;">เปิดห้องแล็บ <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+          </div>
+
+          <!-- Unit 7 -->
+          <div class="unit-card-manual">
+            <span class="unit-badge" style="background:rgba(16,185,129,0.2);color:#34d399;">หน่วยที่ 7 (Course 30105-2019)</span>
+            <h3 style="color:#fff;font-family:var(--font-display);font-size:1.1rem;margin-bottom:0.5rem;">
+              การประยุกต์และบำรุงรักษาระบบอิเล็กทรอนิกส์กำลัง (Industrial Applications & PM)
+            </h3>
+            <p style="color:var(--text-muted);font-size:0.84rem;margin-bottom:0.75rem;">
+              สั่งการอินเวอร์เตอร์ผ่าน Modbus RTU & PLC RS-485, ขั้นตอนความปลอดภัย LOTO & คายประจุ DC Bus 540V DC, ตรวจวัดจุดร้อนด้วยกล้องเทอร์โมสแกนตามเกณฑ์ NETA, และตรวจสุขภาพโมดูล IGBT
+            </p>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <code style="font-size:0.78rem;">Route: ./Unit7/</code>
+              <a href="./Unit7/" class="btn-nav" style="padding:0.35rem 0.75rem;font-size:0.75rem;">เปิดห้องแล็บ <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 5: FAQ & TROUBLESHOOTING -->
+    <div id="tab-faq" class="tab-content">
+      <div class="glass-card">
+        <div class="card-title">
+          <i class="fa-solid fa-circle-question" style="color:var(--accent-rose);"></i> คำถามที่พบบ่อยและการแก้ไขปัญหา (Troubleshooting & FAQ)
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">
+            <span>Q1: กดส่งผลการทดลองแล้วขึ้นแจ้งเตือน "กรุณาระบุ Web App URL"?</span>
+            <i class="fa-solid fa-chevron-down"></i>
+          </div>
+          <div class="faq-a">
+            <strong>วิธีแก้:</strong> สำหรับนักศึกษาให้เปิดผ่านลิงก์ที่อาจารย์ส่งให้ซึ่งจะมี <code>?gas=...</code> แนบมาด้วย หรือหากเปิดด้วยตนเอง ให้กดปุ่ม "สำหรับครูผู้สอน" ด้านบน แล้วนำ Web App URL ของอาจารย์มาบันทึกในระบบก่อนส่ง
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">
+            <span>Q2: ข้อมูลไม่เข้า Google Sheet หรือขึ้น Network Error?</span>
+            <i class="fa-solid fa-chevron-down"></i>
+          </div>
+          <div class="faq-a">
+            <strong>วิธีแก้:</strong> ปัญหานี้มักเกิดจากตอน Deploy บน Google Apps Script ไม่ได้ตั้งค่าสิทธิ์เข้าถึง (Who has access) ให้เป็น <strong>"Anyone" (ทุกคน)</strong> ให้ครูผู้สอนเข้าไปที่ Apps Script &gt; กด Manage deployments &gt; แก้ไขการตั้งค่า Who has access เป็น Anyone แล้วกด Deploy อีกครั้ง
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">
+            <span>Q3: ขึ้นเตือนสีแดงว่า "รหัสนี้เคยส่งงานแล้ว (ห้ามส่งซ้ำ)" แต่ต้องการส่งใหม่?</span>
+            <i class="fa-solid fa-chevron-down"></i>
+          </div>
+          <div class="faq-a">
+            <strong>วิธีแก้:</strong> ระบบ Anti-Duplicate ป้องกันการส่งซ้ำเพื่อความโปร่งใส หากครูต้องการให้นักเรียนส่งใหม่หรือครูต้องการทดสอบระบบ ให้เปิดหน้าต่าง "สำหรับครูผู้สอน" ในหน่วยนั้น แล้วกดปุ่ม <strong>"🔄 ล้างประวัติส่งซ้ำ (หน่วยที่ X)"</strong> หรือกดปุ่ม <strong>"ล้างประวัติส่งซ้ำ (Anti-Cheat Cache)"</strong> ในหน้าหลัก
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">
+            <span>Q4: ส่งคะแนนหน่วยที่ 1 ไปแล้ว จะถูกบล็อกไม่ให้ส่งหน่วยที่ 2 หรือไม่?</span>
+            <i class="fa-solid fa-chevron-down"></i>
+          </div>
+          <div class="faq-a">
+            <strong>คำตอบ:</strong> <strong>ไม่ถูกบล็อกอย่างแน่นอน</strong> ระบบแยกกุญแจจัดเก็บข้อมูลอย่างอิสระในแต่ละหน่วย (<code>submitted_student_ids_unit1</code> ถึง <code>unit7</code>) นักศึกษาสามารถทำแบบทดสอบและส่งผลงานได้ครบทุกหน่วยโดยไม่มีการบล็อกข้ามหน่วย
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div style="max-width:1400px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
+      <div>
+        ⚡ <strong>PowerLab Manual</strong> | หลักสูตร ปวส. รหัสวิชา 30105-2019 อิเล็กทรอนิกส์กำลัง
+      </div>
+      <div>
+        ศูนย์รวมการเรียนรู้อิเล็กทรอนิกส์กำลังเสมือนจริง • All Rights Reserved © 2026
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    function switchManualTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+      const activeBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick').includes(tabId));
+      if (activeBtn) activeBtn.classList.add('active');
+
+      const targetContent = document.getElementById(tabId);
+      if (targetContent) targetContent.classList.add('active');
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function toggleFaq(header) {
+      const answer = header.nextElementSibling;
+      const icon = header.querySelector('i');
+      if (answer.style.display === 'none') {
+        answer.style.display = 'block';
+        icon.className = 'fa-solid fa-chevron-up';
+      } else {
+        answer.style.display = 'none';
+        icon.className = 'fa-solid fa-chevron-down';
+      }
+    }
+  </script>
+</body>
+</html>

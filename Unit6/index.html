@@ -1,0 +1,2409 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>หน่วยที่ 6: วงจรควบคุมความเร็วมอเตอร์ในงานอุตสาหกรรม | Power Electronics Lab</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    :root {
+      --bg-dark: #070b13;
+      --bg-card: rgba(15, 23, 42, 0.78);
+      --bg-card-hover: rgba(30, 41, 59, 0.85);
+      --border-card: rgba(255, 255, 255, 0.08);
+      --border-card-hover: rgba(245, 158, 11, 0.35);
+
+      /* Primary Palette: Industrial Amber / Flame */
+      --accent-amber: #f59e0b;
+      --accent-amber-glow: rgba(245, 158, 11, 0.25);
+      --accent-orange: #ea580c;
+      --accent-gold: #fbbf24;
+      --accent-cyan: #38bdf8;
+      --accent-green: #10b981;
+      --accent-rose: #f43f5e;
+      --accent-purple: #a855f7;
+
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+
+      --font-display: 'Chakra Petch', sans-serif;
+      --font-body: 'Sarabun', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+
+      --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
+      --shadow-amber: 0 0 25px rgba(245, 158, 11, 0.2);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: radial-gradient(circle at 15% 15%, rgba(245, 158, 11, 0.06), transparent 45%),
+                  radial-gradient(circle at 85% 85%, rgba(56, 189, 248, 0.05), transparent 45%),
+                  var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    /* Top Bar & Header */
+    header {
+      background: rgba(11, 15, 25, 0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-card);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 0.75rem 1.5rem;
+    }
+
+    .header-container {
+      max-width: 1440px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, var(--accent-amber), var(--accent-orange));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.35rem;
+      color: #0b0f19;
+      box-shadow: 0 0 18px var(--accent-amber-glow);
+    }
+
+    .brand-title {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: #ffffff;
+      line-height: 1.2;
+    }
+
+    .brand-sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-family: var(--font-display);
+    }
+
+    /* Nav Tabs */
+    .nav-tabs {
+      display: flex;
+      gap: 0.4rem;
+      background: rgba(15, 23, 42, 0.6);
+      padding: 0.35rem;
+      border-radius: 12px;
+      border: 1px solid var(--border-card);
+      overflow-x: auto;
+    }
+
+    .nav-tab-btn {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-muted);
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 0.5rem 0.95rem;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      transition: all 0.25s ease;
+      white-space: nowrap;
+    }
+
+    .nav-tab-btn:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .nav-tab-btn.active {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(234, 88, 12, 0.15));
+      color: var(--accent-amber);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      box-shadow: 0 0 12px rgba(245, 158, 11, 0.15);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .portal-link-btn {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-main);
+      border: 1px solid var(--border-card);
+      padding: 0.5rem 0.85rem;
+      border-radius: 8px;
+      font-family: var(--font-display);
+      font-size: 0.82rem;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .portal-link-btn:hover {
+      background: rgba(245, 158, 11, 0.15);
+      border-color: var(--accent-amber);
+      color: var(--accent-amber);
+    }
+
+    /* Main Container */
+    main {
+      max-width: 1440px;
+      margin: 1.5rem auto 3rem;
+      padding: 0 1.25rem;
+    }
+
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.3s ease forwards;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Grid Layouts */
+    .grid-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+
+    .grid-3col {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+    }
+
+    @media (max-width: 1024px) {
+      .grid-2col, .grid-3col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Glass Cards */
+    .glass-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 14px;
+      padding: 1.25rem;
+      box-shadow: var(--shadow-card);
+      backdrop-filter: blur(12px);
+      transition: border-color 0.25s ease;
+      position: relative;
+    }
+
+    .glass-card:hover {
+      border-color: var(--border-card-hover);
+    }
+
+    .card-header-styled {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      padding-bottom: 0.65rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .card-title-styled {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .badge {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .badge-amber {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .badge-green {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .badge-cyan {
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+
+    .badge-rose {
+      background: rgba(244, 63, 94, 0.15);
+      color: #fb7185;
+      border: 1px solid rgba(244, 63, 94, 0.3);
+    }
+
+    .badge-purple {
+      background: rgba(168, 85, 247, 0.15);
+      color: #c084fc;
+      border: 1px solid rgba(168, 85, 247, 0.3);
+    }
+
+    /* Buttons & Controls */
+    .btn-group {
+      display: flex;
+      gap: 0.4rem;
+      margin-bottom: 0.85rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-choice {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-card);
+      color: var(--text-muted);
+      font-family: var(--font-display);
+      font-size: 0.8rem;
+      padding: 0.45rem 0.85rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-choice:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-choice.active {
+      background: rgba(245, 158, 11, 0.2);
+      border-color: var(--accent-amber);
+      color: var(--accent-amber);
+      font-weight: 700;
+    }
+
+    .btn-action {
+      background: linear-gradient(135deg, var(--accent-amber), var(--accent-orange));
+      color: #0b0f19;
+      border: none;
+      padding: 0.55rem 1.1rem;
+      border-radius: 8px;
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      transition: all 0.2s ease;
+    }
+
+    .btn-action:hover {
+      filter: brightness(1.15);
+      box-shadow: 0 0 15px var(--accent-amber-glow);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-main);
+      border: 1px solid var(--border-card);
+      padding: 0.55rem 1.1rem;
+      border-radius: 8px;
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      transition: all 0.2s ease;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.14);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    /* Range Sliders */
+    .control-row {
+      margin-bottom: 0.9rem;
+    }
+
+    .control-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      font-family: var(--font-display);
+      color: var(--text-muted);
+      margin-bottom: 0.35rem;
+    }
+
+    .control-val {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--accent-amber);
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      outline: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--accent-amber);
+      cursor: pointer;
+      box-shadow: 0 0 8px var(--accent-amber);
+      transition: transform 0.1s;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    /* Canvases */
+    canvas {
+      display: block;
+      width: 100%;
+      background: #090e18;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    /* Tables */
+    .data-table-wrap {
+      overflow-x: auto;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+      text-align: center;
+    }
+
+    thead th {
+      background: rgba(15, 23, 42, 0.85);
+      color: var(--accent-amber);
+      font-family: var(--font-display);
+      padding: 0.65rem 0.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      white-space: nowrap;
+    }
+
+    tbody td {
+      padding: 0.55rem 0.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      color: var(--text-main);
+      font-family: var(--font-mono);
+    }
+
+    tbody tr:hover {
+      background: rgba(245, 158, 11, 0.05);
+    }
+
+    /* Keypad 7-Segment & Industrial Layout */
+    .vfd-bezel {
+      background: #1e293b;
+      border: 2px solid #334155;
+      border-radius: 16px;
+      padding: 1.25rem;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.6), 0 12px 24px rgba(0,0,0,0.5);
+    }
+
+    .vfd-screen-bezel {
+      background: #030712;
+      border: 2px solid #0f172a;
+      border-radius: 10px;
+      padding: 0.85rem;
+      margin-bottom: 1rem;
+      box-shadow: inset 0 3px 12px rgba(0,0,0,0.9);
+      position: relative;
+    }
+
+    .vfd-led-status-row {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+    }
+
+    .vfd-led-item {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      color: #64748b;
+    }
+
+    .vfd-led-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #334155;
+      transition: all 0.2s ease;
+    }
+
+    .vfd-led-dot.on-green {
+      background: #10b981;
+      box-shadow: 0 0 8px #10b981;
+    }
+
+    .vfd-led-dot.on-red {
+      background: #ef4444;
+      box-shadow: 0 0 8px #ef4444;
+    }
+
+    .vfd-led-dot.on-amber {
+      background: #f59e0b;
+      box-shadow: 0 0 8px #f59e0b;
+    }
+
+    .vfd-7seg-display {
+      font-family: var(--font-mono);
+      font-size: 2.6rem;
+      font-weight: 700;
+      color: #ef4444;
+      text-shadow: 0 0 14px rgba(239, 68, 68, 0.6);
+      text-align: right;
+      letter-spacing: 2px;
+      padding: 0.2rem 0.6rem;
+      line-height: 1;
+    }
+
+    .vfd-keys-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.6rem;
+      margin-top: 0.8rem;
+    }
+
+    .vfd-key {
+      background: linear-gradient(180deg, #334155, #1e293b);
+      border: 1px solid #475569;
+      border-bottom: 3px solid #0f172a;
+      color: #f8fafc;
+      font-family: var(--font-display);
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 0.65rem 0.25rem;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.25rem;
+      transition: all 0.1s ease;
+      user-select: none;
+    }
+
+    .vfd-key:active {
+      transform: translateY(2px);
+      border-bottom-width: 1px;
+    }
+
+    .vfd-key-run {
+      background: linear-gradient(180deg, #10b981, #059669);
+      border-color: #34d399;
+      color: #0b0f19;
+    }
+
+    .vfd-key-stop {
+      background: linear-gradient(180deg, #ef4444, #dc2626);
+      border-color: #f87171;
+      color: #ffffff;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-box {
+      background: #0f172a;
+      border: 1px solid var(--accent-amber);
+      border-radius: 16px;
+      padding: 1.5rem;
+      max-width: 580px;
+      width: 90%;
+      box-shadow: 0 0 35px rgba(245, 158, 11, 0.25);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header Navigation -->
+  <header>
+    <div class="header-container">
+      <div class="brand-group">
+        <div class="brand-icon">
+          <i class="fa-solid fa-gauge-high"></i>
+        </div>
+        <div>
+          <div class="brand-title">Unit 6: ควบคุมความเร็วมอเตอร์ในงานอุตสาหกรรม</div>
+          <div class="brand-sub">Industrial Motor Speed Control (DC Drive, VFD, BLDC) | วิชาอิเล็กทรอนิกส์กำลัง (30105-2019)</div>
+        </div>
+      </div>
+
+      <!-- Module Navigation Tabs -->
+      <nav class="nav-tabs">
+        <button class="nav-tab-btn active" onclick="switchTab('tab1', this)">
+          <i class="fa-solid fa-arrows-split-up-and-left"></i> 1. DC Drive 4 ควอดรันต์
+        </button>
+        <button class="nav-tab-btn" onclick="switchTab('tab2', this)">
+          <i class="fa-solid fa-chart-line"></i> 2. ทฤษฎี VFD & เส้นโค้ง V/f
+        </button>
+        <button class="nav-tab-btn" onclick="switchTab('tab3', this)">
+          <i class="fa-solid fa-keyboard"></i> 3. แป้นควบคุม VFD ดิจิทัล & แรมป์
+        </button>
+        <button class="nav-tab-btn" onclick="switchTab('tab4', this)">
+          <i class="fa-solid fa-fan"></i> 4. ขับมอเตอร์ BLDC 6 สเต็ป
+        </button>
+        <button class="nav-tab-btn" onclick="switchTab('tab5', this)">
+          <i class="fa-solid fa-clipboard-check"></i> 5. แบบทดสอบ & บันทึกผล
+        </button>
+      </nav>
+
+      <!-- Header Action Buttons -->
+      <div class="header-actions">
+        <button onclick="toggleTeacherModal(true)" class="portal-link-btn" title="ระบบตั้งค่าสำหรับครูผู้สอน">
+          <i class="fa-solid fa-chalkboard-user" style="color:var(--accent-amber);"></i> สำหรับครูผู้สอน
+        </button>
+        <a href="../" class="portal-link-btn" title="กลับหน้าแดชบอร์ดหลัก">
+          <i class="fa-solid fa-house"></i> Master Portal
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- TAB 1: 4-QUADRANT DC MOTOR DRIVE -->
+    <section id="tab1" class="tab-content active">
+      <div style="margin-bottom:1.25rem;">
+        <span class="badge badge-amber"><i class="fa-solid fa-book-open"></i> โมดูลการเรียนรู้ที่ 1</span>
+        <h2 style="font-family:var(--font-display);font-size:1.4rem;margin:0.4rem 0 0.2rem;">การควบคุมมอเตอร์กระแสตรงแบบ 4 ควอดรันต์ (4-Quadrant DC Motor Drive)</h2>
+        <p style="color:var(--text-muted);font-size:0.88rem;">วิเคราะห์พลศาสตร์ความเร็ว-แรงบิด $(\omega - T)$ การสลับสวิตชิ่ง H-Bridge PWM และการเบรกคืนพลังงาน (Regenerative Braking)</p>
+      </div>
+
+      <div class="grid-2col">
+        <!-- Left: Interactive 4-Quadrant Plane Canvas -->
+        <div class="glass-card">
+          <div class="card-header-styled">
+            <div class="card-title-styled"><i class="fa-solid fa-chart-pie" style="color:var(--accent-amber);"></i> ระนาบ 4 ควอดรันต์ (Torque-Speed Plane & Motor Animation)</div>
+            <span id="tab1QuadrantBadge" class="badge badge-green">Q1: Forward Motoring</span>
+          </div>
+
+          <div class="btn-group">
+            <button class="btn-choice active" onclick="setTab1Preset('q1', this)">Q1: เดินหน้าขับเคลื่อน</button>
+            <button class="btn-choice" onclick="setTab1Preset('q2', this)">Q2: เดินหน้าเบรกคืนพลัง</button>
+            <button class="btn-choice" onclick="setTab1Preset('q3', this)">Q3: ถอยหลังขับเคลื่อน</button>
+            <button class="btn-choice" onclick="setTab1Preset('q4', this)">Q4: ถอยหลังเบรกคืนพลัง</button>
+          </div>
+
+          <canvas id="tab1PlaneCanvas" width="560" height="340"></canvas>
+
+          <div id="tab1ExplBox" style="margin-top:0.85rem;background:rgba(15,23,42,0.6);padding:0.85rem;border-radius:10px;border-left:3px solid var(--accent-amber);font-size:0.83rem;line-height:1.6;">
+            กำลังโหลดข้อมูลสภาวะการทำงาน...
+          </div>
+        </div>
+
+        <!-- Right: Motor Parameters Controls & Telemetry -->
+        <div class="glass-card">
+          <div class="card-header-styled">
+            <div class="card-title-styled"><i class="fa-solid fa-sliders" style="color:var(--accent-cyan);"></i> ปรับตั้งพารามิเตอร์มอเตอร์ & วงจรขับ H-Bridge</div>
+            <span class="badge badge-cyan">H-Bridge PWM / Dual Converter</span>
+          </div>
+
+          <div class="control-row">
+            <div class="control-label">
+              <span>แรงดันอาร์เมเจอร์ (Armature Voltage $V_a$):</span>
+              <span id="tab1VaVal" class="control-val">+220 V</span>
+            </div>
+            <input type="range" id="tab1VaSlider" min="-220" max="220" value="220" step="5" oninput="updateTab1Sim()">
+          </div>
+
+          <div class="control-row">
+            <div class="control-label">
+              <span>แรงบิดโหลดภายนอก (Load Torque $T_L$):</span>
+              <span id="tab1TlVal" class="control-val">+10.0 Nm</span>
+            </div>
+            <input type="range" id="tab1TlSlider" min="-25" max="25" value="10" step="1" oninput="updateTab1Sim()">
+          </div>
+
+          <div class="control-row">
+            <div class="control-label">
+              <span>ฟลักซ์สนามแม่เหล็ก (Field Flux $\Phi_f$):</span>
+              <span id="tab1FluxVal" class="control-val">100 %</span>
+            </div>
+            <input type="range" id="tab1FluxSlider" min="50" max="100" value="100" step="5" oninput="updateTab1Sim()">
+          </div>
+
+          <!-- Digital Telemetry Meters -->
+          <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:0.6rem;margin-top:1.25rem;">
+            <div style="background:rgba(15,23,42,0.7);padding:0.65rem;border-radius:10px;text-align:center;border:1px solid rgba(255,255,255,0.06);">
+              <div style="font-size:0.72rem;color:var(--text-dim);font-family:var(--font-display);">ความเร็วรอบ (Speed n)</div>
+              <div id="tab1MeterRpm" style="font-family:var(--font-mono);font-size:1.15rem;color:#38bdf8;font-weight:700;">+1450 RPM</div>
+            </div>
+            <div style="background:rgba(15,23,42,0.7);padding:0.65rem;border-radius:10px;text-align:center;border:1px solid rgba(255,255,255,0.06);">
+              <div style="font-size:0.72rem;color:var(--text-dim);font-family:var(--font-display);">กระแสอาร์เมเจอร์ ($I_a$)</div>
+              <div id="tab1MeterIa" style="font-family:var(--font-mono);font-size:1.15rem;color:#f59e0b;font-weight:700;">+8.2 A</div>
+            </div>
+            <div style="background:rgba(15,23,42,0.7);padding:0.65rem;border-radius:10px;text-align:center;border:1px solid rgba(255,255,255,0.06);">
+              <div style="font-size:0.72rem;color:var(--text-dim);font-family:var(--font-display);">กำลังไฟฟ้า ($P = V_a I_a$)</div>
+              <div id="tab1MeterPower" style="font-family:var(--font-mono);font-size:1.15rem;color:#10b981;font-weight:700;">+1.80 kW</div>
+            </div>
+          </div>
+
+          <div style="margin-top:1rem;background:rgba(15,23,42,0.5);padding:0.85rem;border-radius:10px;font-size:0.78rem;font-family:var(--font-mono);color:var(--text-muted);border:1px solid rgba(255,255,255,0.05);">
+            <div style="color:var(--accent-amber);font-weight:700;margin-bottom:0.3rem;"><i class="fa-solid fa-atom"></i> ทฤษฎีและสมการควบคุม:</div>
+            <div>&bull; แรงดันต้านทานเหนี่ยวนำ: $E_b = k \cdot \Phi_f \cdot \omega_m$</div>
+            <div>&bull; กระแสอาร์เมเจอร์: $I_a = (V_a - E_b) / R_a$ (กำหนด $R_a = 1.2\,\Omega$)</div>
+            <div>&bull; แรงบิดแม่เหล็กไฟฟ้า: $T_e = k \cdot \Phi_f \cdot I_a$</div>
+            <div>&bull; ทิศทางพลังงาน: กำลังบวก (+) คือ Motoring จ่ายพลังงาน / กำลังลบ (-) คือ Regenerative ส่งไฟคืนบัส DC!</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: VFD INVERTER & V/F PROFILE -->
+    <section id="tab2" class="tab-content">
+      <div style="margin-bottom:1.25rem;">
+        <span class="badge badge-amber"><i class="fa-solid fa-chart-line"></i> โมดูลการเรียนรู้ที่ 2</span>
+        <h2 style="font-family:var(--font-display);font-size:1.4rem;margin:0.4rem 0 0.2rem;">อินเวอร์เตอร์ VFD & การควบคุมอัตราส่วนแรงดันต่อความถี่ (V/f Profile & Torque)</h2>
+        <p style="color:var(--text-muted);font-size:0.88rem;">รักษาระดับฟลักซ์แม่เหล็กคงที่ $\Phi_m = \text{Constant}$, ชดเชยแรงบิดความถี่ต่ำ (Torque Boost), และโซนลดทอนฟลักซ์ (Field Weakening)</p>
+      </div>
+
+      <div class="grid-2col">
+        <!-- Left: Interactive V/f Curve Canvas -->
+        <div class="glass-card">
+          <div class="card-header-styled">
+            <div class="card-title-styled"><i class="fa-solid fa-bezier-curve" style="color:var(--accent-amber);"></i> เส้นโค้งคุณลักษณะ V/f Profile & ฟลักซ์แม่เหล็ก</div>
+            <span id="tab2SatBadge" class="badge badge-green">V/f Ratio: 4.40 V/Hz (Normal)</span>
+          </div>
+
+          <canvas id="tab2VfCanvas" width="560" height="300"></canvas>
+
+          <div style="margin-top:0.85rem;display:flex;justify-content:space-between;align-items:center;background:rgba(15,23,42,0.6);padding:0.6rem 0.85rem;border-radius:10px;font-size:0.8rem;font-family:var(--font-mono);">
+            <span>ความถี่ปัจจุบัน: <strong id="tab2FreqDisp" style="color:#fbbf24;">50.0 Hz</strong></span>
+            <span>แรงดันออก: <strong id="tab2VoltDisp" style="color:#38bdf8;">220 V</strong></span>
+            <span>โซนการทำงาน: <strong id="tab2ZoneDisp" style="color:#34d399;">Constant Torque</strong></span>
+          </div>
+        </div>
+
+        <!-- Right: VFD Induction Motor Torque-Speed Simulation -->
+        <div class="glass-card">
+          <div class="card-header-styled">
+            <div class="card-title-styled"><i class="fa-solid fa-gauge" style="color:var(--accent-cyan);"></i> ปรับแต่งพารามิเตอร์ V/f & กราฟแรงบิดมอเตอร์เหนี่ยวนำ 3 เฟส</div>
+            <span class="badge badge-amber">Torque-Speed Dyno</span>
+          </div>
+
+          <div class="control-row">
+            <div class="control-label">
+              <span>ความถี่สั่งการ (Command Frequency $f$):</span>
+              <span id="tab2FreqVal" class="control-val">50.0 Hz</span>
+            </div>
+            <input type="range" id="tab2FreqSlider" min="5" max="100" value="50" step="1" oninput="updateTab2Sim()">
+          </div>
+
+          <div class="control-row">
+            <div class="control-label">
+              <span>แรงดันชดเชยออกตัว (Low Freq Torque Boost $V_{boost}$):</span>
+              <span id="tab2BoostVal" class="control-val">15 V</span>
+            </div>
+            <input type="range" id="tab2BoostSlider" min="0" max="40" value="15" step="1" oninput="updateTab2Sim()">
+          </div>
+
+          <div class="control-row">
+            <div class="control-label">
+              <span>ความถี่พิกัดฐาน (Base Frequency $f_{base}$):</span>
+              <span id="tab2BaseVal" class="control-val">50 Hz</span>
+            </div>
+            <div class="btn-group" style="margin-bottom:0;">
+              <button class="btn-choice active" onclick="setTab2BaseFreq(50, this)">50 Hz (มาตรฐานไทย/ยุโรป 220V/380V)</button>
+              <button class="btn-choice" onclick="setTab2BaseFreq(60, this)">60 Hz (มาตรฐานอเมริกา 230V/460V)</button>
+            </div>
+          </div>
+
+          <!-- Torque Curve Canvas -->
+          <canvas id="tab2TorqueCanvas" width="560" height="150" style="margin-top:0.8rem;"></canvas>
+
+          <div style="margin-top:0.75rem;font-size:0.78rem;color:var(--text-muted);font-family:var(--font-mono);background:rgba(15,23,42,0.4);padding:0.6rem;border-radius:8px;">
+            &bull; ช่วง 0 - 50 Hz คือ <strong>Constant Torque Region</strong>: รักษา $V/f = 4.40$ คงที่ มอเตอร์สร้างแรงบิดพิกัดได้เต็มที่<br>
+            &bull; ช่วง > 50 Hz คือ <strong>Field Weakening Region</strong>: แรงดันตันที่ 220V ฟลักซ์แม่เหล็กลดลง แรงบิดสูงสุดลดลงตาม $1/f^2$
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: VIRTUAL INDUSTRIAL VFD KEYPAD & RAMP TUNING -->
+    <section id="tab3" class="tab-content">
+      <div style="margin-bottom:1.25rem;">
+        <span class="badge badge-amber"><i class="fa-solid fa-keyboard"></i> โมดูลการเรียนรู้ที่ 3</span>
+        <h2 style="font-family:var(--font-display);font-size:1.4rem;margin:0.4rem 0 0.2rem;">แป้นควบคุม VFD ดิจิทัลเสมือน & ปรับแต่งพารามิเตอร์ (Virtual Keypad & Acc/Dec Ramp)</h2>
+        <p style="color:var(--text-muted);font-size:0.88rem;">ฝึกกดแป้น Operator หน้าตู้จริง ปรับค่าเวลาเร่ง-ลดความเร็ว (Acc/Dec Time) และการจำลอง Fault Alarms (`o.C.`, `o.U.`, `o.L.`)</p>
+      </div>
+
+      <div class="grid-2col">
+        <!-- Left: Realistic Industrial VFD Keypad Operator -->
+        <div class="glass-card">
+          <div class="card-header-styled">
+            <div class="card-title-styled"><i class="fa-solid fa-microchip" style="color:var(--accent-amber);"></i> VFD Digital Operator Keypad (หน้าปัดควบคุมอินเวอร์เตอร์)</div>
+            <span id="tab3KeypadStatusBadge" class="badge badge-green">STATUS: READY / STOP</span>
+          </div>
+
+          <div class="vfd-bezel">
+            <!-- 7-Segment Screen Bezel -->
+            <div class="vfd-screen-bezel">
+              <!-- LED Indicators -->
+              <div class="vfd-led-status-row">
+                <div class="vfd-led-item"><div id="ledRun" class="vfd-led-dot"></div> RUN</div>
+                <div class="vfd-led-item"><div id="ledFwd" class="vfd-led-dot on-green"></div> FWD</div>
+                <div class="vfd-led-item"><div id="ledRev" class="vfd-led-dot"></div> REV</div>
+                <div class="vfd-led-item"><div id="ledTrip" class="vfd-led-dot"></div> TRIP</div>
+                <div class="vfd-led-item" style="color:var(--accent-amber);"><div id="ledHz" class="vfd-led-dot on-amber"></div> Hz</div>
+                <div class="vfd-led-item"><div id="ledAmp" class="vfd-led-dot"></div> A</div>
+              </div>
+
+              <!-- 7-Segment Value -->
+              <div id="vfdDisplay" class="vfd-7seg-display">00.00</div>
+              <div id="vfdSubPrompt" style="text-align:right;font-family:var(--font-mono);font-size:0.75rem;color:#94a3b8;padding-right:0.6rem;">OUTPUT FREQ (Hz)</div>
+            </div>
+
+            <!-- Potentiometer Knob Simulation -->
+            <div style="background:rgba(15,23,42,0.8);border-radius:10px;padding:0.6rem 0.85rem;margin-bottom:0.85rem;display:flex;align-items:center;justify-content:space-between;">
+              <span style="font-size:0.78rem;font-family:var(--font-display);color:var(--text-muted);"><i class="fa-solid fa-dial"></i> Digital Speed Potentiometer:</span>
+              <input type="range" id="vfdPotKnob" min="0" max="60" value="50" step="0.5" style="width:160px;" oninput="onVfdPotChange()">
+              <span id="vfdPotVal" style="font-family:var(--font-mono);font-size:0.85rem;color:var(--accent-amber);font-weight:700;">50.0 Hz</span>
+            </div>
+
+            <!-- Keypad Buttons -->
+            <div class="vfd-keys-grid">
+              <button class="vfd-key" onclick="keypadPress('PROG')"><i class="fa-solid fa-bars"></i> PROG/ESC</button>
+              <button class="vfd-key" onclick="keypadPress('UP')"><i class="fa-solid fa-chevron-up"></i> UP</button>
+              <button class="vfd-key" onclick="keypadPress('DATA')"><i class="fa-solid fa-check"></i> DATA/ENT</button>
+
+              <button class="vfd-key" onclick="keypadPress('FWD_REV')"><i class="fa-solid fa-repeat"></i> FWD/REV</button>
+              <button class="vfd-key" onclick="keypadPress('DOWN')"><i class="fa-solid fa-chevron-down"></i> DOWN</button>
+              <button class="vfd-key" onclick="keypadPress('DISP')"><i class="fa-solid fa-eye"></i> DISP MODE</button>
+
+              <button class="vfd-key vfd-key-run" onclick="keypadPress('RUN')"><i class="fa-solid fa-play"></i> RUN</button>
+              <button class="vfd-key" onclick="keypadPress('JOG')"><i class="fa-solid fa-hand-point-right"></i> JOG</button>
+              <button class="vfd-key vfd-key-stop" onclick="keypadPress('STOP')"><i class="fa-solid fa-stop"></i> STOP/RST</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Parameter Table & Acc/Dec Ramp Scope -->
+        <div class="glass-card">
+          <div class="card-header-styled">
+            <div class="card-title-styled"><i class="fa-solid fa-wave-square" style="color:var(--accent-cyan);"></i> เส้นเร่ง/หน่วงความเร็ว (Acc/Dec Ramp Profile Scope)</div>
+            <span class="badge badge-purple">Linear / S-Curve</span>
+          </div>
+
+          <canvas id="tab3RampCanvas" width="560" height="190"></canvas>
+
+          <!-- Parameters Tuning Controls -->
+          <div style="margin-top:1rem;">
+            <div class="control-row">
+              <div class="control-label">
+                <span>P0-03: เวลาเร่งความเร็ว (Acceleration Time):</span>
+                <span id="tab3AccVal" class="control-val">5.0 s</span>
+              </div>
+              <input type="range" id="tab3AccSlider" min="0.5" max="20" value="5" step="0.5" oninput="updateTab3Params()">
+            </div>
+
+            <div class="control-row">
+              <div class="control-label">
+                <span>P0-04: เวลาหน่วงความเร็ว (Deceleration Time):</span>
+                <span id="tab3DecVal" class="control-val">5.0 s</span>
+              </div>
+              <input type="range" id="tab3DecSlider" min="0.5" max="20" value="5" step="0.5" oninput="updateTab3Params()">
+            </div>
+          </div>
+
+          <!-- Fault Injection Buttons -->
+          <div style="margin-top:0.8rem;background:rgba(15,23,42,0.6);padding:0.75rem;border-radius:10px;">
+            <div style="font-size:0.78rem;font-family:var(--font-display);color:var(--text-muted);margin-bottom:0.5rem;"><i class="fa-solid fa-triangle-exclamation" style="color:#ef4444;"></i> จำลองสภาวะฟอลต์อุตสาหกรรม (Fault Injection):</div>
+            <div class="btn-group" style="margin-bottom:0;">
+              <button class="btn-choice" style="border-color:#ef4444;color:#f87171;" onclick="injectVfdFault('oC')">o.C. กระแสเกิน (Overcurrent)</button>
+              <button class="btn-choice" style="border-color:#f59e0b;color:#fbbf24;" onclick="injectVfdFault('oU')">o.U. แรงดันเกิน (Overvoltage)</button>
+              <button class="btn-choice" style="border-color:#ec4899;color:#f472b6;" onclick="injectVfdFault('oL')">o.L. โหลดเกินพิกัด (Overload)</button>
+              <button class="btn-choice" style="border-color:#10b981;color:#34d399;" onclick="resetVfdFault()"><i class="fa-solid fa-rotate-left"></i> Reset Fault</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: BLDC MOTOR 6-STEP INVERTER DRIVE -->
+    <section id="tab4" class="tab-content">
+      <div style="margin-bottom:1.25rem;">
+        <span class="badge badge-amber"><i class="fa-solid fa-fan"></i> โมดูลการเรียนรู้ที่ 4</span>
+        <h2 style="font-family:var(--font-display);font-size:1.4rem;margin:0.4rem 0 0.2rem;">การขับมอเตอร์ไร้แปรงถ่าน BLDC 6 สเต็ปคอมมิวเตชัน (BLDC Motor & Hall Sensor Commutation)</h2>
+        <p style="color:var(--text-muted);font-size:0.88rem;">สเตเตอร์ 3 เฟส ($U, V, W$) ร่วมกับเซนเซอร์ฮอลล์ 120° ลำดับการสวิตชิ่ง 6 ขั้น และรูปคลื่น Trapezoidal Back-EMF</p>
+      </div>
+
+      <div class="grid-2col">
+        <!-- Left: BLDC Cross-Section Animation & 6-Step Table -->
+        <div class="glass-card">
+          <div class="card-header-styled">
+            <div class="card-title-styled"><i class="fa-solid fa-atom" style="color:var(--accent-amber);"></i> โครงสร้างมอเตอร์ BLDC 3 เฟส & โรเตอร์แม่เหล็กถาวร N-S</div>
+            <span id="tab4StepBadge" class="badge badge-cyan">STEP 1: U+ / V-</span>
+          </div>
+
+          <canvas id="tab4BldcCanvas" width="560" height="280"></canvas>
+
+          <!-- BLDC Speed & Direction Controls -->
+          <div style="margin-top:0.85rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;">
+            <div class="btn-group" style="margin-bottom:0;">
+              <button id="bldcRunBtn" class="btn-action" style="padding:0.4rem 0.9rem;" onclick="toggleBldcRun()">
+                <i class="fa-solid fa-play"></i> <span>RUN MOTOR</span>
+              </button>
+              <button class="btn-choice active" onclick="setBldcDir(1, this)"><i class="fa-solid fa-rotate-right"></i> หมุนตามเข็ม (CW)</button>
+              <button class="btn-choice" onclick="setBldcDir(-1, this)"><i class="fa-solid fa-rotate-left"></i> หมุนทวนเข็ม (CCW)</button>
+            </div>
+            
+            <div style="font-family:var(--font-mono);font-size:0.85rem;color:var(--accent-amber);">
+              Speed: <strong id="bldcRpmVal">1500</strong> RPM
+            </div>
+          </div>
+
+          <div class="control-row" style="margin-top:0.85rem;">
+            <div class="control-label">
+              <span>PWM Duty Cycle (คุมความเร็วมอเตอร์ BLDC):</span>
+              <span id="bldcDutyVal" class="control-val">70 %</span>
+            </div>
+            <input type="range" id="bldcDutySlider" min="15" max="100" value="70" step="5" oninput="updateBldcDuty()">
+          </div>
+        </div>
+
+        <!-- Right: 6-Step Commutation Truth Table & Oscilloscope -->
+        <div class="glass-card">
+          <div class="card-header-styled">
+            <div class="card-title-styled"><i class="fa-solid fa-table-list" style="color:var(--accent-purple);"></i> ตารางลอจิกคอมมิวเตชัน 6 ขั้น & ออสซิลโลสโคปฮอลล์เซนเซอร์</div>
+            <span class="badge badge-purple">120&deg; Hall Commutation</span>
+          </div>
+
+          <!-- 6-Step Live Table -->
+          <div class="data-table-wrap" style="margin-bottom:1rem;">
+            <table id="bldcTruthTable">
+              <thead>
+                <tr>
+                  <th>Step</th>
+                  <th>H1</th>
+                  <th>H2</th>
+                  <th>H3</th>
+                  <th>เฟส U</th>
+                  <th>เฟส V</th>
+                  <th>เฟส W</th>
+                  <th>สวิตช์นำกระแส</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr id="stepRow1"><td>1</td><td>1</td><td>0</td><td>1</td><td style="color:#34d399;">+ (High)</td><td style="color:#f43f5e;">- (Low)</td><td style="color:#64748b;">OFF</td><td>Q1 & Q4</td></tr>
+                <tr id="stepRow2"><td>2</td><td>1</td><td>0</td><td>0</td><td style="color:#34d399;">+ (High)</td><td style="color:#64748b;">OFF</td><td style="color:#f43f5e;">- (Low)</td><td>Q1 & Q6</td></tr>
+                <tr id="stepRow3"><td>3</td><td>1</td><td>1</td><td>0</td><td style="color:#64748b;">OFF</td><td style="color:#34d399;">+ (High)</td><td style="color:#f43f5e;">- (Low)</td><td>Q3 & Q6</td></tr>
+                <tr id="stepRow4"><td>4</td><td>0</td><td>1</td><td>0</td><td style="color:#f43f5e;">- (Low)</td><td style="color:#34d399;">+ (High)</td><td style="color:#64748b;">OFF</td><td>Q3 & Q2</td></tr>
+                <tr id="stepRow5"><td>5</td><td>0</td><td>1</td><td>1</td><td style="color:#f43f5e;">- (Low)</td><td style="color:#64748b;">OFF</td><td style="color:#34d399;">+ (High)</td><td>Q5 & Q2</td></tr>
+                <tr id="stepRow6"><td>6</td><td>0</td><td>0</td><td>1</td><td style="color:#64748b;">OFF</td><td style="color:#f43f5e;">- (Low)</td><td style="color:#34d399;">+ (High)</td><td>Q5 & Q4</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Hall Signals Canvas -->
+          <canvas id="tab4ScopeCanvas" width="560" height="150"></canvas>
+          <div style="margin-top:0.5rem;font-size:0.75rem;font-family:var(--font-mono);display:flex;justify-content:space-around;color:var(--text-muted);">
+            <span style="color:#facc15;">&bull; H1: เซนเซอร์ 1</span>
+            <span style="color:#38bdf8;">&bull; H2: เซนเซอร์ 2</span>
+            <span style="color:#fb7185;">&bull; H3: เซนเซอร์ 3</span>
+            <span style="color:#34d399;">&bull; Back-EMF (Trapezoidal)</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: ASSESSMENT & DATA LOGGER -->
+    <section id="tab5" class="tab-content">
+      <div style="margin-bottom:1.25rem;">
+        <span class="badge badge-amber"><i class="fa-solid fa-clipboard-check"></i> โมดูลการเรียนรู้ที่ 5</span>
+        <h2 style="font-family:var(--font-display);font-size:1.4rem;margin:0.4rem 0 0.2rem;">แบบทดสอบประเมินผล & บันทึกรายงานชิ้นงาน (Assessment & Workpiece Logger)</h2>
+        <p style="color:var(--text-muted);font-size:0.88rem;">ทดสอบความรู้ 5 ข้อ พร้อมระบบบันทึกผลการทดสอบการควบคุมมอเตอร์เข้าสู่คลาวด์ Google Sheets และพิมพ์ใบงาน PDF</p>
+      </div>
+
+      <div class="grid-2col">
+        <!-- Left: Interactive Quiz Box -->
+        <div class="glass-card">
+          <div class="card-header-styled">
+            <div class="card-title-styled"><i class="fa-solid fa-brain" style="color:var(--accent-amber);"></i> แบบทดสอบวัดผลสัมฤทธิ์ (5 ข้อ)</div>
+            <span id="quizCurrentScore" class="badge badge-amber">คะแนน: 0 / 5</span>
+          </div>
+
+          <div id="quizBox">
+            <div id="quizQuestion" style="font-size:0.95rem;font-weight:600;margin-bottom:1rem;color:#f8fafc;line-height:1.5;">กำลังโหลดข้อสอบ...</div>
+            <div id="quizOptions" style="display:flex;flex-direction:column;gap:0.5rem;margin-bottom:1rem;"></div>
+            
+            <div id="quizExplanationBox" style="display:none;background:rgba(15,23,42,0.8);border-left:3px solid var(--accent-amber);padding:0.85rem;border-radius:8px;font-size:0.82rem;line-height:1.6;margin-bottom:1rem;"></div>
+
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span id="quizProgress" style="font-size:0.8rem;color:var(--text-muted);font-family:var(--font-mono);">ข้อ 1 จาก 5</span>
+              <button id="quizNextBtn" class="btn-action" onclick="nextQuizQuestion()" disabled>
+                <span>ข้อถัดไป</span> <i class="fa-solid fa-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Data Logger & Cloud Sync -->
+        <div class="glass-card">
+          <div class="card-header-styled">
+            <div class="card-title-styled"><i class="fa-solid fa-cloud-arrow-up" style="color:#38bdf8;"></i> บันทึกข้อมูลใบงาน & ส่งผลคะแนน (Cloud Sync)</div>
+            <button class="btn-action" style="padding:0.35rem 0.8rem;font-size:0.75rem;" onclick="logCurrentData()">
+              <i class="fa-solid fa-plus"></i> บันทึกผลชุดปัจจุบัน
+            </button>
+          </div>
+
+          <!-- Student Information Input -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;margin-bottom:1rem;">
+            <div>
+              <label style="font-size:0.75rem;color:var(--text-muted);font-family:var(--font-display);">ชื่อ-นามสกุล นักศึกษา:</label>
+              <input type="text" id="studentNameInput" placeholder="เช่น นายสมชาย ใจดี" style="width:100%;padding:0.5rem;border-radius:8px;background:rgba(15,23,42,0.6);border:1px solid var(--border-card);color:#fff;font-family:var(--font-body);outline:none;">
+            </div>
+            <div>
+              <label style="font-size:0.75rem;color:var(--text-muted);font-family:var(--font-display);">รหัสประจำตัวนักศึกษา:</label>
+              <input type="text" id="studentIdInput" oninput="checkUnitDuplicate()" placeholder="เช่น 6630105001" style="width:100%;padding:0.5rem;border-radius:8px;background:rgba(15,23,42,0.6);border:1px solid var(--border-card);color:#fff;font-family:var(--font-mono);outline:none;">
+              <div id="unit-dup-warning" style="display:none; color: #ef4444; font-size: 0.72rem; margin-top: 4px; font-weight: 500;">
+                <i class="fa-solid fa-triangle-exclamation"></i> รหัสนักศึกษานี้เคยส่งงานหน่วยที่ 6 แล้ว (ห้ามส่งซ้ำ)
+              </div>
+            </div>
+          </div>
+
+          <!-- Live Logged Table -->
+          <div class="data-table-wrap" style="max-height:190px;margin-bottom:1rem;">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>โหมด</th>
+                  <th>เป้าหมาย</th>
+                  <th>รอบจริง</th>
+                  <th>กระแส</th>
+                  <th>V/f Ratio</th>
+                  <th>ฟอลต์</th>
+                </tr>
+              </thead>
+              <tbody id="logTableBody">
+                <tr><td colspan="7" style="color:var(--text-dim);">ยังไม่มีข้อมูลบันทึก (กดปุ่ม "บันทึกผลชุดปัจจุบัน" เพื่อจัดเก็บ)</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div style="display:flex;gap:0.6rem;flex-wrap:wrap;">
+            <button id="btn-submit-unit" class="btn-action" style="flex:1;" onclick="submitToGoogleSheets()">
+              <i class="fa-solid fa-paper-plane"></i> ส่งคะแนนและผลการทดลองเข้า Google Sheets
+            </button>
+            <button class="btn-secondary" onclick="window.print()">
+              <i class="fa-solid fa-print"></i> พิมพ์รายงาน PDF
+            </button>
+          </div>
+
+          <div id="gasStatusBox" style="margin-top:0.75rem;padding:0.6rem;border-radius:8px;font-size:0.78rem;font-family:var(--font-mono);display:none;"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal สำหรับครูผู้สอน (Teacher Settings Modal) -->
+  <div id="teacher-modal" class="modal-overlay">
+    <div class="modal-box" style="max-width: 620px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;border-bottom:1px solid var(--border-card);padding-bottom:0.75rem;">
+        <div style="display:flex;align-items:center;gap:0.6rem;">
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(245,158,11,0.2);color:var(--accent-amber);display:flex;align-items:center;justify-content:center;font-size:1.1rem;">
+            ⚙️
+          </div>
+          <div>
+            <h3 style="font-family:var(--font-display);color:#fff;font-size:1.1rem;margin:0;">
+              ตั้งค่าสำหรับครูผู้สอน (Teacher Settings)
+            </h3>
+            <p style="font-size:0.75rem;color:var(--text-muted);margin:0;">เชื่อมต่อ Google Sheet สำหรับจัดเก็บคะแนนและผลทดลองหน่วยที่ 6</p>
+          </div>
+        </div>
+        <button onclick="toggleTeacherModal(false)" style="background:transparent;border:none;color:#94a3b8;cursor:pointer;font-size:1.3rem;">&times;</button>
+      </div>
+
+      <!-- Google Apps Script URL Input -->
+      <div style="margin-bottom:1rem;">
+        <label style="display:block;font-size:0.78rem;font-weight:600;color:#e2e8f0;margin-bottom:0.4rem;">
+          Google Apps Script Web App URL (ลิงก์เว็บแอปที่ Deploy จากชีต)
+        </label>
+        <input type="url" id="teacher-sheet-url" placeholder="https://script.google.com/macros/s/.../exec" style="width:100%;padding:0.65rem 0.8rem;border-radius:8px;background:rgba(15,23,42,0.85);border:1px solid var(--border-card);color:#fff;font-family:var(--font-mono);font-size:0.8rem;outline:none;">
+        <p style="font-size:0.72rem;color:var(--text-muted);margin-top:0.3rem;">
+          * ระบบจะบันทึก URL ไว้ใน Local Storage ของเครื่อง เพื่อให้นักเรียนส่งคะแนนเข้าชีตของคุณครู
+        </p>
+      </div>
+
+      <!-- Student Share Link (for Classroom/LINE) -->
+      <div style="margin-bottom:1.25rem;padding-top:0.75rem;border-top:1px solid rgba(255,255,255,0.08);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem;">
+          <label style="font-size:0.78rem;font-weight:600;color:#38bdf8;margin:0;">
+            🔗 ลิงก์สำหรับส่งให้นักศึกษาเข้าเรียน / ทำแบบทดสอบ
+          </label>
+          <span id="copy-badge" style="display:none;font-size:0.72rem;color:#34d399;font-weight:600;">✓ คัดลอกสำเร็จ!</span>
+        </div>
+        <div style="display:flex;gap:0.5rem;">
+          <input type="text" id="student-share-link" readonly style="flex:1;padding:0.6rem 0.8rem;border-radius:8px;background:rgba(15,23,42,0.9);border:1px solid var(--border-card);color:#94a3b8;font-family:var(--font-mono);font-size:0.75rem;outline:none;">
+          <button onclick="copyStudentLink()" class="btn-action" style="padding:0.6rem 1rem;white-space:nowrap;font-size:0.78rem;display:flex;align-items:center;gap:0.35rem;">
+            📋 คัดลอกลิงก์
+          </button>
+        </div>
+        <p style="font-size:0.72rem;color:var(--text-muted);margin-top:0.3rem;">
+          * ลิงก์นี้จะแนบพารามิเตอร์ <code>?gas=...</code> ให้นักเรียนอัตโนมัติ ทำให้ผู้เรียนไม่ต้องตั้งค่าใดๆ เพิ่มเติม
+        </p>
+      </div>
+
+      <!-- Action Buttons -->
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;padding-top:0.75rem;border-top:1px solid rgba(255,255,255,0.08);margin-bottom:1rem;">
+        <a href="Code.gs" download="Unit6_Code.gs" style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.5rem 0.9rem;border-radius:8px;background:rgba(30,41,59,0.9);color:#38bdf8;border:1px solid var(--border-card);text-decoration:none;font-size:0.78rem;font-weight:600;">
+          📥 ดาวน์โหลด Code.gs
+        </a>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+          <button class="btn-secondary" onclick="resetUnit6AntiCheat()" style="color:#f87171; border-color:rgba(239,68,68,0.4);"><i class="fa-solid fa-rotate-left"></i> ล้างประวัติส่งซ้ำ (หน่วยที่ 6)</button>
+          <button class="btn-secondary" onclick="toggleTeacherModal(false)">ปิด</button>
+          <button class="btn-action" onclick="saveTeacherSettings()"><i class="fa-solid fa-save"></i> บันทึกการตั้งค่า</button>
+        </div>
+      </div>
+
+      <!-- Guide Box -->
+      <div style="background:rgba(15,23,42,0.6);border:1px solid rgba(255,255,255,0.08);padding:0.85rem;border-radius:10px;font-size:0.75rem;color:var(--text-muted);line-height:1.6;">
+        <div style="font-weight:700;color:#f8fafc;margin-bottom:0.35rem;">📖 ขั้นตอนเตรียม Google Sheet:</div>
+        <ol style="margin:0;padding-left:1.2rem;">
+          <li>เปิด Google Sheet ใหม่ หรือชีตวิชาอิเล็กทรอนิกส์กำลัง</li>
+          <li>ไปที่เมนู <strong>ส่วนขยาย (Extensions) &gt; Apps Script</strong></li>
+          <li>กดปุ่ม <strong>"ดาวน์โหลด Code.gs"</strong> ด้านบน แล้วนำโค้ดไปวางแทนที่โค้ดเดิมใน Apps Script</li>
+          <li>กดปุ่ม <strong>การทำให้ใช้งานได้ (Deploy) &gt; รายการใหม่ (New deployment)</strong> เลือก Web App</li>
+          <li>ตั้งค่า Who has access เป็น <strong>Anyone (ทุกคน)</strong> แล้วคัดลอก URL มาวางในช่องด้านบน</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- APP GLOBAL STATE ---
+    const AppState = {
+      tab1: {
+        preset: 'q1',
+        Va: 220,
+        Tl: 10,
+        fluxPct: 100,
+        speedRpm: 1450,
+        Ia: 8.2,
+        rotorAngle: 0
+      },
+      tab2: {
+        freq: 50.0,
+        vBoost: 15.0,
+        baseFreq: 50.0,
+        vfRatio: 4.40,
+        voltage: 220.0
+      },
+      tab3: {
+        running: false,
+        dir: 1, // 1: FWD, -1: REV
+        targetFreq: 50.0,
+        currentFreq: 0.0,
+        accTime: 5.0,
+        decTime: 5.0,
+        mode: 'FREQ', // FREQ, AMP, RPM, PARAM
+        paramIndex: 1, // P0-01 to P0-08
+        fault: null, // null, 'oC', 'oU', 'oL'
+        time: 0
+      },
+      tab4: {
+        running: true,
+        dir: 1, // 1: CW, -1: CCW
+        duty: 70, // PWM 15..100%
+        angleDeg: 0,
+        step: 1,
+        time: 0
+      },
+      quiz: {
+        index: 0,
+        score: 0,
+        answered: false
+      },
+      logs: []
+    };
+
+    // Navigation Switcher
+    function switchTab(tabId, btn) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-tab-btn').forEach(el => el.classList.remove('active'));
+      const target = document.getElementById(tabId);
+      if (target) target.classList.add('active');
+      if (btn) btn.classList.add('active');
+
+      if (tabId === 'tab1') renderTab1();
+      else if (tabId === 'tab2') renderTab2();
+      else if (tabId === 'tab3') renderTab3();
+      else if (tabId === 'tab4') renderTab4();
+      else if (tabId === 'tab5') renderQuizQuestion();
+    }
+
+    // --- TEACHER MODAL & SHARE LINK LOGIC ---
+    const TEACHER_SHEET_KEY = 'unit6_gas_url';
+
+    function toggleTeacherModal(show) {
+      const modal = document.getElementById('teacher-modal');
+      if (!modal) return;
+      if (show) {
+        modal.classList.add('active');
+        const savedUrl = localStorage.getItem(TEACHER_SHEET_KEY) || localStorage.getItem('elec_power_master_gas_url') || '';
+        const urlInput = document.getElementById('teacher-sheet-url');
+        if (urlInput) urlInput.value = savedUrl;
+        updateStudentShareLink(savedUrl);
+      } else {
+        modal.classList.remove('active');
+      }
+    }
+
+    function openGasModal() { toggleTeacherModal(true); }
+    function closeGasModal() { toggleTeacherModal(false); }
+
+    function updateStudentShareLink(gasUrl) {
+      const shareInput = document.getElementById('student-share-link');
+      if (!shareInput) return;
+      let base = window.location.origin + window.location.pathname.replace(/\/index\.html$/i, '/');
+      if (base.startsWith('file:') || window.location.origin === 'null') {
+        base = 'http://localhost:8082/Unit6/';
+      }
+      const fullUrl = gasUrl ? (base + (base.endsWith('/') ? '' : '/') + '?gas=' + encodeURIComponent(gasUrl)) : base;
+      shareInput.value = fullUrl;
+      const badge = document.getElementById('copy-badge');
+      if (badge) badge.style.display = 'none';
+    }
+
+    function copyStudentLink() {
+      const shareInput = document.getElementById('student-share-link');
+      if (!shareInput) return;
+      shareInput.select();
+      shareInput.setSelectionRange(0, 99999);
+      navigator.clipboard.writeText(shareInput.value).then(() => {
+        const badge = document.getElementById('copy-badge');
+        if (badge) {
+          badge.style.display = 'inline';
+          setTimeout(() => { badge.style.display = 'none'; }, 3000);
+        }
+      }).catch(() => {
+        document.execCommand('copy');
+        const badge = document.getElementById('copy-badge');
+        if (badge) {
+          badge.style.display = 'inline';
+          setTimeout(() => { badge.style.display = 'none'; }, 3000);
+        }
+      });
+    }
+
+    function saveTeacherSettings() {
+      const urlInput = document.getElementById('teacher-sheet-url');
+      const url = urlInput ? urlInput.value.trim() : '';
+      localStorage.setItem(TEACHER_SHEET_KEY, url);
+      updateStudentShareLink(url);
+      toggleTeacherModal(false);
+      alert('บันทึกการตั้งค่า Google Apps Script Web App URL เรียบร้อยแล้ว');
+    }
+
+    // --- TAB 1: 4-QUADRANT DC MOTOR DRIVE SIMULATION ---
+    function setTab1Preset(q, btn) {
+      AppState.tab1.preset = q;
+      const parent = btn.parentElement;
+      parent.querySelectorAll('.btn-choice').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      if (q === 'q1') {
+        AppState.tab1.Va = 220;
+        AppState.tab1.Tl = 10;
+      } else if (q === 'q2') {
+        // Forward Regen: Speed is positive, but Torque is negative (driven by overhauling load)
+        AppState.tab1.Va = 120;
+        AppState.tab1.Tl = -20;
+      } else if (q === 'q3') {
+        // Reverse Motoring: Va negative, Tl negative
+        AppState.tab1.Va = -220;
+        AppState.tab1.Tl = -10;
+      } else if (q === 'q4') {
+        // Reverse Regen: Speed is negative, but Torque is positive
+        AppState.tab1.Va = -120;
+        AppState.tab1.Tl = 20;
+      }
+
+      document.getElementById('tab1VaSlider').value = AppState.tab1.Va;
+      document.getElementById('tab1TlSlider').value = AppState.tab1.Tl;
+      updateTab1Sim();
+    }
+
+    function updateTab1Sim() {
+      const Va = parseFloat(document.getElementById('tab1VaSlider').value);
+      const Tl = parseFloat(document.getElementById('tab1TlSlider').value);
+      const fluxPct = parseFloat(document.getElementById('tab1FluxSlider').value);
+
+      AppState.tab1.Va = Va;
+      AppState.tab1.Tl = Tl;
+      AppState.tab1.fluxPct = fluxPct;
+
+      document.getElementById('tab1VaVal').innerText = (Va >= 0 ? '+' : '') + Va.toFixed(0) + ' V';
+      document.getElementById('tab1TlVal').innerText = (Tl >= 0 ? '+' : '') + Tl.toFixed(1) + ' Nm';
+      document.getElementById('tab1FluxVal').innerText = fluxPct.toFixed(0) + ' %';
+
+      // DC Motor Physics Equations:
+      // Ra = 1.2 ohm, k_phi_nominal = 1.35 V/(rad/s)
+      const kPhi = 1.35 * (fluxPct / 100.0);
+      const Ra = 1.2;
+
+      // Steady state torque Te = Tl (friction ignored for clarity)
+      // Te = kPhi * Ia  =>  Ia = Tl / kPhi
+      const Ia = Tl / kPhi;
+      // Va = Eb + Ia * Ra  =>  Eb = Va - Ia * Ra
+      const Eb = Va - (Ia * Ra);
+      // Eb = kPhi * omega  =>  omega = Eb / kPhi
+      const omega = Eb / kPhi; // rad/s
+      const rpm = (omega * 60) / (2 * Math.PI);
+
+      AppState.tab1.Ia = Ia;
+      AppState.tab1.speedRpm = rpm;
+
+      const powerKw = (Va * Ia) / 1000.0;
+
+      document.getElementById('tab1MeterRpm').innerText = (rpm >= 0 ? '+' : '') + rpm.toFixed(0) + ' RPM';
+      document.getElementById('tab1MeterIa').innerText = (Ia >= 0 ? '+' : '') + Ia.toFixed(1) + ' A';
+      document.getElementById('tab1MeterPower').innerText = (powerKw >= 0 ? '+' : '') + powerKw.toFixed(2) + ' kW';
+
+      // Badge & Explanation Box
+      const badge = document.getElementById('tab1QuadrantBadge');
+      const expl = document.getElementById('tab1ExplBox');
+
+      if (omega >= 0 && Tl >= 0) {
+        badge.innerText = 'Q1: Forward Motoring (ขับเคลื่อนตามเข็ม)';
+        badge.className = 'badge badge-green';
+        expl.innerHTML = '<strong>Quadrant 1 (เดินหน้าขับเคลื่อน):</strong> แรงดัน $V_a > 0$ ความเร็ว $\\omega > 0$ และแรงบิด $T > 0$ มอเตอร์ทำหน้าที่แปลงพลังงานไฟฟ้าเป็นพลังงานกล กำลังไฟฟ้า $P > 0$ รับไฟจากแหล่งจ่าย H-Bridge';
+      } else if (omega >= 0 && Tl < 0) {
+        badge.innerText = 'Q2: Forward Regeneration (เดินหน้าเบรกคืนพลัง)';
+        badge.className = 'badge badge-amber';
+        expl.innerHTML = '<strong>Quadrant 2 (เดินหน้าเบรกคืนพลังงาน):</strong> ความเร็ว $\\omega > 0$ แต่แรงบิด $T < 0$ (ภาระฉุดหมุนเร็วกว่าปกติ เช่น ขบวนรถวิ่งลงเนิน) $E_b > V_a$ กระแส $I_a$ ไหลย้อนกลับ ส่งพลังงานไฟฟ้าชาร์จคืนบัส DC!';
+      } else if (omega < 0 && Tl < 0) {
+        badge.innerText = 'Q3: Reverse Motoring (ถอยหลังขับเคลื่อน)';
+        badge.className = 'badge badge-cyan';
+        expl.innerHTML = '<strong>Quadrant 3 (ถอยหลังขับเคลื่อน):</strong> แรงดัน $V_a < 0$ ความเร็ว $\\omega < 0$ และแรงบิด $T < 0$ มอเตอร์หมุนทวนเข็มนาฬิกา กำลังไฟฟ้า $P = (-V_a) \\times (-I_a) > 0$ ขับเคลื่อนทวนเข็มตามปกติ';
+      } else {
+        badge.innerText = 'Q4: Reverse Regeneration (ถอยหลังเบรกคืนพลัง)';
+        badge.className = 'badge badge-rose';
+        expl.innerHTML = '<strong>Quadrant 4 (ถอยหลังเบรกคืนพลังงาน):</strong> ความเร็ว $\\omega < 0$ หมุนทวนเข็ม แต่แรงบิด $T > 0$ ต้านการหมุน (เบรกชะลอรถขณะถอยหลัง) กระแสไหลคืนบัส DC เพื่อหน่วงให้หยุด';
+      }
+
+      renderTab1();
+    }
+
+    function renderTab1() {
+      const canvas = document.getElementById('tab1PlaneCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width;
+      const h = canvas.height;
+
+      ctx.clearRect(0, 0, w, h);
+
+      // Grid background
+      ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+      ctx.lineWidth = 1;
+      for (let x = 0; x < w; x += 35) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+      for (let y = 0; y < h; y += 35) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+
+      // 4-Quadrant Plane Area (Left half: 0..340px)
+      const cx = 170;
+      const cy = 170;
+      const rMax = 135;
+
+      // Quadrant Background Tints
+      ctx.fillStyle = 'rgba(16, 185, 129, 0.05)'; ctx.fillRect(cx, cy - rMax, rMax, rMax); // Q1 Green
+      ctx.fillStyle = 'rgba(245, 158, 11, 0.05)'; ctx.fillRect(cx - rMax, cy - rMax, rMax, rMax); // Q2 Amber
+      ctx.fillStyle = 'rgba(56, 189, 248, 0.05)'; ctx.fillRect(cx - rMax, cy, rMax, rMax); // Q3 Cyan
+      ctx.fillStyle = 'rgba(244, 63, 94, 0.05)'; ctx.fillRect(cx, cy, rMax, rMax); // Q4 Rose
+
+      // Axis Lines
+      ctx.strokeStyle = '#475569';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(cx - rMax - 10, cy); ctx.lineTo(cx + rMax + 10, cy);
+      ctx.moveTo(cx, cy - rMax - 10); ctx.lineTo(cx, cy + rMax + 10);
+      ctx.stroke();
+
+      // Axis Labels
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '10px "JetBrains Mono"';
+      ctx.textAlign = 'center';
+      ctx.fillText('+Torque (Nm)', cx + rMax - 15, cy - 8);
+      ctx.fillText('-Torque (Nm)', cx - rMax + 25, cy - 8);
+      ctx.fillText('+Speed \u03c9', cx + 25, cy - rMax + 5);
+      ctx.fillText('-Speed \u03c9', cx + 25, cy + rMax - 5);
+
+      // Quadrant Watermarks
+      ctx.font = 'bold 12px "Chakra Petch"';
+      ctx.fillStyle = 'rgba(16, 185, 129, 0.4)'; ctx.fillText('Q1: Fwd Motoring', cx + 65, cy - 65);
+      ctx.fillStyle = 'rgba(245, 158, 11, 0.4)'; ctx.fillText('Q2: Fwd Regen', cx - 65, cy - 65);
+      ctx.fillStyle = 'rgba(56, 189, 248, 0.4)'; ctx.fillText('Q3: Rev Motoring', cx - 65, cy + 75);
+      ctx.fillStyle = 'rgba(244, 63, 94, 0.4)'; ctx.fillText('Q4: Rev Regen', cx + 65, cy + 75);
+
+      // Operating Point on Plane
+      const normT = Math.max(-1, Math.min(1, AppState.tab1.Tl / 25.0));
+      const normW = Math.max(-1, Math.min(1, AppState.tab1.speedRpm / 2000.0));
+      const ptX = cx + normT * rMax;
+      const ptY = cy - normW * rMax;
+
+      // Glow Operating Point Marker
+      ctx.strokeStyle = '#f59e0b';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(ptX, ptY, 8, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.fillStyle = '#f59e0b';
+      ctx.beginPath();
+      ctx.arc(ptX, ptY, 4, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Dashed projection lines to axes
+      ctx.save();
+      ctx.setLineDash([4, 3]);
+      ctx.strokeStyle = 'rgba(245, 158, 11, 0.5)';
+      ctx.beginPath();
+      ctx.moveTo(ptX, ptY); ctx.lineTo(ptX, cy);
+      ctx.moveTo(ptX, ptY); ctx.lineTo(cx, ptY);
+      ctx.stroke();
+      ctx.restore();
+
+      // Right Side: DC Motor Rotor Animation (360..540px)
+      const mx = 450;
+      const my = 170;
+      const mRadius = 75;
+
+      // Stator Ring
+      ctx.strokeStyle = '#475569';
+      ctx.lineWidth = 10;
+      ctx.beginPath();
+      ctx.arc(mx, my, mRadius + 15, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Field Poles (N top, S bottom)
+      ctx.fillStyle = '#ef4444';
+      ctx.fillRect(mx - 22, my - mRadius - 22, 44, 18);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 11px "JetBrains Mono"';
+      ctx.textAlign = 'center';
+      ctx.fillText('N', mx, my - mRadius - 9);
+
+      ctx.fillStyle = '#3b82f6';
+      ctx.fillRect(mx - 22, my + mRadius + 4, 44, 18);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText('S', mx, my + mRadius + 17);
+
+      // Rotating Rotor
+      ctx.save();
+      ctx.translate(mx, my);
+      ctx.rotate(AppState.tab1.rotorAngle);
+
+      ctx.fillStyle = '#1e293b';
+      ctx.strokeStyle = '#f59e0b';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(0, 0, mRadius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      // Rotor Armature Windings Cross
+      ctx.strokeStyle = '#64748b';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(-mRadius + 10, 0); ctx.lineTo(mRadius - 10, 0);
+      ctx.moveTo(0, -mRadius + 10); ctx.lineTo(0, mRadius - 10);
+      ctx.stroke();
+
+      // Rotor Direction Indicator Needle
+      ctx.fillStyle = '#38bdf8';
+      ctx.beginPath();
+      ctx.moveTo(0, -mRadius + 8);
+      ctx.lineTo(10, 0);
+      ctx.lineTo(-10, 0);
+      ctx.closePath();
+      ctx.fill();
+
+      // Shaft Center
+      ctx.fillStyle = '#f8fafc';
+      ctx.beginPath();
+      ctx.arc(0, 0, 10, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+
+      // Rotor info caption
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '10px "JetBrains Mono"';
+      ctx.fillText('DC ARMATURE ROTOR', mx, my + mRadius + 38);
+    }
+
+    // Animation Loop for Tab 1 Motor Spin
+    function animateTab1Loop() {
+      requestAnimationFrame(animateTab1Loop);
+      if (document.getElementById('tab1').classList.contains('active')) {
+        // Increment angle proportional to RPM
+        const speed = AppState.tab1.speedRpm;
+        AppState.tab1.rotorAngle += (speed / 60) * 0.04;
+        renderTab1();
+      }
+    }
+
+    // --- TAB 2: VFD INVERTER V/F PROFILE SIMULATION ---
+    function setTab2BaseFreq(fBase, btn) {
+      AppState.tab2.baseFreq = fBase;
+      const parent = btn.parentElement;
+      parent.querySelectorAll('.btn-choice').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab2BaseVal').innerText = fBase + ' Hz';
+      updateTab2Sim();
+    }
+
+    function updateTab2Sim() {
+      const f = parseFloat(document.getElementById('tab2FreqSlider').value);
+      const vBoost = parseFloat(document.getElementById('tab2BoostSlider').value);
+      const fBase = AppState.tab2.baseFreq;
+
+      AppState.tab2.freq = f;
+      AppState.tab2.vBoost = vBoost;
+
+      document.getElementById('tab2FreqVal').innerText = f.toFixed(1) + ' Hz';
+      document.getElementById('tab2BoostVal').innerText = vBoost.toFixed(0) + ' V';
+      document.getElementById('tab2FreqDisp').innerText = f.toFixed(1) + ' Hz';
+
+      // V/f Calculation:
+      // In constant torque region (f <= fBase): V = vBoost + (220 - vBoost) * (f / fBase)
+      // In field weakening region (f > fBase): V = 220 V (clipped)
+      let V = 0;
+      let zone = 'Constant Torque';
+      if (f <= fBase) {
+        V = vBoost + (220.0 - vBoost) * (f / fBase);
+        zone = 'Constant Torque (แรงบิดพิกัดคงที่)';
+      } else {
+        V = 220.0;
+        zone = 'Field Weakening (ลดทอนฟลักซ์)';
+      }
+
+      const vfRatio = V / f;
+      AppState.tab2.voltage = V;
+      AppState.tab2.vfRatio = vfRatio;
+
+      document.getElementById('tab2VoltDisp').innerText = V.toFixed(1) + ' V';
+      document.getElementById('tab2ZoneDisp').innerText = zone;
+
+      // Saturation warning badge
+      const satBadge = document.getElementById('tab2SatBadge');
+      if (vfRatio > 4.8) {
+        satBadge.className = 'badge badge-rose';
+        satBadge.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> V/f Ratio: ${vfRatio.toFixed(2)} V/Hz (SATURATION RISK!)`;
+      } else if (vfRatio >= 4.0) {
+        satBadge.className = 'badge badge-green';
+        satBadge.innerHTML = `<i class="fa-solid fa-circle-check"></i> V/f Ratio: ${vfRatio.toFixed(2)} V/Hz (Optimal Flux)`;
+      } else {
+        satBadge.className = 'badge badge-cyan';
+        satBadge.innerHTML = `<i class="fa-solid fa-wind"></i> V/f Ratio: ${vfRatio.toFixed(2)} V/Hz (Field Weakened)`;
+      }
+
+      renderTab2();
+    }
+
+    function renderTab2() {
+      const canvas1 = document.getElementById('tab2VfCanvas');
+      const canvas2 = document.getElementById('tab2TorqueCanvas');
+      if (!canvas1 || !canvas2) return;
+
+      // 1. Render V/f Profile Curve
+      const ctx1 = canvas1.getContext('2d');
+      const w1 = canvas1.width;
+      const h1 = canvas1.height;
+      ctx1.clearRect(0, 0, w1, h1);
+
+      // Grid
+      ctx1.strokeStyle = 'rgba(255,255,255,0.04)';
+      ctx1.lineWidth = 1;
+      for (let x = 0; x < w1; x += 40) { ctx1.beginPath(); ctx1.moveTo(x, 0); ctx1.lineTo(x, h1); ctx1.stroke(); }
+      for (let y = 0; y < h1; y += 35) { ctx1.beginPath(); ctx1.moveTo(0, y); ctx1.lineTo(w1, y); ctx1.stroke(); }
+
+      // Origin and Scale
+      const ox = 55;
+      const oy = h1 - 40;
+      const fMax = 100.0;
+      const vMax = 250.0;
+      const scaleX = (w1 - 85) / fMax;
+      const scaleY = (h1 - 70) / vMax;
+
+      // Axes
+      ctx1.strokeStyle = '#475569';
+      ctx1.lineWidth = 1.5;
+      ctx1.beginPath();
+      ctx1.moveTo(ox, 20); ctx1.lineTo(ox, oy); ctx1.lineTo(w1 - 20, oy);
+      ctx1.stroke();
+
+      ctx1.fillStyle = '#94a3b8';
+      ctx1.font = '10px "JetBrains Mono"';
+      ctx1.textAlign = 'right';
+      ctx1.fillText('220V', ox - 8, oy - 220 * scaleY + 3);
+      ctx1.fillText('0V', ox - 8, oy + 4);
+      ctx1.textAlign = 'center';
+      ctx1.fillText('0 Hz', ox, oy + 18);
+      ctx1.fillText(AppState.tab2.baseFreq + ' Hz (Base)', ox + AppState.tab2.baseFreq * scaleX, oy + 18);
+      ctx1.fillText('100 Hz', ox + 100 * scaleX, oy + 18);
+
+      // Draw V/f Curve
+      const fBase = AppState.tab2.baseFreq;
+      const vBoost = AppState.tab2.vBoost;
+
+      ctx1.strokeStyle = '#f59e0b';
+      ctx1.lineWidth = 3;
+      ctx1.beginPath();
+      for (let f = 0; f <= fMax; f += 1) {
+        let V = (f <= fBase) ? (vBoost + (220.0 - vBoost) * (f / fBase)) : 220.0;
+        const px = ox + f * scaleX;
+        const py = oy - V * scaleY;
+        if (f === 0) ctx1.moveTo(px, py); else ctx1.lineTo(px, py);
+      }
+      ctx1.stroke();
+
+      // Current Operating Point on Curve
+      const curF = AppState.tab2.freq;
+      const curV = AppState.tab2.voltage;
+      const curX = ox + curF * scaleX;
+      const curY = oy - curV * scaleY;
+
+      ctx1.fillStyle = '#38bdf8';
+      ctx1.beginPath(); ctx1.arc(curX, curY, 6, 0, Math.PI * 2); ctx1.fill();
+      ctx1.strokeStyle = '#ffffff'; ctx1.lineWidth = 2; ctx1.stroke();
+
+      // Projection lines
+      ctx1.save();
+      ctx1.setLineDash([4, 4]);
+      ctx1.strokeStyle = 'rgba(56, 189, 248, 0.6)';
+      ctx1.beginPath();
+      ctx1.moveTo(curX, curY); ctx1.lineTo(curX, oy);
+      ctx1.moveTo(curX, curY); ctx1.lineTo(ox, curY);
+      ctx1.stroke();
+      ctx1.restore();
+
+      // 2. Render Torque-Speed Characteristic Curve
+      const ctx2 = canvas2.getContext('2d');
+      const w2 = canvas2.width;
+      const h2 = canvas2.height;
+      ctx2.clearRect(0, 0, w2, h2);
+
+      // Grid
+      ctx2.strokeStyle = 'rgba(255,255,255,0.04)';
+      ctx2.lineWidth = 1;
+      for (let x = 0; x < w2; x += 40) { ctx2.beginPath(); ctx2.moveTo(x, 0); ctx2.lineTo(x, h2); ctx2.stroke(); }
+
+      const ox2 = 50;
+      const oy2 = h2 - 25;
+      const sx2 = (w2 - 70) / 1800.0;
+      const sy2 = (h2 - 45) / 35.0;
+
+      ctx2.strokeStyle = '#475569';
+      ctx2.lineWidth = 1.5;
+      ctx2.beginPath();
+      ctx2.moveTo(ox2, 10); ctx2.lineTo(ox2, oy2); ctx2.lineTo(w2 - 15, oy2);
+      ctx2.stroke();
+
+      ctx2.fillStyle = '#94a3b8';
+      ctx2.font = '9px "JetBrains Mono"';
+      ctx2.textAlign = 'right';
+      ctx2.fillText('Torque', ox2 - 5, 20);
+      ctx2.textAlign = 'center';
+      ctx2.fillText('Speed (RPM)', w2 - 50, oy2 + 15);
+
+      // Induction Motor Torque Curve for current Frequency
+      const syncRpm = (120 * curF) / 4; // 4-Pole Motor
+      const Tmax = (curF <= fBase) ? 30.0 : (30.0 * Math.pow(fBase / curF, 2));
+
+      ctx2.strokeStyle = '#10b981';
+      ctx2.lineWidth = 2.5;
+      ctx2.beginPath();
+      for (let n = 0; n <= syncRpm; n += 10) {
+        const s = (syncRpm - n) / (syncRpm || 1);
+        const s_max = 0.15;
+        // Kloss Equation: T = 2 * Tmax / (s/s_max + s_max/s)
+        const T = (s > 0) ? (2 * Tmax / ((s / s_max) + (s_max / s))) : 0;
+        const px = ox2 + n * sx2;
+        const py = oy2 - T * sy2;
+        if (n === 0) ctx2.moveTo(px, py); else ctx2.lineTo(px, py);
+      }
+      ctx2.stroke();
+
+      ctx2.fillStyle = '#10b981';
+      ctx2.font = '10px "JetBrains Mono"';
+      ctx2.fillText(`Sync Speed: ${syncRpm.toFixed(0)} RPM | T_max: ${Tmax.toFixed(1)} Nm`, ox2 + 160, 25);
+    }
+
+    // --- TAB 3: VIRTUAL INDUSTRIAL VFD KEYPAD & RAMP TUNING ---
+    function onVfdPotChange() {
+      const potVal = parseFloat(document.getElementById('vfdPotKnob').value);
+      document.getElementById('vfdPotVal').innerText = potVal.toFixed(1) + ' Hz';
+      AppState.tab3.targetFreq = potVal;
+      if (!AppState.tab3.fault && AppState.tab3.mode === 'FREQ') {
+        document.getElementById('vfdDisplay').innerText = AppState.tab3.currentFreq.toFixed(2);
+      }
+    }
+
+    function updateTab3Params() {
+      AppState.tab3.accTime = parseFloat(document.getElementById('tab3AccSlider').value);
+      AppState.tab3.decTime = parseFloat(document.getElementById('tab3DecSlider').value);
+      document.getElementById('tab3AccVal').innerText = AppState.tab3.accTime.toFixed(1) + ' s';
+      document.getElementById('tab3DecVal').innerText = AppState.tab3.decTime.toFixed(1) + ' s';
+      renderTab3();
+    }
+
+    function keypadPress(key) {
+      const state = AppState.tab3;
+      if (state.fault && key !== 'STOP') {
+        return; // Locked on fault until STOP/RESET is pressed
+      }
+
+      if (key === 'RUN') {
+        state.running = true;
+        document.getElementById('tab3KeypadStatusBadge').innerText = 'STATUS: RUNNING (' + (state.dir > 0 ? 'FWD' : 'REV') + ')';
+        document.getElementById('tab3KeypadStatusBadge').className = 'badge badge-green';
+        document.getElementById('ledRun').className = 'vfd-led-dot on-green';
+      } else if (key === 'STOP') {
+        if (state.fault) {
+          resetVfdFault();
+        } else {
+          state.running = false;
+          document.getElementById('tab3KeypadStatusBadge').innerText = 'STATUS: STOPPED / DECEL';
+          document.getElementById('tab3KeypadStatusBadge').className = 'badge badge-rose';
+          document.getElementById('ledRun').className = 'vfd-led-dot';
+        }
+      } else if (key === 'FWD_REV') {
+        state.dir = -state.dir;
+        document.getElementById('ledFwd').className = state.dir > 0 ? 'vfd-led-dot on-green' : 'vfd-led-dot';
+        document.getElementById('ledRev').className = state.dir < 0 ? 'vfd-led-dot on-amber' : 'vfd-led-dot';
+      } else if (key === 'DISP') {
+        const modes = ['FREQ', 'AMP', 'RPM'];
+        const curIdx = modes.indexOf(state.mode);
+        state.mode = modes[(curIdx + 1) % modes.length];
+        updateVfdDisplayFormat();
+      } else if (key === 'PROG') {
+        state.mode = (state.mode === 'PARAM') ? 'FREQ' : 'PARAM';
+        updateVfdDisplayFormat();
+      } else if (key === 'UP' && state.mode === 'PARAM') {
+        state.paramIndex = Math.min(8, state.paramIndex + 1);
+        updateVfdDisplayFormat();
+      } else if (key === 'DOWN' && state.mode === 'PARAM') {
+        state.paramIndex = Math.max(1, state.paramIndex - 1);
+        updateVfdDisplayFormat();
+      }
+    }
+
+    function updateVfdDisplayFormat() {
+      const state = AppState.tab3;
+      if (state.fault) return;
+
+      const disp = document.getElementById('vfdDisplay');
+      const prompt = document.getElementById('vfdSubPrompt');
+
+      if (state.mode === 'FREQ') {
+        disp.innerText = state.currentFreq.toFixed(2);
+        prompt.innerText = 'OUTPUT FREQ (Hz)';
+        document.getElementById('ledHz').className = 'vfd-led-dot on-amber';
+        document.getElementById('ledAmp').className = 'vfd-led-dot';
+      } else if (state.mode === 'AMP') {
+        const currentAmp = (state.currentFreq / 50.0 * 3.8).toFixed(1);
+        disp.innerText = 'A ' + currentAmp;
+        prompt.innerText = 'MOTOR CURRENT (A)';
+        document.getElementById('ledHz').className = 'vfd-led-dot';
+        document.getElementById('ledAmp').className = 'vfd-led-dot on-amber';
+      } else if (state.mode === 'RPM') {
+        const rpm = (state.currentFreq * 29).toFixed(0);
+        disp.innerText = rpm;
+        prompt.innerText = 'ROTOR SPEED (RPM)';
+      } else if (state.mode === 'PARAM') {
+        disp.innerText = `P0-0${state.paramIndex}`;
+        const pNames = [
+          '',
+          'TARGET FREQUENCY',
+          'RUN COMMAND SOURCE',
+          'ACCELERATION TIME',
+          'DECELERATION TIME',
+          'TORQUE BOOST %',
+          'STOPPING METHOD',
+          'CARRIER FREQUENCY',
+          'MOTOR OVERLOAD %'
+        ];
+        prompt.innerText = pNames[state.paramIndex] || 'PARAMETER TUNING';
+      }
+    }
+
+    function injectVfdFault(fCode) {
+      AppState.tab3.fault = fCode;
+      AppState.tab3.running = false;
+      document.getElementById('vfdDisplay').innerText = (fCode === 'oC') ? 'o.C.' : ((fCode === 'oU') ? 'o.U.' : 'o.L.');
+      document.getElementById('vfdSubPrompt').innerText = 'FAULT ALARM TRIP!';
+      document.getElementById('ledTrip').className = 'vfd-led-dot on-red';
+      document.getElementById('ledRun').className = 'vfd-led-dot';
+      document.getElementById('tab3KeypadStatusBadge').innerText = `FAULT: ${fCode.toUpperCase()} (TRIPPED)`;
+      document.getElementById('tab3KeypadStatusBadge').className = 'badge badge-rose';
+    }
+
+    function resetVfdFault() {
+      AppState.tab3.fault = null;
+      document.getElementById('ledTrip').className = 'vfd-led-dot';
+      document.getElementById('tab3KeypadStatusBadge').innerText = 'STATUS: FAULT RESET (READY)';
+      document.getElementById('tab3KeypadStatusBadge').className = 'badge badge-green';
+      updateVfdDisplayFormat();
+    }
+
+    function renderTab3() {
+      const canvas = document.getElementById('tab3RampCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width;
+      const h = canvas.height;
+
+      ctx.clearRect(0, 0, w, h);
+
+      // Grid
+      ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+      ctx.lineWidth = 1;
+      for (let x = 0; x < w; x += 35) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+      for (let y = 0; y < h; y += 30) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+
+      const ox = 45;
+      const oy = h - 25;
+      const acc = AppState.tab3.accTime;
+      const dec = AppState.tab3.decTime;
+
+      // Axes
+      ctx.strokeStyle = '#475569';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(ox, 15); ctx.lineTo(ox, oy); ctx.lineTo(w - 15, oy);
+      ctx.stroke();
+
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '9px "JetBrains Mono"';
+      ctx.textAlign = 'right';
+      ctx.fillText('50Hz', ox - 5, 25);
+      ctx.fillText('0Hz', ox - 5, oy);
+      ctx.textAlign = 'center';
+      ctx.fillText('Time (s)', w - 40, oy + 18);
+
+      // Draw Ideal Acc/Dec Trapezoid Profile
+      const tAccEnd = ox + 140;
+      const tRunEnd = ox + 320;
+      const tDecEnd = ox + 460;
+      const yTarget = 25;
+
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(ox, oy);
+      ctx.lineTo(tAccEnd, yTarget);
+      ctx.lineTo(tRunEnd, yTarget);
+      ctx.lineTo(tDecEnd, oy);
+      ctx.stroke();
+
+      // Acc/Dec Text
+      ctx.fillStyle = '#f59e0b';
+      ctx.fillText(`Acc Time: ${acc.toFixed(1)}s`, ox + 70, yTarget + 30);
+      ctx.fillText('Steady Run', ox + 230, yTarget + 30);
+      ctx.fillText(`Dec Time: ${dec.toFixed(1)}s`, ox + 390, yTarget + 30);
+    }
+
+    // Tab 3 Real-time Acc/Dec Tick Loop
+    setInterval(() => {
+      const state = AppState.tab3;
+      if (state.fault) return;
+
+      const target = state.running ? state.targetFreq : 0.0;
+      const rateAcc = 50.0 / (state.accTime * 20); // 20 ticks per sec
+      const rateDec = 50.0 / (state.decTime * 20);
+
+      if (state.currentFreq < target) {
+        state.currentFreq = Math.min(target, state.currentFreq + rateAcc);
+      } else if (state.currentFreq > target) {
+        state.currentFreq = Math.max(target, state.currentFreq - rateDec);
+      }
+
+      if (state.mode === 'FREQ') {
+        document.getElementById('vfdDisplay').innerText = state.currentFreq.toFixed(2);
+      }
+    }, 50);
+
+    // --- TAB 4: BLDC MOTOR 6-STEP INVERTER DRIVE ---
+    function toggleBldcRun() {
+      AppState.tab4.running = !AppState.tab4.running;
+      const btn = document.getElementById('bldcRunBtn');
+      if (AppState.tab4.running) {
+        btn.innerHTML = '<i class="fa-solid fa-pause"></i> <span>STOP MOTOR</span>';
+      } else {
+        btn.innerHTML = '<i class="fa-solid fa-play"></i> <span>RUN MOTOR</span>';
+      }
+    }
+
+    function setBldcDir(dir, btn) {
+      AppState.tab4.dir = dir;
+      const parent = btn.parentElement;
+      parent.querySelectorAll('.btn-choice').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
+    function updateBldcDuty() {
+      const duty = parseInt(document.getElementById('bldcDutySlider').value, 10);
+      AppState.tab4.duty = duty;
+      document.getElementById('bldcDutyVal').innerText = duty + ' %';
+      const rpm = (duty / 100.0 * 2200).toFixed(0);
+      document.getElementById('bldcRpmVal').innerText = rpm;
+    }
+
+    function renderTab4() {
+      const canvas1 = document.getElementById('tab4BldcCanvas');
+      const canvas2 = document.getElementById('tab4ScopeCanvas');
+      if (!canvas1 || !canvas2) return;
+
+      // 1. BLDC Motor Cross-Section
+      const ctx1 = canvas1.getContext('2d');
+      const w1 = canvas1.width;
+      const h1 = canvas1.height;
+      ctx1.clearRect(0, 0, w1, h1);
+
+      const cx = w1 / 2;
+      const cy = h1 / 2;
+      const statorR = 100;
+      const rotorR = 60;
+
+      // Stator Iron Core Backing
+      ctx1.strokeStyle = '#334155';
+      ctx1.lineWidth = 14;
+      ctx1.beginPath();
+      ctx1.arc(cx, cy, statorR, 0, Math.PI * 2);
+      ctx1.stroke();
+
+      // 6 Stator Teeth (U1, V1, W1, U2, V2, W2)
+      const coils = [
+        { name: 'U+', angle: 0, color: '#34d399' },
+        { name: 'W-', angle: 60, color: '#64748b' },
+        { name: 'V+', angle: 120, color: '#38bdf8' },
+        { name: 'U-', angle: 180, color: '#f43f5e' },
+        { name: 'W+', angle: 240, color: '#a855f7' },
+        { name: 'V-', angle: 300, color: '#fbbf24' }
+      ];
+
+      coils.forEach(c => {
+        const rad = (c.angle * Math.PI) / 180;
+        const tx = cx + Math.cos(rad) * (statorR - 15);
+        const ty = cy + Math.sin(rad) * (statorR - 15);
+
+        ctx1.fillStyle = '#1e293b';
+        ctx1.strokeStyle = c.color;
+        ctx1.lineWidth = 2;
+        ctx1.beginPath();
+        ctx1.arc(tx, ty, 14, 0, Math.PI * 2);
+        ctx1.fill();
+        ctx1.stroke();
+
+        ctx1.fillStyle = '#ffffff';
+        ctx1.font = 'bold 10px "JetBrains Mono"';
+        ctx1.textAlign = 'center';
+        ctx1.fillText(c.name, tx, ty + 4);
+      });
+
+      // 3 Hall Sensors around stator (H1 at 30 deg, H2 at 150 deg, H3 at 270 deg)
+      const halls = [
+        { name: 'H1', angle: 30, color: '#facc15' },
+        { name: 'H2', angle: 150, color: '#38bdf8' },
+        { name: 'H3', angle: 270, color: '#fb7185' }
+      ];
+
+      halls.forEach(h => {
+        const rad = (h.angle * Math.PI) / 180;
+        const hx = cx + Math.cos(rad) * (statorR + 24);
+        const hy = cy + Math.sin(rad) * (statorR + 24);
+
+        ctx1.fillStyle = h.color;
+        ctx1.beginPath();
+        ctx1.arc(hx, hy, 5, 0, Math.PI * 2);
+        ctx1.fill();
+
+        ctx1.fillStyle = h.color;
+        ctx1.font = 'bold 9px "JetBrains Mono"';
+        ctx1.fillText(h.name, hx, hy - 8);
+      });
+
+      // Rotating Permanent Magnet Rotor (2 Poles: N / S)
+      ctx1.save();
+      ctx1.translate(cx, cy);
+      ctx1.rotate((AppState.tab4.angleDeg * Math.PI) / 180);
+
+      // North Pole (Red half)
+      ctx1.fillStyle = '#ef4444';
+      ctx1.beginPath();
+      ctx1.arc(0, 0, rotorR, -Math.PI / 2, Math.PI / 2);
+      ctx1.fill();
+
+      // South Pole (Blue half)
+      ctx1.fillStyle = '#3b82f6';
+      ctx1.beginPath();
+      ctx1.arc(0, 0, rotorR, Math.PI / 2, (3 * Math.PI) / 2);
+      ctx1.fill();
+
+      // Text Labels on Rotor
+      ctx1.fillStyle = '#ffffff';
+      ctx1.font = 'bold 13px "JetBrains Mono"';
+      ctx1.fillText('N', 25, 5);
+      ctx1.fillText('S', -25, 5);
+
+      // Rotor Center Shaft
+      ctx1.fillStyle = '#0f172a';
+      ctx1.beginPath();
+      ctx1.arc(0, 0, 14, 0, Math.PI * 2);
+      ctx1.fill();
+
+      ctx1.restore();
+
+      // 2. Hall Sensors & Back-EMF 4-Channel Scope
+      const ctx2 = canvas2.getContext('2d');
+      const w2 = canvas2.width;
+      const h2 = canvas2.height;
+      ctx2.clearRect(0, 0, w2, h2);
+
+      // Scope grid
+      ctx2.strokeStyle = 'rgba(255,255,255,0.05)';
+      ctx2.lineWidth = 1;
+      for (let x = 0; x < w2; x += 35) { ctx2.beginPath(); ctx2.moveTo(x, 0); ctx2.lineTo(x, h2); ctx2.stroke(); }
+      for (let y = 0; y < h2; y += 35) { ctx2.beginPath(); ctx2.moveTo(0, y); ctx2.lineTo(w2, y); ctx2.stroke(); }
+
+      const tShift = AppState.tab4.time;
+
+      // Draw H1 (Yellow), H2 (Cyan), H3 (Pink) Square Waves
+      const drawSquareWave = (yCenter, color, phaseOffset) => {
+        ctx2.strokeStyle = color;
+        ctx2.lineWidth = 2;
+        ctx2.beginPath();
+        for (let x = 0; x < w2; x++) {
+          const val = Math.sin((x * 0.05) + tShift + phaseOffset) >= 0 ? 1 : 0;
+          const y = yCenter - (val * 14);
+          if (x === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
+        }
+        ctx2.stroke();
+      };
+
+      drawSquareWave(35, '#facc15', 0);
+      drawSquareWave(75, '#38bdf8', (2 * Math.PI) / 3);
+      drawSquareWave(115, '#fb7185', (4 * Math.PI) / 3);
+    }
+
+    // Tab 4 BLDC Animation Loop
+    function animateBldcLoop() {
+      requestAnimationFrame(animateBldcLoop);
+      if (document.getElementById('tab4').classList.contains('active') && AppState.tab4.running) {
+        const speedFactor = (AppState.tab4.duty / 100.0) * 4.0;
+        AppState.tab4.angleDeg = (AppState.tab4.angleDeg + speedFactor * AppState.tab4.dir + 360) % 360;
+        AppState.tab4.time += 0.08 * AppState.tab4.dir;
+
+        // Determine active step 1..6 based on angle
+        const step = Math.floor(AppState.tab4.angleDeg / 60) + 1;
+        AppState.tab4.step = step;
+
+        // Highlight table row
+        for (let i = 1; i <= 6; i++) {
+          const row = document.getElementById(`stepRow${i}`);
+          if (row) {
+            row.style.background = (i === step) ? 'rgba(245, 158, 11, 0.25)' : '';
+            row.style.fontWeight = (i === step) ? 'bold' : 'normal';
+          }
+        }
+
+        const stepNames = ['', 'U+ / V- (Q1 & Q4)', 'U+ / W- (Q1 & Q6)', 'V+ / W- (Q3 & Q6)', 'V+ / U- (Q3 & Q2)', 'W+ / U- (Q5 & Q2)', 'W+ / V- (Q5 & Q4)'];
+        document.getElementById('tab4StepBadge').innerText = `STEP ${step}: ${stepNames[step]}`;
+
+        renderTab4();
+      }
+    }
+
+    // --- TAB 5: ASSESSMENT & DATA LOGGER ---
+    const QUIZ_DATA = [
+      {
+        q: '1. ในระบบขับมอเตอร์กระแสตรงแบบ 4 ควอดรันต์ สภาวะ Forward Regenerative Braking (ควอดรันต์ที่ 2) มีความสัมพันธ์ของความเร็วรอบและแรงบิดอย่างไร?',
+        options: ['ความเร็วบวก (+) และ แรงบิดบวก (+)', 'ความเร็วบวก (+) และ แรงบิดลบ (-)', 'ความเร็วลบ (-) และ แรงบิดลบ (-)', 'ความเร็วลบ (-) และ แรงบิดบวก (+)'],
+        ans: 1,
+        exp: 'ควอดรันต์ที่ 2 มอเตอร์ยังคงหมุนเดินหน้า (ความเร็วเป็นบวก) แต่มีแรงบิดต้านการหมุน (แรงบิดเป็นลบ) กำลังไฟฟ้า P = w * T จะเป็นลบ แสดงว่าเกิดการสร้างพลังงานไฟฟ้าส่งคืนระบบ'
+      },
+      {
+        q: '2. ทำไมอินเวอร์เตอร์ขับมอเตอร์เหนี่ยวนำ 3 เฟส (VFD) จึงต้องรักษาอัตราส่วน V/f ให้คงที่ (Constant V/f)?',
+        options: ['เพื่อควบคุมให้ค่า Power Factor เป็น 1.0 ตลอดเวลา', 'เพื่อรักษาฟลักซ์แม่เหล็กในแกนเหล็กให้คงที่ ป้องกันแกนเหล็กอิ่มตัว (Core Saturation)', 'เพื่อลดความเร็วรอบซิงโครนัสของมอเตอร์', 'เพื่อจำกัดกระแสในโรเตอร์ไม่ให้เกิน 1 แอมแปร์'],
+        ans: 1,
+        exp: 'ฟลักซ์แม่เหล็กในแกนเหล็กมอเตอร์เป็นสัดส่วนโดยตรงกับ V/f หากเพิ่มความถี่แต่ไม่เพิ่มแรงดัน ฟลักซ์จะลดลงทำให้แรงบิดตก หรือหากแรงดันสูงเกินความถี่ แกนเหล็กจะอิ่มตัวจนขดลวดร้อนจัดและไหม้'
+      },
+      {
+        q: '3. ฟังก์ชัน Torque Boost (Low-Frequency Voltage Boost) ใน VFD มีวัตถุประสงค์เพื่ออะไร?',
+        options: ['เพื่อเร่งความเร็วให้เกินพิกัด 100 Hz', 'เพื่อชดเชยแรงดันตกคร่อมความต้านทานขดลวดสเตเตอร์ (I*Rs) ขณะออกตัวที่ความถี่ต่ำ', 'เพื่อเบรกหยุดมอเตอร์แบบฉุกเฉิน', 'เพื่อลดสัญญาณรบกวนคลื่นวิทยุ EMI'],
+        ans: 1,
+        exp: 'ที่ความถี่ต่ำมากๆ แรงดันเหนี่ยวนำจะต่ำมากจนแรงดันตกคร่อมความต้านทานขดลวดสเตเตอร์ (I*Rs) มีผลเด่นชัด ทำให้ฟลักซ์ตกและไม่มีแรงออกตัว จึงต้อง Boost แรงดันขึ้นเล็กน้อยชดเชย'
+      },
+      {
+        q: '4. มอเตอร์ไร้แปรงถ่าน (BLDC Motor) แบบ 3 เฟสที่ใช้เซนเซอร์ฮอลล์ 3 ตัวทำมุม 120 องศา ในแต่ละสเต็ปจะมีสวิตช์อินเวอร์เตอร์นำกระแสกี่ตัว?',
+        options: ['นำกระแสครั้งละ 1 ตัว', 'นำกระแสครั้งละ 2 ตัว (ฝั่งบน 1 ตัว และฝั่งล่าง 1 ตัว)', 'นำกระแสครั้งละ 3 ตัวพร้อมกันทุกเฟส', 'นำกระแสทั้ง 6 ตัวพร้อมกัน'],
+        ans: 1,
+        exp: 'การควบคุมแบบ 6-Step Trapezoidal Commutation จะเปิดสวิตช์อินเวอร์เตอร์นำกระแสครั้งละ 2 ตัว คือ สวิตช์ขาบน (High-side) 1 ตัวของเฟสที่ป้อนไฟบวก และสวิตช์ขาล่าง (Low-side) 1 ตัวของเฟสที่ต่อลงกราวด์ ส่วนอีกเฟสหนึ่งจะลอยไว้ (Floating)'
+      },
+      {
+        q: '5. โค้ดแจ้งเตือนความผิดพร่อง "o.U." (Overvoltage Trip) บนหน้าปัด VFD มักเกิดขึ้นจากสาเหตุใดในงานอุตสาหกรรม?',
+        options: ['ขดลวดมอเตอร์ขาดวงจร', 'ตั้งเวลาหน่วงชะลอความเร็ว (Decel Time) สั้นเกินไป ทำให้มอเตอร์ปั่นไฟคืนบัส DC จนแรงดันสูงเกินพิกัด', 'เปิดพัดลมระบายความร้อนแรงเกินไป', 'มอเตอร์หมุนช้าเกินไป'],
+        ans: 1,
+        exp: 'เมื่อสั่งลดความเร็วเร็วกว่าความเฉื่อยของโหลด (Decel Time สั้นเกินไป) มอเตอร์จะกลายเป็นเครื่องกำเนิดไฟฟ้าส่งพลังงานกลับเข้ามาที่บัส DC (Regeneration) หากไม่มีตัวต้านทานเบรก (Braking Resistor) แรงดันบัส DC จะพุ่งสูงจนอินเวอร์เตอร์สั่งตัดเพื่อป้องกันวงจรระเบิด'
+      }
+    ];
+
+    function renderQuizQuestion() {
+      const q = QUIZ_DATA[AppState.quiz.index];
+      document.getElementById('quizQuestion').innerText = q.q;
+      document.getElementById('quizProgress').innerText = `ข้อ ${AppState.quiz.index + 1} จาก ${QUIZ_DATA.length}`;
+
+      const optsBox = document.getElementById('quizOptions');
+      optsBox.innerHTML = '';
+
+      q.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'btn-choice';
+        btn.style.textAlign = 'left';
+        btn.style.padding = '0.65rem 0.85rem';
+        btn.style.width = '100%';
+        btn.innerHTML = `<strong>${String.fromCharCode(65 + idx)}.</strong> ${opt}`;
+        btn.onclick = () => selectQuizAnswer(idx);
+        optsBox.appendChild(btn);
+      });
+
+      const expBox = document.getElementById('quizExplanationBox');
+      if (expBox) expBox.style.display = 'none';
+
+      const nextBtn = document.getElementById('quizNextBtn');
+      nextBtn.disabled = true;
+      if (AppState.quiz.index === QUIZ_DATA.length - 1) {
+        nextBtn.innerHTML = '<i class="fa-solid fa-clipboard-check"></i> ตรวจคะแนนแบบทดสอบ';
+      } else {
+        nextBtn.innerHTML = '<span>ข้อถัดไป</span> <i class="fa-solid fa-arrow-right"></i>';
+      }
+    }
+
+    function selectQuizAnswer(idx) {
+      if (AppState.quiz.answered) return;
+      AppState.quiz.answered = true;
+
+      const q = QUIZ_DATA[AppState.quiz.index];
+      const buttons = document.querySelectorAll('#quizOptions .btn-choice');
+
+      // Highlight selected option neutrally without revealing answer key
+      buttons.forEach(b => {
+        b.style.background = 'rgba(255, 255, 255, 0.05)';
+        b.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+      });
+      buttons[idx].style.background = 'rgba(245, 158, 11, 0.25)';
+      buttons[idx].style.borderColor = '#f59e0b';
+      buttons[idx].style.color = '#ffffff';
+
+      // Keep score internally
+      if (idx === q.ans) {
+        AppState.quiz.score++;
+      }
+
+      // Hide explanation box (do not reveal answers)
+      const expBox = document.getElementById('quizExplanationBox');
+      if (expBox) expBox.style.display = 'none';
+
+      const nextBtn = document.getElementById('quizNextBtn');
+      nextBtn.disabled = false;
+      if (AppState.quiz.index === QUIZ_DATA.length - 1) {
+        nextBtn.innerHTML = '<i class="fa-solid fa-clipboard-check"></i> ตรวจคะแนนแบบทดสอบ';
+      } else {
+        nextBtn.innerHTML = '<span>ข้อถัดไป</span> <i class="fa-solid fa-arrow-right"></i>';
+      }
+    }
+
+    function nextQuizQuestion() {
+      AppState.quiz.answered = false;
+      if (AppState.quiz.index < QUIZ_DATA.length - 1) {
+        AppState.quiz.index++;
+        renderQuizQuestion();
+      } else {
+        // Finished - Show ONLY score
+        document.getElementById('quizCurrentScore').innerText = `คะแนนที่ได้: ${AppState.quiz.score} / ${QUIZ_DATA.length}`;
+        document.getElementById('quizBox').innerHTML = `
+          <div style="text-align:center;padding:2rem;">
+            <i class="fa-solid fa-trophy" style="font-size:3rem;color:var(--accent-amber);margin-bottom:1rem;"></i>
+            <h3 style="font-family:var(--font-display);font-size:1.4rem;">การประเมินผลเสร็จสมบูรณ์!</h3>
+            <p style="font-size:1.15rem;margin:0.8rem 0;color:var(--accent-amber);font-family:var(--font-mono);font-weight:700;">คะแนนที่ได้: ${AppState.quiz.score} / ${QUIZ_DATA.length}</p>
+            <p style="font-size:0.85rem;color:var(--text-muted);">กรอกชื่อ-รหัสนักศึกษาทางด้านขวาเพื่อส่งคะแนนเข้า Google Sheets ได้ทันที</p>
+          </div>
+        `;
+      }
+    }
+
+    // --- DATA LOGGER & GOOGLE SHEETS SYNC ---
+    function logCurrentData() {
+      const mode = 'VFD V/f Control';
+      const setF = AppState.tab2.freq;
+      const targetRpm = (120 * setF / 4).toFixed(0);
+      const actualRpm = (targetRpm * 0.96).toFixed(0);
+      const current = (setF / 50.0 * 4.2).toFixed(1);
+      const vfRatio = AppState.tab2.vfRatio.toFixed(2) + ' V/Hz';
+      const fault = AppState.tab3.fault ? `Fault ${AppState.tab3.fault}` : 'Normal (OK)';
+
+      const record = {
+        id: AppState.logs.length + 1,
+        mode: mode,
+        setF: setF,
+        targetRpm: targetRpm,
+        actualRpm: actualRpm,
+        current: current,
+        vfRatio: vfRatio,
+        fault: fault
+      };
+
+      AppState.logs.push(record);
+      renderLogTable();
+    }
+
+    function renderLogTable() {
+      const tbody = document.getElementById('logTableBody');
+      if (AppState.logs.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="color:var(--text-dim);">ยังไม่มีข้อมูลบันทึก</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = AppState.logs.map(log => `
+        <tr>
+          <td>${log.id}</td>
+          <td style="color:#f59e0b;">${log.mode}</td>
+          <td>${log.targetRpm} RPM</td>
+          <td style="color:#38bdf8;">${log.actualRpm} RPM</td>
+          <td>${log.current} A</td>
+          <td>${log.vfRatio}</td>
+          <td style="color:${log.fault.includes('Fault') ? '#ef4444' : '#10b981'};">${log.fault}</td>
+        </tr>
+      `).join('');
+    }
+
+    async function submitToGoogleSheets() {
+      const gasUrl = localStorage.getItem('unit6_gas_url') || localStorage.getItem('elec_power_master_gas_url') || (document.getElementById('teacher-sheet-url') ? document.getElementById('teacher-sheet-url').value.trim() : '');
+      const statusBox = document.getElementById('gasStatusBox');
+      statusBox.style.display = 'block';
+
+      if (!gasUrl) {
+        statusBox.style.background = 'rgba(239, 68, 68, 0.2)';
+        statusBox.style.color = '#ef4444';
+        statusBox.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> กรุณากดปุ่ม "สำหรับครูผู้สอน" ด้านบน เพื่อระบุ Web App URL ก่อนส่งข้อมูล';
+        toggleTeacherModal(true);
+        return;
+      }
+
+      const sName = document.getElementById('studentNameInput').value.trim();
+      const sId = document.getElementById('studentIdInput').value.trim();
+
+      if (!sName || !sId) {
+        statusBox.style.background = 'rgba(245, 158, 11, 0.2)';
+        statusBox.style.color = '#fbbf24';
+        statusBox.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> กรุณากรอกชื่อ-นามสกุล และรหัสนักศึกษาให้ครบถ้วน';
+        return;
+      }
+
+      // Check Anti-duplicate submission on client (Per-unit key)
+      const submittedIds = JSON.parse(localStorage.getItem('submitted_student_ids_unit6') || '[]');
+      if (submittedIds.includes(sId)) {
+        alert(`❌ รหัสประจำตัว "${sId}" เคยส่งแบบทดสอบ/ผลการทดลองหน่วยที่ 6 ไปแล้วบนเครื่องนี้\n(ไม่อนุญาตให้ส่งคะแนนซ้ำ)`);
+        statusBox.style.background = 'rgba(239, 68, 68, 0.2)';
+        statusBox.style.color = '#ef4444';
+        statusBox.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> รหัส ${sId} เคยส่งแบบทดสอบหน่วยที่ 6 ไปแล้ว (ไม่อนุญาตให้ส่งซ้ำ)`;
+        checkUnitDuplicate();
+        return;
+      }
+
+      const payload = {
+        studentName: sName,
+        studentId: sId,
+        studentGroup: 'ปวส. อิเล็กทรอนิกส์กำลัง',
+        controlMode: 'VFD Inverter & 4-Quadrant DC Drive',
+        setFrequency: AppState.tab2.freq,
+        targetRpm: (120 * AppState.tab2.freq / 4).toFixed(0),
+        actualRpm: (120 * AppState.tab2.freq / 4 * 0.96).toFixed(0),
+        motorCurrent: (AppState.tab2.freq / 50.0 * 4.2).toFixed(1),
+        loadTorque: AppState.tab1.Tl,
+        vfRatio: AppState.tab2.vfRatio.toFixed(2) + ' V/Hz',
+        accDecTime: `${AppState.tab3.accTime}s / ${AppState.tab3.decTime}s`,
+        faultStatus: AppState.tab3.fault ? `Fault ${AppState.tab3.fault}` : 'Normal (No Fault)',
+        quizScore: AppState.quiz.score,
+        quizTotal: QUIZ_DATA.length,
+        status: 'Submitted via Web Lab'
+      };
+
+      statusBox.style.background = 'rgba(56, 189, 248, 0.2)';
+      statusBox.style.color = '#38bdf8';
+      statusBox.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังส่งข้อมูลเข้า Google Sheets...';
+
+      try {
+        await fetch(gasUrl, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        // Record studentId to prevent duplicate submissions on this device
+        submittedIds.push(sId);
+        localStorage.setItem('submitted_student_ids_unit6', JSON.stringify(submittedIds));
+        checkUnitDuplicate();
+
+        statusBox.style.background = 'rgba(16, 185, 129, 0.2)';
+        statusBox.style.color = '#34d399';
+        statusBox.innerHTML = '<i class="fa-solid fa-check-circle"></i> ส่งคะแนนและผลการทดลองเข้า Google Sheets สำเร็จเรียบร้อย!';
+      } catch (err) {
+        statusBox.style.background = 'rgba(239, 68, 68, 0.2)';
+        statusBox.style.color = '#ef4444';
+        statusBox.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> เกิดข้อผิดพลาดในการเชื่อมต่อ: ' + err.message;
+      }
+    }
+
+    function checkUnitDuplicate() {
+      const sid = document.getElementById('studentIdInput') ? document.getElementById('studentIdInput').value.trim() : '';
+      const warn = document.getElementById('unit-dup-warning');
+      const btn = document.getElementById('btn-submit-unit');
+      const submittedIds = JSON.parse(localStorage.getItem('submitted_student_ids_unit6') || '[]');
+      if (sid && submittedIds.includes(sid)) {
+        if (warn) warn.style.display = 'block';
+        if (btn) {
+          btn.disabled = true;
+          btn.style.opacity = '0.5';
+          btn.style.cursor = 'not-allowed';
+        }
+        return true;
+      } else {
+        if (warn) warn.style.display = 'none';
+        if (btn) {
+          btn.disabled = false;
+          btn.style.opacity = '1';
+          btn.style.cursor = 'pointer';
+        }
+        return false;
+      }
+    }
+
+    function resetUnit6AntiCheat() {
+      if (confirm('ต้องการล้างประวัติการส่งงานเฉพาะ "หน่วยที่ 6" ของเครื่องนี้หรือไม่?\n(หลังจากล้างแล้วจะสามารถทดสอบส่งคะแนนใหม่ได้)')) {
+        localStorage.removeItem('submitted_student_ids_unit6');
+        checkUnitDuplicate();
+        alert('✓ ล้างประวัติส่งซ้ำหน่วยที่ 6 เรียบร้อยแล้ว');
+      }
+    }
+
+    // Auto-detect ?gas= in URL on load
+    window.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const gasParam = urlParams.get('gas');
+      if (gasParam) {
+        localStorage.setItem('unit6_gas_url', gasParam);
+        const input = document.getElementById('teacher-sheet-url');
+        if (input) input.value = gasParam;
+      } else {
+        const saved = localStorage.getItem('unit6_gas_url') || localStorage.getItem('elec_power_master_gas_url');
+        const input = document.getElementById('teacher-sheet-url');
+        if (input && saved) input.value = saved;
+      }
+
+      updateTab1Sim();
+      animateTab1Loop();
+      updateTab2Sim();
+      updateTab3Params();
+      renderTab3();
+      renderTab4();
+      animateBldcLoop();
+      renderQuizQuestion();
+      checkUnitDuplicate();
+    });
+  </script>
+</body>
+</html>
