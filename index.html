@@ -1115,7 +1115,7 @@
           <span id="master-teacher-toast" style="display: none; font-size: 0.75rem; color: #34d399; font-weight: 600; background: rgba(16, 185, 129, 0.15); padding: 0.2rem 0.6rem; border-radius: 6px;">✓ สำเร็จ</span>
         </div>
         <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.6rem;">
-          <input type="url" id="master-teacher-gas-url" placeholder="https://script.google.com/macros/s/.../exec" style="flex: 1; min-width: 260px; padding: 0.65rem 0.85rem; border-radius: 8px; background: rgba(5, 11, 20, 0.85); border: 1px solid rgba(255, 255, 255, 0.15); color: #fff; font-family: var(--font-mono); font-size: 0.8rem; outline: none;">
+          <input type="url" id="master-teacher-gas-url" oninput="onMasterGasInput(this.value)" placeholder="https://script.google.com/macros/s/.../exec" style="flex: 1; min-width: 260px; padding: 0.65rem 0.85rem; border-radius: 8px; background: rgba(5, 11, 20, 0.85); border: 1px solid rgba(255, 255, 255, 0.15); color: #fff; font-family: var(--font-mono); font-size: 0.8rem; outline: none;">
           <button onclick="saveMasterTeacherGas()" class="btn-launch" style="padding: 0.65rem 1.2rem; flex: none; font-size: 0.82rem; cursor: pointer;">
             <i class="fa-solid fa-floppy-disk"></i> บันทึก URL กลาง
           </button>
@@ -1341,12 +1341,38 @@
 
     // --- MASTER TEACHER PORTAL LOGIC ---
     const TEACHER_MASTER_GAS_KEY = 'elec_power_master_gas_url';
+    const ALL_UNIT_GAS_KEYS = [
+      'power_unit1_gas_url',
+      'power_unit2_gas_url',
+      'unit2_gas_url',
+      'unit3_gas_url',
+      'unit4_gas_url',
+      'unit5_gas_url',
+      'unit6_gas_url',
+      'power_unit7_gas_url'
+    ];
+
+    function syncGasToAllStorageKeys(gasUrl) {
+      localStorage.setItem(TEACHER_MASTER_GAS_KEY, gasUrl);
+      ALL_UNIT_GAS_KEYS.forEach(k => {
+        if (gasUrl) localStorage.setItem(k, gasUrl);
+      });
+    }
+
+    function onMasterGasInput(val) {
+      const gasUrl = (val || '').trim();
+      if (gasUrl) {
+        syncGasToAllStorageKeys(gasUrl);
+      }
+      renderTeacherShareLinks();
+    }
 
     function openMasterTeacherModal() {
       const modal = document.getElementById('master-teacher-modal');
       if (!modal) return;
       const savedGas = localStorage.getItem(TEACHER_MASTER_GAS_KEY) || '';
-      document.getElementById('master-teacher-gas-url').value = savedGas;
+      const inputEl = document.getElementById('master-teacher-gas-url');
+      if (inputEl) inputEl.value = savedGas;
       renderTeacherShareLinks();
       modal.style.display = 'flex';
     }
@@ -1361,12 +1387,9 @@
     }
 
     function saveMasterTeacherGas() {
-      const gasUrl = document.getElementById('master-teacher-gas-url').value.trim();
-      localStorage.setItem(TEACHER_MASTER_GAS_KEY, gasUrl);
-      // Synchronize across individual units' local storage keys (Units 1-7)
-      ['power_unit1_gas_url', 'unit2_gas_url', 'unit3_gas_url', 'unit4_gas_url', 'unit5_gas_url', 'unit6_gas_url', 'power_unit7_gas_url'].forEach(k => {
-        if (gasUrl) localStorage.setItem(k, gasUrl);
-      });
+      const inputEl = document.getElementById('master-teacher-gas-url');
+      const gasUrl = inputEl ? inputEl.value.trim() : '';
+      syncGasToAllStorageKeys(gasUrl);
       renderTeacherShareLinks();
       showTeacherToast('✓ บันทึก URL กลางเรียบร้อย และอัปเดตลิงก์ทุกหน่วย (Units 1-7) แล้ว');
     }
@@ -1389,7 +1412,8 @@
     }
 
     function renderTeacherShareLinks() {
-      const gasUrl = localStorage.getItem(TEACHER_MASTER_GAS_KEY) || '';
+      const inputEl = document.getElementById('master-teacher-gas-url');
+      const gasUrl = (inputEl && inputEl.value.trim()) || localStorage.getItem(TEACHER_MASTER_GAS_KEY) || '';
       const units = [
         { id: 1, name: 'อุปกรณ์สวิตชิ่งกำลัง (Power Switching Devices)', folder: 'Unit1' },
         { id: 2, name: 'วงจรเรียงกระแสควบคุมได้ (Controlled Rectifiers)', folder: 'Unit2' },
@@ -1402,7 +1426,7 @@
 
       // Calculate base URL properly for GitHub Pages / subpaths or localhost
       const currentUrl = (window.location.origin && !window.location.origin.startsWith('file:') && window.location.origin !== 'null')
-        ? window.location.href
+        ? window.location.href.split('?')[0]
         : 'http://localhost:8082/';
 
       const container = document.getElementById('teacher-units-list');
@@ -1422,7 +1446,7 @@
               </div>
               <div style="display: flex; align-items: center; gap: 0.5rem;">
                 <input type="text" readonly value="${fullUrl}" id="share-link-u${u.id}" style="width: 100%; background: rgba(5, 11, 20, 0.7); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 6px; padding: 0.4rem 0.65rem; font-size: 0.72rem; font-family: var(--font-mono); color: #38bdf8;">
-                <button onclick="copyUnitLink('share-link-u${u.id}')" style="padding: 0.4rem 0.85rem; font-size: 0.75rem; white-space: nowrap; background: #0284c7; hover:background: #0369a1; color: #fff; border: none; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; font-weight: 600; transition: background 0.2s;">
+                <button onclick="copyUnitLink('share-link-u${u.id}', ${u.id})" style="padding: 0.4rem 0.85rem; font-size: 0.75rem; white-space: nowrap; background: #0284c7; hover:background: #0369a1; color: #fff; border: none; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; font-weight: 600; transition: background 0.2s;">
                   <i class="fa-solid fa-copy"></i> คัดลอกลิงก์
                 </button>
               </div>
@@ -1437,16 +1461,27 @@
       }).join('');
     }
 
-    function copyUnitLink(inputId) {
+    function copyUnitLink(inputId, unitId) {
+      const masterInput = document.getElementById('master-teacher-gas-url');
+      const liveGas = (masterInput && masterInput.value.trim()) || localStorage.getItem(TEACHER_MASTER_GAS_KEY) || '';
+      if (!liveGas) {
+        alert('⚠️ กรุณาวางลิงก์ Google Apps Script Web App URL ในช่องด้านบนก่อนกดคัดลอกลิงก์ เพื่อให้นักเรียนส่งคะแนนเข้าชีตได้');
+        if (masterInput) masterInput.focus();
+        return;
+      }
+      syncGasToAllStorageKeys(liveGas);
+      renderTeacherShareLinks();
+
       const el = document.getElementById(inputId);
       if (!el) return;
+      const urlToCopy = el.value;
       el.select();
       el.setSelectionRange(0, 99999);
-      navigator.clipboard.writeText(el.value).then(() => {
-        showTeacherToast('📋 คัดลอกลิงก์ประจำหน่วยเรียบร้อยแล้ว!');
+      navigator.clipboard.writeText(urlToCopy).then(() => {
+        showTeacherToast(`📋 คัดลอกลิงก์หน่วยที่ ${unitId || ''} (พร้อม ?gas=) เรียบร้อยแล้ว!`);
       }).catch(() => {
         document.execCommand('copy');
-        showTeacherToast('📋 คัดลอกลิงก์ประจำหน่วยเรียบร้อยแล้ว!');
+        showTeacherToast(`📋 คัดลอกลิงก์หน่วยที่ ${unitId || ''} (พร้อม ?gas=) เรียบร้อยแล้ว!`);
       });
     }
 
@@ -1475,7 +1510,7 @@
       const urlParams = new URLSearchParams(window.location.search);
       const gasParam = urlParams.get('gas');
       if (gasParam) {
-        localStorage.setItem(TEACHER_MASTER_GAS_KEY, gasParam);
+        syncGasToAllStorageKeys(gasParam);
         const input = document.getElementById('master-teacher-gas-url');
         if (input) input.value = gasParam;
       }

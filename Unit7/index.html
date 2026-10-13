@@ -1118,6 +1118,17 @@
             <!-- Quiz questions generated via JavaScript -->
           </div>
 
+          <!-- Inline Score Result Box -->
+          <div id="quiz-score-result-box" style="display:none; margin-top:1rem; padding:1rem 1.25rem; border-radius:12px; background:rgba(16, 185, 129, 0.14); border:1px solid rgba(16, 185, 129, 0.45); text-align:center;">
+            <div style="font-size:1.15rem; font-weight:700; color:#34d399; font-family:var(--font-display);">
+              <i class="fa-solid fa-trophy" style="color:#facc15; margin-right:0.35rem;"></i>
+              <span id="quiz-result-text">คะแนนที่ได้: 0 / 10</span>
+            </div>
+            <div style="font-size:0.78rem; color:var(--text-muted); margin-top:0.25rem;">
+              ตรวจคะแนนเรียบร้อยแล้ว สามารถกรอกฟอร์มทางด้านขวาเพื่อบันทึกส่งงานได้ทันที
+            </div>
+          </div>
+
           <div style="margin-top:1rem;display:flex;gap:0.75rem;">
             <button class="btn btn-green" id="btn-submit-quiz" onclick="submitQuiz()">
               <i class="fa-solid fa-clipboard-check"></i> ตรวจคะแนนแบบทดสอบ
@@ -1169,6 +1180,11 @@
               <div>• คะแนนแบบทดสอบ: <strong id="rep-quiz-score" style="color:var(--accent-mint);">0 / 10</strong></div>
             </div>
 
+            <div class="form-group" style="margin-bottom:1rem;">
+              <label class="form-label">Google Apps Script Web App URL (?gas=):</label>
+              <input type="url" id="gasUrlInput" class="input-field" oninput="updateStudentShareLink(this.value.trim())" placeholder="https://script.google.com/macros/s/.../exec" style="font-family:var(--font-mono);font-size:0.78rem;">
+            </div>
+
             <div class="btn-submit-area" style="display:flex;gap:0.75rem;flex-wrap:wrap;">
               <button type="submit" class="btn btn-green" id="btn-submit-all" style="flex:1;">
                 <i class="fa-solid fa-paper-plane"></i> บันทึกข้อมูลเข้า Google Sheets
@@ -1199,13 +1215,18 @@
 
       <div class="form-group">
         <label class="form-label">Google Apps Script Web App URL สำหรับ Unit 7:</label>
-        <input type="text" id="teacher-gas-url" class="input-field" placeholder="https://script.google.com/macros/s/.../exec">
+        <input type="text" id="teacher-gas-url" class="input-field" oninput="updateStudentShareLink(this.value.trim())" placeholder="https://script.google.com/macros/s/.../exec">
         <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.35rem;">
           * หากบันทึกแล้ว ระบบจะจัดเก็บใน LocalStorage ของเครื่องนี้ และใช้ส่งคะแนนอัตโนมัติ
         </div>
       </div>
 
-      <div style="display:flex;gap:0.75rem;margin-bottom:1.5rem;">
+      <div class="form-group" style="margin-bottom:1.25rem;padding-top:0.75rem;border-top:1px solid rgba(255,255,255,0.08);">
+        <label class="form-label" style="color:#38bdf8;">🔗 ลิงก์สำหรับส่งให้นักศึกษา (แนบ ?gas= อัตโนมัติ):</label>
+        <input type="text" id="student-share-link" class="input-field" readonly style="font-family:var(--font-mono);font-size:0.75rem;color:#94a3b8;background:rgba(2,7,14,0.9);">
+      </div>
+
+      <div style="display:flex;gap:0.75rem;margin-bottom:1.5rem;flex-wrap:wrap;">
         <button class="btn btn-green" onclick="saveTeacherGasUrl()">
           <i class="fa-solid fa-floppy-disk"></i> บันทึก URL
         </button>
@@ -1699,7 +1720,7 @@
 
     function submitQuiz() {
       quizScore = 0;
-      let unanswered = 0;
+      let answeredCount = 0;
 
       quizData.forEach((item, idx) => {
         const selected = document.querySelector(`input[name="quiz_q${idx}"]:checked`);
@@ -1707,18 +1728,30 @@
         if (expBox) expBox.style.display = 'none'; // Keep hidden, do not reveal explanation
 
         if (selected) {
+          answeredCount++;
           const val = parseInt(selected.value);
           if (val === item.ans) {
             quizScore++;
           }
-        } else {
-          unanswered++;
         }
       });
+
+      if (answeredCount === 0) {
+        showToast('⚠️ กรุณาเลือกคำตอบอย่างน้อย 1 ข้อก่อนกดตรวจคะแนน');
+        return;
+      }
 
       quizDone = true;
       document.getElementById('quiz-score-badge').innerText = `คะแนนที่ได้: ${quizScore} / 10`;
       document.getElementById('rep-quiz-score').innerText = `${quizScore} / 10`;
+
+      const resBox = document.getElementById('quiz-score-result-box');
+      const resText = document.getElementById('quiz-result-text');
+      if (resBox && resText) {
+        resText.innerText = `คะแนนที่ได้: ${quizScore} / 10 คะแนน (ตอบแล้ว ${answeredCount}/10 ข้อ)`;
+        resBox.style.display = 'block';
+      }
+
       showToast(`✓ ตรวจคะแนนเสร็จสิ้น คุณได้คะแนน: ${quizScore} / 10`);
     }
 
@@ -1727,6 +1760,8 @@
       quizDone = false;
       document.getElementById('quiz-score-badge').innerText = 'คะแนน: 0 / 10';
       document.getElementById('rep-quiz-score').innerText = '0 / 10';
+      const resBox = document.getElementById('quiz-score-result-box');
+      if (resBox) resBox.style.display = 'none';
       renderQuiz();
     }
 
@@ -1766,7 +1801,10 @@
         return;
       }
 
-      const gasUrl = localStorage.getItem(UNIT7_GAS_KEY) || localStorage.getItem(MASTER_GAS_KEY) || '';
+      const gasUrl = (document.getElementById('teacher-gas-url') && document.getElementById('teacher-gas-url').value.trim()) ||
+                     (document.getElementById('gasUrlInput') && document.getElementById('gasUrlInput').value.trim()) ||
+                     localStorage.getItem(UNIT7_GAS_KEY) ||
+                     localStorage.getItem(MASTER_GAS_KEY) || '';
       if (!gasUrl) {
         if (!confirm('ยังไม่ได้ระบุ Google Apps Script URL ในระบบครูผู้สอน คุณต้องการบันทึกในเครื่องและพิมพ์รายงานแทนใช่หรือไม่?')) {
           toggleTeacherModal(true);
@@ -1829,11 +1867,36 @@
     }
 
     // ================= TEACHER PORTAL & SHARING =================
+    function updateStudentShareLink(gasUrl) {
+      const cleanUrl = (gasUrl || '').trim();
+      const urlInput = document.getElementById('teacher-gas-url');
+      const gasInput = document.getElementById('gasUrlInput');
+      if (urlInput && document.activeElement !== urlInput) urlInput.value = cleanUrl;
+      if (gasInput && document.activeElement !== gasInput) gasInput.value = cleanUrl;
+      if (cleanUrl) {
+        localStorage.setItem(UNIT7_GAS_KEY, cleanUrl);
+        localStorage.setItem(MASTER_GAS_KEY, cleanUrl);
+      }
+
+      const shareInput = document.getElementById('student-share-link');
+      if (!shareInput) return;
+      let base = window.location.origin + window.location.pathname.replace(/\/index\.html$/i, '/');
+      if (base.startsWith('file:') || window.location.origin === 'null') {
+        base = 'http://localhost:8082/Unit7/';
+      }
+      const fullUrl = cleanUrl ? (base + (base.endsWith('/') ? '' : '/') + '?gas=' + encodeURIComponent(cleanUrl)) : base;
+      shareInput.value = fullUrl;
+    }
+
     function toggleTeacherModal(show) {
       const modal = document.getElementById('teacher-modal');
       if (show) {
-        const gasUrl = localStorage.getItem(UNIT7_GAS_KEY) || localStorage.getItem(MASTER_GAS_KEY) || '';
-        document.getElementById('teacher-gas-url').value = gasUrl;
+        const urlInput = document.getElementById('teacher-gas-url');
+        const gasInput = document.getElementById('gasUrlInput');
+        const gasUrl = (urlInput && urlInput.value.trim()) || (gasInput && gasInput.value.trim()) || localStorage.getItem(UNIT7_GAS_KEY) || localStorage.getItem(MASTER_GAS_KEY) || '';
+        if (urlInput) urlInput.value = gasUrl;
+        if (gasInput) gasInput.value = gasUrl;
+        updateStudentShareLink(gasUrl);
         modal.style.display = 'flex';
       } else {
         modal.style.display = 'none';
@@ -1843,19 +1906,33 @@
     function saveTeacherGasUrl() {
       const url = document.getElementById('teacher-gas-url').value.trim();
       localStorage.setItem(UNIT7_GAS_KEY, url);
-      showToast('✓ บันทึก URL ประจำหน่วยที่ 7 เรียบร้อยแล้ว');
+      if (url) localStorage.setItem(MASTER_GAS_KEY, url);
+      updateStudentShareLink(url);
+      showToast('✓ บันทึก URL ประจำหน่วยที่ 7 เรียบร้อยแล้ว (กดคัดลอกลิงก์ให้นักเรียนได้ทันที)');
     }
 
     function copyShareLink() {
-      const url = localStorage.getItem(UNIT7_GAS_KEY) || localStorage.getItem(MASTER_GAS_KEY) || '';
-      let shareUrl = window.location.href.split('?')[0];
-      if (url) {
-        shareUrl += '?gas=' + encodeURIComponent(url);
+      const urlInput = document.getElementById('teacher-gas-url');
+      const gasInput = document.getElementById('gasUrlInput');
+      const url = (urlInput && urlInput.value.trim()) || (gasInput && gasInput.value.trim()) || localStorage.getItem(UNIT7_GAS_KEY) || localStorage.getItem(MASTER_GAS_KEY) || '';
+      if (!url) {
+        alert('⚠️ กรุณาวางลิงก์ Google Apps Script Web App URL ในช่องด้านบนก่อนกดคัดลอกลิงก์ให้นักเรียน');
+        if (urlInput) urlInput.focus();
+        return;
+      }
+      updateStudentShareLink(url);
+
+      const shareInput = document.getElementById('student-share-link');
+      let shareUrl = shareInput ? shareInput.value : (window.location.href.split('?')[0] + '?gas=' + encodeURIComponent(url));
+      if (shareInput) {
+        shareInput.select();
+        shareInput.setSelectionRange(0, 99999);
       }
       navigator.clipboard.writeText(shareUrl).then(() => {
         showToast('📋 คัดลอกลิงก์แชร์ 1-Click สำเร็จ (แนบ ?gas= เรียบร้อย)');
       }).catch(() => {
-        showToast('📋 คัดลอกลิงก์: ' + shareUrl);
+        document.execCommand('copy');
+        showToast('📋 คัดลอกลิงก์แชร์ 1-Click สำเร็จ (แนบ ?gas= เรียบร้อย)');
       });
     }
 
@@ -1874,6 +1951,17 @@
       const gasParam = urlParams.get('gas');
       if (gasParam) {
         localStorage.setItem(UNIT7_GAS_KEY, gasParam);
+        localStorage.setItem(MASTER_GAS_KEY, gasParam);
+        if (document.getElementById('gasUrlInput')) document.getElementById('gasUrlInput').value = gasParam;
+        if (document.getElementById('teacher-gas-url')) document.getElementById('teacher-gas-url').value = gasParam;
+        updateStudentShareLink(gasParam);
+      } else {
+        const saved = localStorage.getItem(UNIT7_GAS_KEY) || localStorage.getItem(MASTER_GAS_KEY) || '';
+        if (saved) {
+          if (document.getElementById('gasUrlInput')) document.getElementById('gasUrlInput').value = saved;
+          if (document.getElementById('teacher-gas-url')) document.getElementById('teacher-gas-url').value = saved;
+        }
+        updateStudentShareLink(saved);
       }
 
       // 2. Render Quiz & Canvas

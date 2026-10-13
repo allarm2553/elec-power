@@ -1369,8 +1369,19 @@
           </div>
         </div>
 
-        <div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1.5rem; flex-wrap:wrap;">
-          <button onclick="checkQuizScore()" class="btn btn-primary" style="background:linear-gradient(135deg, #0284c7, #0369a1); color:#fff; border:1px solid #38bdf8;">
+        <!-- Inline Score Result Box -->
+        <div id="quiz-score-result-box" style="display:none; margin-top:1.25rem; padding:1.1rem 1.4rem; border-radius:12px; background:rgba(16, 185, 129, 0.14); border:1px solid rgba(16, 185, 129, 0.45); text-align:center; box-shadow:0 8px 24px rgba(0,0,0,0.3);">
+          <div style="font-size:1.2rem; font-weight:700; color:#34d399; font-family:var(--font-display);">
+            <i class="fa-solid fa-trophy" style="color:#facc15; margin-right:0.4rem;"></i>
+            <span id="quiz-result-text">คะแนนที่ได้: 0 / 4</span>
+          </div>
+          <div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.3rem;">
+            ตรวจคะแนนเรียบร้อยแล้ว สามารถกดปุ่ม "ส่งผลคะแนนเข้า Google Sheet ของครู" เพื่อบันทึกได้ทันที
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1.25rem; flex-wrap:wrap;">
+          <button onclick="checkQuizScore()" class="btn btn-primary" style="background:linear-gradient(135deg, #0284c7, #0369a1); color:#fff; border:1px solid #38bdf8; cursor:pointer;">
             <i class="fa-solid fa-clipboard-check"></i> ตรวจคะแนนแบบทดสอบ
           </button>
           <button onclick="syncToGoogleSheet()" class="btn btn-green">
@@ -1435,6 +1446,11 @@
         </div>
       </div>
 
+      <div style="margin-bottom: 0.85rem;">
+        <label style="font-size: 0.75rem; color: var(--text-dim); display: block; margin-bottom: 0.25rem;">Google Apps Script Web App URL (?gas=):</label>
+        <input id="gasUrlInput" type="url" oninput="updateStudentSharePreview(this.value)" placeholder="https://script.google.com/macros/s/.../exec" style="font-family: var(--font-mono); font-size: 0.75rem; color: #38bdf8;">
+      </div>
+
       <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
         <button id="btn-submit-unit" onclick="syncToGoogleSheet()" class="btn btn-green">
           <i class="fa-solid fa-cloud-arrow-up"></i> ส่งข้อมูลเข้า Google Sheet
@@ -1464,7 +1480,14 @@
       <div style="font-size: 0.82rem; color: var(--text-secondary); space-y: 0.75rem;">
         <div>
           <label style="display: block; font-weight: 600; color: #fff; margin-bottom: 0.3rem;">Google Apps Script Web App URL:</label>
-          <input id="gas-url-input" type="text" placeholder="https://script.google.com/macros/s/AKfycb.../exec" style="font-family: var(--font-mono); color: var(--accent-secondary);">
+          <input id="gas-url-input" type="text" oninput="updateStudentSharePreview(this.value)" placeholder="https://script.google.com/macros/s/AKfycb.../exec" style="font-family: var(--font-mono); color: var(--accent-secondary);">
+        </div>
+
+        <div style="margin-top: 0.75rem; padding: 0.65rem; background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 8px;">
+          <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #38bdf8; margin-bottom: 0.3rem;">
+            🔗 ลิงก์สำหรับส่งให้นักศึกษา (แนบ ?gas= อัตโนมัติ):
+          </label>
+          <input id="student-share-link" type="text" readonly style="font-family: var(--font-mono); font-size: 0.72rem; color: #94a3b8; background: rgba(2, 6, 23, 0.8); padding: 0.45rem 0.65rem;">
         </div>
 
         <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 0.85rem 0;">
@@ -1484,7 +1507,8 @@
       </div>
 
       <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.25rem;">
-        <button onclick="saveGasUrl()" class="btn btn-primary">บันทึกการตั้งค่า</button>
+        <button onclick="closeModal('gas-sync-modal')" class="btn btn-secondary">ปิดหน้าต่าง</button>
+        <button onclick="saveGasUrl()" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> บันทึกการตั้งค่า</button>
       </div>
     </div>
   </div>
@@ -2836,6 +2860,24 @@
     // 6. TAB 5: Quiz Logic (ตรวจเฉพาะคะแนน ไม่เฉลยคำตอบ)
     const userQuizAnswers = {};
 
+    function showToast(msg) {
+      let toast = document.getElementById('unit1-floating-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'unit1-floating-toast';
+        toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:rgba(15,23,42,0.96);border:1px solid #38bdf8;color:#fff;padding:0.85rem 1.35rem;border-radius:10px;font-family:var(--font-display);font-size:0.9rem;font-weight:600;box-shadow:0 10px 28px rgba(0,0,0,0.65);z-index:9999;transition:opacity 0.25s ease;';
+        document.body.appendChild(toast);
+      }
+      toast.innerText = msg;
+      toast.style.display = 'block';
+      toast.style.opacity = '1';
+      clearTimeout(window._unit1ToastTimer);
+      window._unit1ToastTimer = setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => { toast.style.display = 'none'; }, 250);
+      }, 3500);
+    }
+
     function checkOption(el, qIndex, isCorrect) {
       const parent = el.closest('.quiz-question');
       parent.querySelectorAll('.quiz-option').forEach(o => o.classList.remove('selected', 'correct', 'wrong'));
@@ -2847,11 +2889,22 @@
       const totalQuestions = 4;
       const answeredCount = Object.keys(userQuizAnswers).length;
       if (answeredCount === 0) {
-        showToast('⚠️ กรุณาเลือกคำตอบก่อนกดตรวจคะแนน');
+        showToast('⚠️ กรุณาเลือกคำตอบอย่างน้อย 1 ข้อก่อนกดตรวจคะแนน');
         return;
       }
       quizScore = Object.values(userQuizAnswers).filter(Boolean).length;
-      document.getElementById('quiz-score-badge').innerText = `คะแนนที่ได้: ${quizScore} / ${totalQuestions}`;
+      const scoreText = `คะแนนที่ได้: ${quizScore} / ${totalQuestions} คะแนน (ตอบแล้ว ${answeredCount}/${totalQuestions} ข้อ)`;
+
+      const badge = document.getElementById('quiz-score-badge');
+      if (badge) badge.innerText = `คะแนนที่ได้: ${quizScore} / ${totalQuestions}`;
+
+      const resBox = document.getElementById('quiz-score-result-box');
+      const resText = document.getElementById('quiz-result-text');
+      if (resBox && resText) {
+        resText.innerText = scoreText;
+        resBox.style.display = 'block';
+      }
+
       showToast(`✓ ตรวจคะแนนเสร็จสิ้น คุณได้คะแนน: ${quizScore} / ${totalQuestions}`);
     }
 
@@ -2917,16 +2970,43 @@
       }
     }
 
+    function buildUnit1StudentUrl(gasUrl) {
+      let base = window.location.origin + window.location.pathname.replace(/\/index\.html$/i, '/');
+      if (base.startsWith('file:') || window.location.origin === 'null') {
+        base = 'http://localhost:8082/Unit1/';
+      }
+      base = base + (base.endsWith('/') ? '' : '/');
+      return gasUrl ? (base + '?gas=' + encodeURIComponent(gasUrl)) : base;
+    }
+
+    function updateStudentSharePreview(val) {
+      const cleanVal = (val || '').trim();
+      const inputEl = document.getElementById('gas-url-input');
+      const inlineEl = document.getElementById('gasUrlInput');
+      if (inputEl && document.activeElement !== inputEl) inputEl.value = cleanVal;
+      if (inlineEl && document.activeElement !== inlineEl) inlineEl.value = cleanVal;
+      if (cleanVal) {
+        teacherGasUrl = cleanVal;
+        localStorage.setItem('power_unit1_gas_url', cleanVal);
+        localStorage.setItem('elec_power_master_gas_url', cleanVal);
+      }
+      const shareInput = document.getElementById('student-share-link');
+      if (!shareInput) return;
+      shareInput.value = buildUnit1StudentUrl(cleanVal);
+    }
+
     function saveGasUrl() {
       const url = document.getElementById('gas-url-input').value.trim();
       teacherGasUrl = url;
       localStorage.setItem('power_unit1_gas_url', url);
-      closeModal('gas-sync-modal');
-      alert('บันทึก Web App URL สำเร็จแล้ว');
+      if (url) localStorage.setItem('elec_power_master_gas_url', url);
+      updateStudentSharePreview(url);
+      showToast('✓ บันทึก Google Apps Script Web App URL สำเร็จแล้ว (กดคัดลอกลิงก์ให้นักเรียนได้ทันที)');
     }
 
     function syncToGoogleSheet() {
-      const activeGas = teacherGasUrl || localStorage.getItem('elec_power_master_gas_url');
+      const inputEl = document.getElementById('gas-url-input');
+      const activeGas = (inputEl && inputEl.value.trim()) || teacherGasUrl || localStorage.getItem('power_unit1_gas_url') || localStorage.getItem('elec_power_master_gas_url');
       if (!activeGas) {
         openModal('gas-sync-modal');
         alert('กรุณากรอก Google Apps Script Web App URL ก่อน');
@@ -3020,22 +3100,44 @@
     }
 
     function copyStudentLink() {
-      const activeGas = teacherGasUrl || localStorage.getItem('elec_power_master_gas_url');
+      const inputEl = document.getElementById('gas-url-input');
+      const liveInput = inputEl ? inputEl.value.trim() : '';
+      const activeGas = liveInput || teacherGasUrl || localStorage.getItem('power_unit1_gas_url') || localStorage.getItem('elec_power_master_gas_url') || '';
       if (!activeGas) {
-        alert('กรุณากรอกและบันทึก Google Apps Script Web App URL ก่อน');
+        alert('⚠️ กรุณาวางลิงก์ Google Apps Script Web App URL ในช่องด้านบนก่อนกดคัดลอกลิงก์ให้นักเรียน');
+        if (inputEl) inputEl.focus();
         return;
       }
-      let base = window.location.origin + window.location.pathname.replace(/\/index\.html$/i, '/');
-      if (base.startsWith('file:') || window.location.origin === 'null') {
-        base = 'http://localhost:8082/Unit1/';
+      teacherGasUrl = activeGas;
+      localStorage.setItem('power_unit1_gas_url', activeGas);
+      localStorage.setItem('elec_power_master_gas_url', activeGas);
+      updateStudentSharePreview(activeGas);
+
+      const studentUrl = buildUnit1StudentUrl(activeGas);
+      const shareInput = document.getElementById('student-share-link');
+      if (shareInput) {
+        shareInput.value = studentUrl;
+        shareInput.select();
+        shareInput.setSelectionRange(0, 99999);
       }
-      const studentUrl = base + (base.endsWith('/') ? '' : '/') + '?gas=' + encodeURIComponent(activeGas);
-      navigator.clipboard.writeText(studentUrl);
-      alert('คัดลอกลิงก์พร้อม ?gas= ให้นักเรียนเรียบร้อยแล้ว:\n' + studentUrl);
+      navigator.clipboard.writeText(studentUrl).then(() => {
+        showToast('📋 คัดลอกลิงก์พร้อม ?gas= ให้นักเรียนเรียบร้อยแล้ว!');
+      }).catch(() => {
+        document.execCommand('copy');
+        showToast('📋 คัดลอกลิงก์พร้อม ?gas= ให้นักเรียนเรียบร้อยแล้ว!');
+      });
     }
 
     // Modal Helpers
-    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function openModal(id) {
+      if (id === 'gas-sync-modal') {
+        const saved = teacherGasUrl || localStorage.getItem('power_unit1_gas_url') || localStorage.getItem('elec_power_master_gas_url') || '';
+        const inputEl = document.getElementById('gas-url-input');
+        if (inputEl && !inputEl.value.trim()) inputEl.value = saved;
+        updateStudentSharePreview(inputEl ? inputEl.value.trim() : saved);
+      }
+      document.getElementById(id).style.display = 'flex';
+    }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
     // Init on Load
@@ -3045,13 +3147,16 @@
       if (paramGas) {
         teacherGasUrl = paramGas;
         localStorage.setItem('power_unit1_gas_url', paramGas);
+        localStorage.setItem('elec_power_master_gas_url', paramGas);
         document.getElementById('gas-url-input').value = paramGas;
+        updateStudentSharePreview(paramGas);
       } else {
-        const saved = teacherGasUrl || localStorage.getItem('elec_power_master_gas_url');
+        const saved = teacherGasUrl || localStorage.getItem('power_unit1_gas_url') || localStorage.getItem('elec_power_master_gas_url') || '';
         if (saved) {
           teacherGasUrl = saved;
           document.getElementById('gas-url-input').value = saved;
         }
+        updateStudentSharePreview(saved);
       }
 
       updateStructurePhysics();

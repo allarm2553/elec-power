@@ -1019,7 +1019,7 @@
 
           <div style="margin-bottom:1rem;">
             <label style="display:block;font-size:0.78rem;color:var(--text-muted);margin-bottom:0.3rem;">Google Apps Script Web App URL (?gas=):</label>
-            <input type="url" id="gasUrlInput" placeholder="https://script.google.com/macros/s/.../exec" style="width:100%;padding:0.5rem 0.75rem;background:rgba(15,23,42,0.8);border:1px solid var(--card-border);border-radius:8px;color:#f8fafc;font-family:var(--font-mono);font-size:0.75rem;outline:none;">
+            <input type="url" id="gasUrlInput" oninput="updateStudentShareLink(this.value.trim())" placeholder="https://script.google.com/macros/s/.../exec" style="width:100%;padding:0.5rem 0.75rem;background:rgba(15,23,42,0.8);border:1px solid var(--card-border);border-radius:8px;color:#f8fafc;font-family:var(--font-mono);font-size:0.75rem;outline:none;">
           </div>
 
           <div style="display:flex;gap:0.75rem;">
@@ -1094,7 +1094,7 @@
         <label style="display:block;font-size:0.78rem;font-weight:600;color:#e2e8f0;margin-bottom:0.4rem;">
           Google Apps Script Web App URL (ลิงก์เว็บแอปที่ Deploy จากชีต)
         </label>
-        <input type="url" id="teacher-sheet-url" placeholder="https://script.google.com/macros/s/.../exec" style="width:100%;padding:0.65rem 0.8rem;border-radius:8px;background:rgba(15,23,42,0.85);border:1px solid var(--border-card);color:#fff;font-family:var(--font-mono);font-size:0.8rem;outline:none;">
+        <input type="url" id="teacher-sheet-url" oninput="updateStudentShareLink(this.value.trim())" placeholder="https://script.google.com/macros/s/.../exec" style="width:100%;padding:0.65rem 0.8rem;border-radius:8px;background:rgba(15,23,42,0.85);border:1px solid var(--border-card);color:#fff;font-family:var(--font-mono);font-size:0.8rem;outline:none;">
         <p style="font-size:0.72rem;color:var(--text-muted);margin-top:0.3rem;">
           * ระบบจะบันทึก URL ไว้ใน Local Storage ของเครื่อง เพื่อให้นักเรียนส่งคะแนนเข้าชีตของคุณครู
         </p>
@@ -1211,9 +1211,11 @@
       if (!modal) return;
       if (show) {
         modal.classList.add('active');
-        const savedUrl = localStorage.getItem(TEACHER_SHEET_KEY) || localStorage.getItem('elec_power_master_gas_url') || '';
+        const gasInput = document.getElementById('gasUrlInput');
         const urlInput = document.getElementById('teacher-sheet-url');
+        const savedUrl = (urlInput && urlInput.value.trim()) || (gasInput && gasInput.value.trim()) || localStorage.getItem(TEACHER_SHEET_KEY) || localStorage.getItem('elec_power_master_gas_url') || '';
         if (urlInput) urlInput.value = savedUrl;
+        if (gasInput) gasInput.value = savedUrl;
         updateStudentShareLink(savedUrl);
       } else {
         modal.classList.remove('active');
@@ -1224,19 +1226,39 @@
     function closeGasModal() { toggleTeacherModal(false); }
 
     function updateStudentShareLink(gasUrl) {
+      const cleanUrl = (gasUrl || '').trim();
+      const urlInput = document.getElementById('teacher-sheet-url');
+      const gasInput = document.getElementById('gasUrlInput');
+      if (urlInput && document.activeElement !== urlInput) urlInput.value = cleanUrl;
+      if (gasInput && document.activeElement !== gasInput) gasInput.value = cleanUrl;
+      if (cleanUrl) {
+        localStorage.setItem(TEACHER_SHEET_KEY, cleanUrl);
+        localStorage.setItem('elec_power_master_gas_url', cleanUrl);
+      }
+
       const shareInput = document.getElementById('student-share-link');
       if (!shareInput) return;
       let base = window.location.origin + window.location.pathname.replace(/\/index\.html$/i, '/');
       if (base.startsWith('file:') || window.location.origin === 'null') {
         base = 'http://localhost:8082/Unit3/';
       }
-      const fullUrl = gasUrl ? (base + (base.endsWith('/') ? '' : '/') + '?gas=' + encodeURIComponent(gasUrl)) : base;
+      const fullUrl = cleanUrl ? (base + (base.endsWith('/') ? '' : '/') + '?gas=' + encodeURIComponent(cleanUrl)) : base;
       shareInput.value = fullUrl;
       const badge = document.getElementById('copy-badge');
       if (badge) badge.style.display = 'none';
     }
 
     function copyStudentLink() {
+      const urlInput = document.getElementById('teacher-sheet-url');
+      const gasInput = document.getElementById('gasUrlInput');
+      const liveGas = (urlInput && urlInput.value.trim()) || (gasInput && gasInput.value.trim()) || localStorage.getItem(TEACHER_SHEET_KEY) || localStorage.getItem('elec_power_master_gas_url') || '';
+      if (!liveGas) {
+        alert('⚠️ กรุณาวางลิงก์ Google Apps Script Web App URL ในช่องด้านบนก่อนกดคัดลอกลิงก์ เพื่อให้นักเรียนส่งคะแนนเข้าชีตได้');
+        if (urlInput) urlInput.focus();
+        return;
+      }
+      updateStudentShareLink(liveGas);
+
       const shareInput = document.getElementById('student-share-link');
       if (!shareInput) return;
       shareInput.select();
@@ -1244,15 +1266,17 @@
       navigator.clipboard.writeText(shareInput.value).then(() => {
         const badge = document.getElementById('copy-badge');
         if (badge) {
+          badge.innerText = '✓ คัดลอกลิงก์ (พร้อม ?gas=) สำเร็จ!';
           badge.style.display = 'inline';
-          setTimeout(() => { badge.style.display = 'none'; }, 3000);
+          setTimeout(() => { badge.style.display = 'none'; }, 3500);
         }
       }).catch(() => {
         document.execCommand('copy');
         const badge = document.getElementById('copy-badge');
         if (badge) {
+          badge.innerText = '✓ คัดลอกลิงก์ (พร้อม ?gas=) สำเร็จ!';
           badge.style.display = 'inline';
-          setTimeout(() => { badge.style.display = 'none'; }, 3000);
+          setTimeout(() => { badge.style.display = 'none'; }, 3500);
         }
       });
     }
@@ -1261,11 +1285,15 @@
       const urlInput = document.getElementById('teacher-sheet-url');
       const url = urlInput ? urlInput.value.trim() : '';
       localStorage.setItem(TEACHER_SHEET_KEY, url);
+      if (url) localStorage.setItem('elec_power_master_gas_url', url);
       const gasUrlInput = document.getElementById('gasUrlInput');
       if (gasUrlInput) gasUrlInput.value = url;
       updateStudentShareLink(url);
-      toggleTeacherModal(false);
-      alert('บันทึกการตั้งค่า Google Apps Script Web App URL เรียบร้อยแล้ว');
+      const badge = document.getElementById('copy-badge');
+      if (badge) {
+        badge.innerText = '✓ บันทึก URL เรียบร้อย! กดคัดลอกลิงก์ได้เลย';
+        badge.style.display = 'inline';
+      }
     }
 
     // --- TAB 1: SMPS TOPOLOGIES ---
@@ -2114,25 +2142,20 @@
     }
 
     function selectQuizOption(idx) {
-      if (AppState.quiz.answered) return;
       AppState.quiz.answered = true;
+      AppState.quiz.selectedIdx = idx;
 
-      const q = QUIZ_DATA[AppState.quiz.index];
       const buttons = document.querySelectorAll('#quizOptionsContainer .btn-choice');
 
       // Highlight selected option neutrally without revealing answer key
       buttons.forEach(b => {
         b.style.background = 'rgba(255, 255, 255, 0.05)';
         b.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+        b.style.color = '';
       });
       buttons[idx].style.background = 'rgba(56, 189, 248, 0.25)';
       buttons[idx].style.borderColor = '#38bdf8';
       buttons[idx].style.color = '#ffffff';
-
-      // Keep score internally
-      if (idx === q.ans) {
-        AppState.quiz.score++;
-      }
 
       // Hide explanation box (do not reveal answers)
       const expBox = document.getElementById('quizExplanationBox');
@@ -2148,7 +2171,12 @@
     }
 
     function nextQuizQuestion() {
+      const q = QUIZ_DATA[AppState.quiz.index];
+      if (AppState.quiz.selectedIdx === q.ans) {
+        AppState.quiz.score++;
+      }
       AppState.quiz.answered = false;
+      AppState.quiz.selectedIdx = null;
       if (AppState.quiz.index < QUIZ_DATA.length - 1) {
         AppState.quiz.index++;
         renderQuizQuestion();
@@ -2365,14 +2393,17 @@
       const gasParam = urlParams.get('gas');
       if (gasParam) {
         localStorage.setItem(TEACHER_SHEET_KEY, gasParam);
+        localStorage.setItem('elec_power_master_gas_url', gasParam);
         if (document.getElementById('gasUrlInput')) document.getElementById('gasUrlInput').value = gasParam;
         if (document.getElementById('teacher-sheet-url')) document.getElementById('teacher-sheet-url').value = gasParam;
+        updateStudentShareLink(gasParam);
       } else {
-        const saved = localStorage.getItem(TEACHER_SHEET_KEY) || localStorage.getItem('elec_power_master_gas_url');
+        const saved = localStorage.getItem(TEACHER_SHEET_KEY) || localStorage.getItem('elec_power_master_gas_url') || '';
         if (saved) {
           if (document.getElementById('gasUrlInput')) document.getElementById('gasUrlInput').value = saved;
           if (document.getElementById('teacher-sheet-url')) document.getElementById('teacher-sheet-url').value = saved;
         }
+        updateStudentShareLink(saved);
       }
 
       renderTab1();
