@@ -2729,8 +2729,9 @@
         name: sName,
         studentId: sId,
         group: sGroup,
-        activity: `Unit 2 Lab (${recordedLogs.length} points) + Quiz Score: ${quizScore}/5`,
-        result: `Score: ${quizScore}/5, Logs: ${recordedLogs.length}`,
+        activity: 'หน่วยที่ 2 วงจรเรียงกระแสแบบควบคุมได้',
+        result: Number(quizScore),
+        quizScore: Number(quizScore),
         status: quizScore >= 3 ? 'ผ่านเกณฑ์' : 'ต้องปรับปรุง'
       };
 

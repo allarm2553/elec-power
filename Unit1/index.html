@@ -3231,7 +3231,8 @@
         studentId: sid,
         group: group,
         activity: 'หน่วยที่ 1 สวิตชิ่งกำลัง',
-        result: `คะแนนแบบทดสอบ: ${quizScore}/4, ข้อมูลบันทึก: ${recordedLogs.length} จุด`,
+        result: Number(quizScore),
+        quizScore: Number(quizScore),
         status: quizScore >= 3 ? 'ผ่านเกณฑ์' : 'ส่งชิ้นงานสมบูรณ์'
       };
 

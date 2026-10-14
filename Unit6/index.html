@@ -2362,7 +2362,7 @@
         vfRatio: AppState.tab2.vfRatio.toFixed(2) + ' V/Hz',
         accDecTime: `${AppState.tab3.accTime}s / ${AppState.tab3.decTime}s`,
         faultStatus: AppState.tab3.fault ? `Fault ${AppState.tab3.fault}` : 'Normal (No Fault)',
-        quizScore: AppState.quiz.score,
+        quizScore: Number(AppState.quiz.score || 0),
         quizTotal: QUIZ_DATA.length,
         status: 'Submitted via Web Lab'
       };

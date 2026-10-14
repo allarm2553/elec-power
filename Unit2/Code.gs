@@ -119,16 +119,30 @@ function doPost(e) {
     var sheet = getOrCreateSheet();
     var timestamp = new Date();
     
+    var score = 0;
+    if (data.quizScore !== undefined && data.quizScore !== null && !isNaN(Number(data.quizScore))) {
+      score = Number(data.quizScore);
+    } else if (data.result !== undefined && data.result !== null && !isNaN(Number(data.result))) {
+      score = Number(data.result);
+    } else if (typeof data.result === 'string') {
+      var match = data.result.match(/(\d+)\s*\/\s*\d+/);
+      if (match) {
+        score = Number(match[1]);
+      }
+    } else if (data.thd !== undefined && data.thd !== null && !isNaN(Number(data.thd))) {
+      score = Number(data.thd);
+    }
+    
     sheet.appendRow([
       timestamp,
       data.name || "นักศึกษา",
       studentId,
       data.group || "-",
       data.topology || data.activity || "Controlled Rectifier Test",
-      data.alpha || "-",
-      data.vdc || "-",
-      data.idc || "-",
-      data.result || data.thd || "-",
+      data.alpha !== undefined && data.alpha !== "" ? data.alpha : "-",
+      data.vdc !== undefined && data.vdc !== "" ? data.vdc : "-",
+      data.idc !== undefined && data.idc !== "" ? data.idc : "-",
+      score,
       data.status || "Completed"
     ]);
     
@@ -138,7 +152,7 @@ function doPost(e) {
     sheet.getRange(lastRow, 6, 1, 1).setHorizontalAlignment("center");
     sheet.getRange(lastRow, 7, 1, 1).setHorizontalAlignment("center");
     sheet.getRange(lastRow, 8, 1, 1).setHorizontalAlignment("center");
-    sheet.getRange(lastRow, 9, 1, 1).setHorizontalAlignment("center");
+    sheet.getRange(lastRow, 9, 1, 1).setHorizontalAlignment("center").setNumberFormat("0");
 
     return ContentService.createTextOutput(JSON.stringify({
       success: true,

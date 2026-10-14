@@ -116,20 +116,32 @@ function doPost(e) {
     var sheet = getOrCreateSheet();
     var timestamp = new Date();
     
+    var score = 0;
+    if (data.quizScore !== undefined && data.quizScore !== null && !isNaN(Number(data.quizScore))) {
+      score = Number(data.quizScore);
+    } else if (data.result !== undefined && data.result !== null && !isNaN(Number(data.result))) {
+      score = Number(data.result);
+    } else if (typeof data.result === 'string') {
+      var match = data.result.match(/(\d+)\s*\/\s*\d+/);
+      if (match) {
+        score = Number(match[1]);
+      }
+    }
+    
     sheet.appendRow([
       timestamp,
       data.name || "นักศึกษา",
       studentId,
       data.group || "-",
       data.activity || "การทดสอบคุณลักษณะสวิตชิ่ง",
-      data.result || "-",
+      score,
       data.status || "Completed"
     ]);
     
     var lastRow = sheet.getLastRow();
     sheet.getRange(lastRow, 1, 1, 1).setHorizontalAlignment("center");
     sheet.getRange(lastRow, 3, 1, 1).setHorizontalAlignment("center");
-    sheet.getRange(lastRow, 6, 1, 1).setHorizontalAlignment("center");
+    sheet.getRange(lastRow, 6, 1, 1).setHorizontalAlignment("center").setNumberFormat("0");
 
     return ContentService.createTextOutput(JSON.stringify({
       success: true,

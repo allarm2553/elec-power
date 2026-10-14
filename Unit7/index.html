@@ -1944,7 +1944,7 @@
         thermoscanTemp: hotspotFixed ? '34.0' : '86.5',
         deltaTStatus: hotspotFixed ? 'Normal (ΔT 4.0°C)' : 'NETA Critical (ΔT 56.5°C)',
         faultDiagnosis: 'IGBT V_F 0.485V Normal / PM Checked',
-        quizScore: quizScore,
+        quizScore: Number(quizScore || 0),
         quizTotal: 10,
         status: 'Submitted'
       };

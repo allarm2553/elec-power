@@ -2432,7 +2432,7 @@
         backupTime: 58,
         chargeStage: 'Float',
         emergencyStatus: AppState.tab3.testingLamp ? 'Test Active' : 'Normal Standby',
-        quizScore: AppState.quiz.score,
+        quizScore: Number(AppState.quiz.score || 0),
         quizTotal: QUIZ_DATA.length,
         status: 'Submitted via Unit 5 WebApp'
       };

@@ -69,6 +69,16 @@ function doPost(e) {
       })).setMimeType(ContentService.MimeType.JSON);
     }
     
+    var score = 0;
+    if (data.quizScore !== undefined && data.quizScore !== null && !isNaN(Number(data.quizScore))) {
+      score = Number(data.quizScore);
+    } else if (typeof data.quizScore === 'string') {
+      var match = data.quizScore.match(/(\d+)\s*\/\s*\d+/);
+      if (match) {
+        score = Number(match[1]);
+      }
+    }
+    
     var row = [
       new Date(),
       data.studentName || "-",
@@ -82,11 +92,13 @@ function doPost(e) {
       data.vout || 0,
       data.iout || 0,
       data.efficiency || 0,
-      data.quizScore !== undefined ? data.quizScore + " / " + (data.quizTotal || 10) : "-",
+      score,
       data.status || "Submitted"
     ];
     
     sheet.appendRow(row);
+    var lastRow = sheet.getLastRow();
+    sheet.getRange(lastRow, 13, 1, 1).setHorizontalAlignment("center").setNumberFormat("0");
     
     return ContentService.createTextOutput(JSON.stringify({
       status: "success",

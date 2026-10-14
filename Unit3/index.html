@@ -2330,7 +2330,7 @@
         vout: parseFloat(document.getElementById('meterVout').innerText),
         iout: parseFloat(document.getElementById('meterIout').innerText),
         efficiency: parseFloat(document.getElementById('tab4EffBadge').innerText.replace(/[^0-9.]/g, '')),
-        quizScore: AppState.quiz.score,
+        quizScore: Number(AppState.quiz.score || 0),
         quizTotal: QUIZ_DATA.length,
         status: 'Submitted via Unit 3 WebApp'
       };

@@ -2185,7 +2185,7 @@
         vrms: parseFloat(document.getElementById('meterVrms').innerText),
         irms: parseFloat(document.getElementById('meterIrms').innerText),
         thd: parseFloat(document.getElementById('tab4ThdBadge').innerText.replace(/[^0-9.]/g, '')),
-        quizScore: AppState.quiz.score,
+        quizScore: Number(AppState.quiz.score || 0),
         quizTotal: QUIZ_DATA.length,
         status: 'Submitted via Unit 4 WebApp'
       };
