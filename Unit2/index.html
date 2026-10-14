@@ -563,7 +563,7 @@
         <a href="../" class="btn btn-outline" style="font-size:0.8rem;">
           <i class="fa-solid fa-arrow-left"></i> หน้าหลัก
         </a>
-        <button class="btn btn-outline" onclick="openModal('modal-gas')" style="color:#f59e0b; border-color:rgba(245,158,11,0.3);" title="ระบบจัดการสำหรับครูผู้สอน">
+        <button class="btn btn-outline" onclick="openTeacherModal()" style="color:#f59e0b; border-color:rgba(245,158,11,0.3);" title="ระบบจัดการสำหรับครูผู้สอน">
           <i class="fa-solid fa-chalkboard-user"></i> สำหรับครูผู้สอน
         </button>
         <span class="btn btn-amber" id="header-workpiece-count">
@@ -2849,6 +2849,16 @@
     }
 
     // Modal Helpers
+    function openTeacherModal() {
+      const pwd = prompt('🔐 กรุณากรอกรหัสผ่านสำหรับครูผู้สอน:');
+      if (pwd === null) return;
+      if (pwd.trim() !== '1234') {
+        alert('❌ รหัสผ่านไม่ถูกต้อง (เฉพาะครูผู้สอนเท่านั้น)');
+        return;
+      }
+      openModal('modal-gas');
+    }
+
     function openModal(id) {
       if (id === 'modal-gas') {
         const saved = teacherGasUrl || localStorage.getItem('power_unit2_gas_url') || localStorage.getItem('unit2_gas_url') || localStorage.getItem('elec_power_master_gas_url') || '';

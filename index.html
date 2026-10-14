@@ -1368,6 +1368,12 @@
     }
 
     function openMasterTeacherModal() {
+      const pwd = prompt('🔐 กรุณากรอกรหัสผ่านสำหรับครูผู้สอน:');
+      if (pwd === null) return;
+      if (pwd.trim() !== '1234') {
+        alert('❌ รหัสผ่านไม่ถูกต้อง (เฉพาะครูผู้สอนเท่านั้น)');
+        return;
+      }
       const modal = document.getElementById('master-teacher-modal');
       if (!modal) return;
       const savedGas = localStorage.getItem(TEACHER_MASTER_GAS_KEY) || '';

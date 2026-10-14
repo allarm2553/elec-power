@@ -1194,6 +1194,14 @@
     const TEACHER_SHEET_KEY = 'unit5_gas_url';
 
     function toggleTeacherModal(show) {
+      if (show) {
+        const pwd = prompt('🔐 กรุณากรอกรหัสผ่านสำหรับครูผู้สอน:');
+        if (pwd === null) return;
+        if (pwd.trim() !== '1234') {
+          alert('❌ รหัสผ่านไม่ถูกต้อง (เฉพาะครูผู้สอนเท่านั้น)');
+          return;
+        }
+      }
       const modal = document.getElementById('teacher-modal');
       if (!modal) return;
       if (show) {
