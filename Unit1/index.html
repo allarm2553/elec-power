@@ -1376,17 +1376,61 @@
             <span id="quiz-result-text">คะแนนที่ได้: 0 / 4</span>
           </div>
           <div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.3rem;">
-            ตรวจคะแนนเรียบร้อยแล้ว สามารถกดปุ่ม "ส่งผลคะแนนเข้า Google Sheet ของครู" เพื่อบันทึกได้ทันที
+            ตรวจคะแนนเรียบร้อยแล้ว กรุณากรอกข้อมูลผู้เรียนด้านล่างและกดปุ่ม "ส่งผลคะแนนเข้า Google Sheet ของครู" เพื่อบันทึกคะแนน
           </div>
         </div>
 
-        <div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1.25rem; flex-wrap:wrap;">
-          <button onclick="checkQuizScore()" class="btn btn-primary" style="background:linear-gradient(135deg, #0284c7, #0369a1); color:#fff; border:1px solid #38bdf8; cursor:pointer;">
-            <i class="fa-solid fa-clipboard-check"></i> ตรวจคะแนนแบบทดสอบ
-          </button>
-          <button onclick="syncToGoogleSheet()" class="btn btn-green">
-            <i class="fa-solid fa-cloud-arrow-up"></i> ส่งผลคะแนนเข้า Google Sheet ของครู
-          </button>
+        <!-- Student Info Card for Quiz & Lab Submission -->
+        <div style="background:rgba(15,23,42,0.85); border:1px solid var(--glass-border); border-radius:12px; padding:1.25rem; margin-top:1.5rem; box-shadow:0 8px 24px rgba(0,0,0,0.3);">
+          <div style="font-weight:700; color:var(--accent-cyan); font-size:0.95rem; margin-bottom:0.85rem; display:flex; align-items:center; gap:0.5rem;">
+            <i class="fa-solid fa-user-graduate" style="color:var(--accent-cyan);"></i> ข้อมูลผู้เรียน &amp; บันทึกผลการประเมิน
+          </div>
+          
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:0.85rem; margin-bottom:1rem;">
+            <div>
+              <label style="font-size:0.78rem; color:var(--text-dim); display:block; margin-bottom:0.35rem;">
+                <i class="fa-solid fa-user"></i> ชื่อ-สกุล ผู้เรียน: <span style="color:#ef4444;">*</span>
+              </label>
+              <input type="text" id="student-name" oninput="syncStudentInfo('name', this.value)" placeholder="เช่น นายธีรภัทร ช่างไฟฟ้า" style="width:100%; background:#0b1329; border:1px solid var(--glass-border); padding:0.55rem 0.75rem; border-radius:8px; color:#fff; font-size:0.85rem; outline:none;">
+            </div>
+
+            <div>
+              <label style="font-size:0.78rem; color:var(--text-dim); display:block; margin-bottom:0.35rem;">
+                <i class="fa-solid fa-id-card"></i> รหัสนักศึกษา: <span style="color:#ef4444;">*</span>
+              </label>
+              <input type="text" id="student-id" oninput="syncStudentInfo('id', this.value); checkUnitDuplicate()" placeholder="เช่น 66301050012" style="width:100%; background:#0b1329; border:1px solid var(--glass-border); padding:0.55rem 0.75rem; border-radius:8px; color:#fff; font-size:0.85rem; font-family:var(--font-mono); outline:none;">
+              <div id="unit-dup-warning" style="display:none; color: #ef4444; font-size: 0.75rem; margin-top: 5px; font-weight: 600;">
+                <i class="fa-solid fa-triangle-exclamation"></i> รหัสนักศึกษานี้เคยส่งงานหน่วยที่ 1 แล้ว (ห้ามส่งซ้ำ)
+              </div>
+            </div>
+
+            <div>
+              <label style="font-size:0.78rem; color:var(--text-dim); display:block; margin-bottom:0.35rem;">
+                <i class="fa-solid fa-users"></i> กลุ่มเรียน / ห้อง:
+              </label>
+              <input type="text" id="student-group" oninput="syncStudentInfo('group', this.value)" placeholder="เช่น ชอ.2 หรือ สฟ.2/1" style="width:100%; background:#0b1329; border:1px solid var(--glass-border); padding:0.55rem 0.75rem; border-radius:8px; color:#fff; font-size:0.85rem; outline:none;">
+            </div>
+          </div>
+
+          <div style="margin-bottom:1rem;">
+            <label style="font-size:0.75rem; color:var(--text-dim); display:block; margin-bottom:0.35rem;">
+              <i class="fa-solid fa-link"></i> Google Apps Script Web App URL (?gas=):
+            </label>
+            <input type="url" id="gasUrlInput" oninput="updateStudentSharePreview(this.value)" placeholder="https://script.google.com/macros/s/.../exec" style="width:100%; background:#070d19; border:1px solid var(--glass-border); padding:0.5rem 0.75rem; border-radius:8px; font-family:var(--font-mono); font-size:0.75rem; color:#38bdf8; outline:none;">
+          </div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; border-top:1px solid rgba(255,255,255,0.08); padding-top:1rem;">
+            <div style="display:flex; gap:0.5rem; align-items:center;">
+              <button onclick="checkQuizScore()" class="btn btn-primary" style="background:linear-gradient(135deg, #0284c7, #0369a1); color:#fff; border:1px solid #38bdf8; cursor:pointer;">
+                <i class="fa-solid fa-clipboard-check"></i> ตรวจคะแนนแบบทดสอบ
+              </button>
+            </div>
+            <div style="display:flex; gap:0.5rem; align-items:center;">
+              <button id="btn-submit-unit" onclick="syncToGoogleSheet()" class="btn btn-green" style="box-shadow:0 4px 14px rgba(16,185,129,0.35);">
+                <i class="fa-solid fa-cloud-arrow-up"></i> ส่งผลคะแนนเข้า Google Sheet ของครู
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -1406,18 +1450,18 @@
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; background: rgba(15, 23, 42, 0.8); border: 1px solid var(--glass-border); padding: 0.85rem; border-radius: 10px; margin-bottom: 1rem;">
         <div>
           <label style="font-size: 0.75rem; color: var(--text-dim); display: block;">ชื่อ-สกุล ผู้เรียน:</label>
-          <input id="student-name" type="text" placeholder="ระบุชื่อ-นามสกุล" value="นายช่างไฟฟ้า กำลังสูง">
+          <input id="modal-student-name" type="text" placeholder="ระบุชื่อ-นามสกุล" oninput="syncStudentInfo('name', this.value)">
         </div>
         <div>
           <label style="font-size: 0.75rem; color: var(--text-dim); display: block;">รหัสนักศึกษา:</label>
-          <input id="student-id" type="text" placeholder="6630105xxxx" value="66301050012" oninput="checkUnitDuplicate()">
-          <div id="unit-dup-warning" style="display:none; color: #ef4444; font-size: 0.72rem; margin-top: 4px; font-weight: 500;">
+          <input id="modal-student-id" type="text" placeholder="6630105xxxx" oninput="syncStudentInfo('id', this.value); checkUnitDuplicate()">
+          <div id="modal-unit-dup-warning" style="display:none; color: #ef4444; font-size: 0.72rem; margin-top: 4px; font-weight: 500;">
             <i class="fa-solid fa-triangle-exclamation"></i> รหัสนักศึกษานี้เคยส่งงานหน่วยที่ 1 แล้ว (ห้ามส่งซ้ำ)
           </div>
         </div>
         <div>
-          <label style="font-size: 0.75rem; color: var(--text-dim); display: block;">กลุ่มเรียน:</label>
-          <input id="student-group" type="text" placeholder="ปวส.2 อิเล็กทรอนิกส์" value="ปวส.2 ชอ.2">
+          <label style="font-size: 0.75rem; color: var(--text-dim); display: block;">กลุ่มเรียน / ห้อง:</label>
+          <input id="modal-student-group" type="text" placeholder="เช่น ชอ.2 หรือ สฟ.2/1" oninput="syncStudentInfo('group', this.value)">
         </div>
       </div>
 
@@ -1448,11 +1492,11 @@
 
       <div style="margin-bottom: 0.85rem;">
         <label style="font-size: 0.75rem; color: var(--text-dim); display: block; margin-bottom: 0.25rem;">Google Apps Script Web App URL (?gas=):</label>
-        <input id="gasUrlInput" type="url" oninput="updateStudentSharePreview(this.value)" placeholder="https://script.google.com/macros/s/.../exec" style="font-family: var(--font-mono); font-size: 0.75rem; color: #38bdf8;">
+        <input id="modal-gasUrlInput" type="url" oninput="updateStudentSharePreview(this.value)" placeholder="https://script.google.com/macros/s/.../exec" style="font-family: var(--font-mono); font-size: 0.75rem; color: #38bdf8;">
       </div>
 
       <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
-        <button id="btn-submit-unit" onclick="syncToGoogleSheet()" class="btn btn-green">
+        <button id="modal-btn-submit-unit" onclick="syncToGoogleSheet()" class="btn btn-green">
           <i class="fa-solid fa-cloud-arrow-up"></i> ส่งข้อมูลเข้า Google Sheet
         </button>
         <button onclick="window.print()" class="btn btn-primary">
@@ -2979,12 +3023,33 @@
       return gasUrl ? (base + '?gas=' + encodeURIComponent(gasUrl)) : base;
     }
 
+    function syncStudentInfo(field, val) {
+      if (field === 'name') {
+        const a = document.getElementById('student-name');
+        const b = document.getElementById('modal-student-name');
+        if (a && a.value !== val) a.value = val;
+        if (b && b.value !== val) b.value = val;
+      } else if (field === 'id') {
+        const a = document.getElementById('student-id');
+        const b = document.getElementById('modal-student-id');
+        if (a && a.value !== val) a.value = val;
+        if (b && b.value !== val) b.value = val;
+      } else if (field === 'group') {
+        const a = document.getElementById('student-group');
+        const b = document.getElementById('modal-student-group');
+        if (a && a.value !== val) a.value = val;
+        if (b && b.value !== val) b.value = val;
+      }
+    }
+
     function updateStudentSharePreview(val) {
       const cleanVal = (val || '').trim();
       const inputEl = document.getElementById('gas-url-input');
       const inlineEl = document.getElementById('gasUrlInput');
+      const modalEl = document.getElementById('modal-gasUrlInput');
       if (inputEl && document.activeElement !== inputEl) inputEl.value = cleanVal;
       if (inlineEl && document.activeElement !== inlineEl) inlineEl.value = cleanVal;
+      if (modalEl && document.activeElement !== modalEl) modalEl.value = cleanVal;
       if (cleanVal) {
         teacherGasUrl = cleanVal;
         localStorage.setItem('power_unit1_gas_url', cleanVal);
@@ -3006,20 +3071,30 @@
 
     function syncToGoogleSheet() {
       const inputEl = document.getElementById('gas-url-input');
-      const activeGas = (inputEl && inputEl.value.trim()) || teacherGasUrl || localStorage.getItem('power_unit1_gas_url') || localStorage.getItem('elec_power_master_gas_url');
+      const inlineEl = document.getElementById('gasUrlInput');
+      const modalGasEl = document.getElementById('modal-gasUrlInput');
+      const activeGas = (inlineEl && inlineEl.value.trim()) || (inputEl && inputEl.value.trim()) || (modalGasEl && modalGasEl.value.trim()) || teacherGasUrl || localStorage.getItem('power_unit1_gas_url') || localStorage.getItem('elec_power_master_gas_url');
       if (!activeGas) {
         openModal('gas-sync-modal');
         alert('กรุณากรอก Google Apps Script Web App URL ก่อน');
         return;
       }
 
-      const name = document.getElementById('student-name').value.trim() || 'นักศึกษา';
-      const sid = document.getElementById('student-id').value.trim();
-      const group = document.getElementById('student-group').value.trim() || '-';
+      const name = (document.getElementById('student-name')?.value || document.getElementById('modal-student-name')?.value || '').trim();
+      const sid = (document.getElementById('student-id')?.value || document.getElementById('modal-student-id')?.value || '').trim();
+      const group = (document.getElementById('student-group')?.value || document.getElementById('modal-student-group')?.value || '').trim();
+
+      if (!name) {
+        alert('กรุณากรอกชื่อ-สกุล นักศึกษาก่อนส่งงาน');
+        const nameEl = document.getElementById('student-name') || document.getElementById('modal-student-name');
+        if (nameEl) nameEl.focus();
+        return;
+      }
 
       if (!sid || sid === '-') {
         alert('กรุณาระบุรหัสนักศึกษาให้ถูกต้อง');
-        document.getElementById('student-id').focus();
+        const sidEl = document.getElementById('student-id') || document.getElementById('modal-student-id');
+        if (sidEl) sidEl.focus();
         return;
       }
 
@@ -3037,8 +3112,13 @@
         group: group,
         activity: 'หน่วยที่ 1 สวิตชิ่งกำลัง',
         result: `คะแนนแบบทดสอบ: ${quizScore}/4, ข้อมูลบันทึก: ${recordedLogs.length} จุด`,
-        status: 'ส่งชิ้นงานสมบูรณ์'
+        status: quizScore >= 3 ? 'ผ่านเกณฑ์' : 'ส่งชิ้นงานสมบูรณ์'
       };
+
+      const btn1 = document.getElementById('btn-submit-unit');
+      const btn2 = document.getElementById('modal-btn-submit-unit');
+      if (btn1) { btn1.disabled = true; btn1.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังส่งข้อมูล...'; }
+      if (btn2) { btn2.disabled = true; btn2.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังส่งข้อมูล...'; }
 
       fetch(activeGas, {
         method: 'POST',
@@ -3050,34 +3130,34 @@
         submittedIds.push(sid);
         localStorage.setItem('submitted_student_ids_unit1', JSON.stringify(submittedIds));
         checkUnitDuplicate();
-        alert('ส่งข้อมูลผลการทดลองและคะแนนเข้าสู่ Google Sheet ของครูผู้สอนเรียบร้อยแล้ว!');
+        if (btn1) { btn1.innerHTML = '<i class="fa-solid fa-check"></i> ส่งข้อมูลสำเร็จแล้ว'; }
+        if (btn2) { btn2.innerHTML = '<i class="fa-solid fa-check"></i> ส่งข้อมูลสำเร็จแล้ว'; }
+        alert('✓ ส่งข้อมูลผลการทดลองและคะแนนเข้าสู่ Google Sheet ของครูผู้สอนเรียบร้อยแล้ว!');
       }).catch(err => {
+        if (btn1) { btn1.disabled = false; btn1.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> ส่งผลคะแนนเข้า Google Sheet ของครู'; }
+        if (btn2) { btn2.disabled = false; btn2.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> ส่งข้อมูลเข้า Google Sheet'; }
         alert('เกิดข้อผิดพลาดในการเชื่อมต่อ: ' + err);
       });
     }
 
     function checkUnitDuplicate() {
-      const sid = document.getElementById('student-id') ? document.getElementById('student-id').value.trim() : '';
-      const warn = document.getElementById('unit-dup-warning');
-      const btn = document.getElementById('btn-submit-unit');
+      const sid = (document.getElementById('student-id')?.value || document.getElementById('modal-student-id')?.value || '').trim();
+      const warns = [document.getElementById('unit-dup-warning'), document.getElementById('modal-unit-dup-warning')];
+      const btns = [document.getElementById('btn-submit-unit'), document.getElementById('modal-btn-submit-unit')];
       const submittedIds = JSON.parse(localStorage.getItem('submitted_student_ids_unit1') || '[]');
-      if (sid && submittedIds.includes(sid)) {
-        if (warn) warn.style.display = 'block';
-        if (btn) {
-          btn.disabled = true;
-          btn.style.opacity = '0.5';
-          btn.style.cursor = 'not-allowed';
+
+      const isDup = Boolean(sid && submittedIds.includes(sid));
+
+      warns.forEach(w => { if (w) w.style.display = isDup ? 'block' : 'none'; });
+      btns.forEach(b => {
+        if (b) {
+          b.disabled = isDup;
+          b.style.opacity = isDup ? '0.5' : '1';
+          b.style.cursor = isDup ? 'not-allowed' : 'pointer';
         }
-        return true;
-      } else {
-        if (warn) warn.style.display = 'none';
-        if (btn) {
-          btn.disabled = false;
-          btn.style.opacity = '1';
-          btn.style.cursor = 'pointer';
-        }
-        return false;
-      }
+      });
+
+      return isDup;
     }
 
     function resetUnit1AntiCheat() {
