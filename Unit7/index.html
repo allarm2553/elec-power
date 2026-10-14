@@ -1124,16 +1124,19 @@
               <i class="fa-solid fa-trophy" style="color:#facc15; margin-right:0.35rem;"></i>
               <span id="quiz-result-text">คะแนนที่ได้: 0 / 10</span>
             </div>
-            <div style="font-size:0.78rem; color:var(--text-muted); margin-top:0.25rem;">
+            <div id="quiz-result-subtext" style="font-size:0.78rem; color:var(--text-muted); margin-top:0.25rem;">
               ตรวจคะแนนเรียบร้อยแล้ว สามารถกรอกฟอร์มทางด้านขวาเพื่อบันทึกส่งงานได้ทันที
             </div>
           </div>
 
-          <div style="margin-top:1rem;display:flex;gap:0.75rem;">
+          <div style="margin-top:1rem;display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
             <button class="btn btn-green" id="btn-submit-quiz" onclick="submitQuiz()">
-              <i class="fa-solid fa-clipboard-check"></i> ตรวจคะแนนแบบทดสอบ
+              <i class="fa-solid fa-clipboard-check"></i> ตรวจคะแนนแบบทดสอบ (<span id="quiz-attempt-count-text">ตรวจได้ 2 ครั้ง</span>)
             </button>
-            <button class="btn btn-outline" onclick="resetQuiz()">
+            <span id="quiz-attempt-badge" style="font-size:0.75rem; padding:0.4rem 0.65rem; border-radius:8px; background:rgba(56,189,248,0.12); border:1px solid rgba(56,189,248,0.3); color:#38bdf8; font-weight:600; white-space:nowrap;">
+              <i class="fa-solid fa-clock-rotate-left"></i> สิทธิ์ตรวจ: 2 ครั้ง
+            </span>
+            <button class="btn btn-outline" id="btn-reset-quiz" onclick="resetQuiz()">
               <i class="fa-solid fa-rotate-left"></i> ทำใหม่
             </button>
           </div>
@@ -1718,7 +1721,89 @@
       `).join('');
     }
 
+    let unit7QuizCheckCount = parseInt(localStorage.getItem('unit7_quiz_check_count') || '0', 10);
+    const MAX_QUIZ_ATTEMPTS = 2;
+    let unit7QuizLocked = unit7QuizCheckCount >= MAX_QUIZ_ATTEMPTS;
+
+    function updateUnit7QuizAttemptUI() {
+      const badge = document.getElementById('quiz-attempt-badge');
+      const btn = document.getElementById('btn-submit-quiz');
+      const btnReset = document.getElementById('btn-reset-quiz');
+      const countText = document.getElementById('quiz-attempt-count-text');
+
+      if (unit7QuizCheckCount === 0) {
+        if (badge) {
+          badge.innerHTML = '<i class="fa-solid fa-clock-rotate-left"></i> สิทธิ์ตรวจ: 2 ครั้ง';
+          badge.style.background = 'rgba(56,189,248,0.12)';
+          badge.style.color = '#38bdf8';
+          badge.style.borderColor = 'rgba(56,189,248,0.3)';
+        }
+        if (countText) countText.innerText = 'ตรวจได้ 2 ครั้ง';
+        if (btn) {
+          btn.disabled = false;
+          btn.style.opacity = '1';
+          btn.style.cursor = 'pointer';
+        }
+        if (btnReset) btnReset.style.display = 'inline-flex';
+      } else if (unit7QuizCheckCount === 1) {
+        if (badge) {
+          badge.innerHTML = '<i class="fa-solid fa-clock-rotate-left"></i> เหลือสิทธิ์ตรวจอีก 1 ครั้ง';
+          badge.style.background = 'rgba(245,158,11,0.15)';
+          badge.style.color = '#fbbf24';
+          badge.style.borderColor = 'rgba(245,158,11,0.35)';
+        }
+        if (countText) countText.innerText = 'ตรวจครั้งที่ 2/2 (ครั้งสุดท้าย)';
+        if (btn) {
+          btn.disabled = false;
+          btn.style.opacity = '1';
+          btn.style.cursor = 'pointer';
+        }
+        if (btnReset) btnReset.style.display = 'inline-flex';
+      } else {
+        unit7QuizLocked = true;
+        if (badge) {
+          badge.innerHTML = '<i class="fa-solid fa-lock"></i> ตรวจครบ 2 ครั้ง (ล็อกคำตอบ)';
+          badge.style.background = 'rgba(239,68,68,0.15)';
+          badge.style.color = '#f87171';
+          badge.style.borderColor = 'rgba(239,68,68,0.35)';
+        }
+        if (countText) countText.innerText = 'ตรวจครบ 2 ครั้งแล้ว';
+        if (btn) {
+          btn.disabled = true;
+          btn.style.opacity = '0.55';
+          btn.style.cursor = 'not-allowed';
+          btn.innerHTML = '<i class="fa-solid fa-lock"></i> ตรวจครบ 2 ครั้งแล้ว (ล็อกคำตอบ)';
+        }
+        if (btnReset) btnReset.style.display = 'none';
+
+        document.querySelectorAll('input[name^="quiz_q"]').forEach(inp => {
+          inp.disabled = true;
+        });
+      }
+    }
+
+    function enforceUnit7Submission() {
+      const studentName = document.getElementById('student-name');
+      const studentId = document.getElementById('student-id');
+      const btnSubmit = document.getElementById('btn-submit-report');
+      if (btnSubmit) {
+        btnSubmit.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        btnSubmit.style.boxShadow = '0 0 20px #10b981';
+      }
+      if (studentName && !studentName.value.trim()) {
+        studentName.focus();
+      } else if (studentId && !studentId.value.trim()) {
+        studentId.focus();
+      }
+    }
+
     function submitQuiz() {
+      if (unit7QuizCheckCount >= MAX_QUIZ_ATTEMPTS) {
+        showToast('🔒 คุณได้ใช้สิทธิ์ตรวจคะแนนครบ 2 ครั้งแล้ว ระบบล็อกคำตอบและบังคับส่งผลคะแนน');
+        enforceUnit7Submission();
+        return;
+      }
+
       quizScore = 0;
       let answeredCount = 0;
 
@@ -1741,21 +1826,56 @@
         return;
       }
 
+      unit7QuizCheckCount++;
+      localStorage.setItem('unit7_quiz_check_count', unit7QuizCheckCount.toString());
+      localStorage.setItem('unit7_saved_quiz_score', quizScore.toString());
+
       quizDone = true;
       document.getElementById('quiz-score-badge').innerText = `คะแนนที่ได้: ${quizScore} / 10`;
       document.getElementById('rep-quiz-score').innerText = `${quizScore} / 10`;
 
       const resBox = document.getElementById('quiz-score-result-box');
       const resText = document.getElementById('quiz-result-text');
-      if (resBox && resText) {
-        resText.innerText = `คะแนนที่ได้: ${quizScore} / 10 คะแนน (ตอบแล้ว ${answeredCount}/10 ข้อ)`;
-        resBox.style.display = 'block';
-      }
+      const resSub = document.getElementById('quiz-result-subtext');
 
-      showToast(`✓ ตรวจคะแนนเสร็จสิ้น คุณได้คะแนน: ${quizScore} / 10`);
+      updateUnit7QuizAttemptUI();
+
+      if (unit7QuizCheckCount === 1) {
+        if (resBox && resText) {
+          resText.innerHTML = `คะแนนตรวจครั้งที่ 1/2: <span style="color:#facc15;">${quizScore} / 10</span> คะแนน (ตอบแล้ว ${answeredCount}/10 ข้อ)`;
+          if (resSub) {
+            resSub.innerHTML = `<span style="color:#fbbf24; font-weight:600;">⚠️ คุณเหลือสิทธิ์ตรวจคะแนนอีก 1 ครั้ง</span> สามารถทบทวนและปรับเปลี่ยนคำตอบได้ก่อนกดตรวจครั้งสุดท้าย`;
+          }
+          resBox.style.display = 'block';
+        }
+        showToast(`✓ ตรวจครั้งที่ 1/2 ได้: ${quizScore}/10 คะแนน (เหลือสิทธิ์ตรวจอีก 1 ครั้ง)`);
+      } else {
+        unit7QuizLocked = true;
+        if (resBox && resText) {
+          resText.innerHTML = `คะแนนสุทธิสุดท้าย: <span style="color:#34d399;">${quizScore} / 10</span> คะแนน (ตรวจครบ 2 ครั้ง)`;
+          if (resSub) {
+            resSub.innerHTML = `
+              <div style="color:#ef4444; font-weight:700; margin-top:0.25rem;">
+                <i class="fa-solid fa-lock"></i> ใช้สิทธิ์ตรวจคะแนนครบ 2 ครั้งแล้ว — ระบบล็อกคำตอบเรียบร้อย บังคับส่งผลคะแนนทันที!
+              </div>
+              <div style="color:var(--text-muted); font-size:0.8rem; margin-top:0.25rem;">
+                กรุณากรอกฟอร์มทางด้านขวามือ แล้วกดปุ่ม <strong>"ส่งข้อมูลเข้า Google Sheets"</strong> เพื่อบันทึกผล
+              </div>
+            `;
+          }
+          resBox.style.display = 'block';
+        }
+
+        enforceUnit7Submission();
+        alert('🔒 คุณใช้สิทธิ์ตรวจคะแนนครบ 2 ครั้งแล้ว!\n\nระบบได้ทำการล็อกคำตอบเรียบร้อยแล้วและบังคับส่งผลการประเมิน\nกรุณากรอกข้อมูลผู้เรียน (ชื่อ-สกุล, รหัสนักศึกษา) และกดปุ่ม "ส่งข้อมูลเข้า Google Sheets" ทันที');
+      }
     }
 
     function resetQuiz() {
+      if (unit7QuizLocked) {
+        showToast('🔒 ไม่สามารถเริ่มทำใหม่ได้เนื่องจากตรวจคะแนนครบ 2 ครั้งแล้ว (ระบบล็อกคำตอบ)');
+        return;
+      }
       quizScore = 0;
       quizDone = false;
       document.getElementById('quiz-score-badge').innerText = 'คะแนน: 0 / 10';
@@ -1937,10 +2057,20 @@
     }
 
     function resetUnitAntiCheat() {
-      if (confirm('คุณต้องการล้างประวัติการส่งงาน/แบบทดสอบของเครื่องนี้สำหรับหน่วยที่ 7 ใช่หรือไม่?')) {
+      if (confirm('คุณต้องการล้างประวัติการส่งงาน/แบบทดสอบ และสิทธิ์ตรวจคะแนน (หน่วยที่ 7) ของเครื่องนี้ใช่หรือไม่?')) {
         localStorage.removeItem(SUBMITTED_KEY);
+        localStorage.removeItem('unit7_quiz_check_count');
+        localStorage.removeItem('unit7_saved_quiz_score');
+        unit7QuizCheckCount = 0;
+        unit7QuizLocked = false;
         validateStudentId(document.getElementById('student-id').value);
-        showToast('✓ ล้างประวัติส่งซ้ำเฉพาะหน่วยที่ 7 เรียบร้อยแล้ว');
+        updateUnit7QuizAttemptUI();
+        document.querySelectorAll('input[name^="quiz_q"]').forEach(inp => {
+          inp.disabled = false;
+        });
+        const resBox = document.getElementById('quiz-score-result-box');
+        if (resBox) resBox.style.display = 'none';
+        showToast('✓ ล้างประวัติส่งซ้ำและรีเซ็ตสิทธิ์ตรวจคะแนน 2 ครั้งเรียบร้อยแล้ว');
       }
     }
 
@@ -1966,6 +2096,31 @@
 
       // 2. Render Quiz & Canvas
       renderQuiz();
+      updateUnit7QuizAttemptUI();
+
+      if (unit7QuizCheckCount >= 2) {
+        const savedScore = localStorage.getItem('unit7_saved_quiz_score');
+        const resBox = document.getElementById('quiz-score-result-box');
+        const resText = document.getElementById('quiz-result-text');
+        const resSub = document.getElementById('quiz-result-subtext');
+        if (resBox && resText) {
+          if (savedScore !== null) {
+            resText.innerHTML = `คะแนนสุทธิสุดท้าย: <span style="color:#34d399;">${savedScore} / 10</span> คะแนน (ตรวจครบ 2 ครั้ง)`;
+          }
+          if (resSub) {
+            resSub.innerHTML = `
+              <div style="color:#ef4444; font-weight:700; margin-top:0.25rem;">
+                <i class="fa-solid fa-lock"></i> ใช้สิทธิ์ตรวจคะแนนครบ 2 ครั้งแล้ว — ระบบล็อกคำตอบเรียบร้อย บังคับส่งผลคะแนนทันที!
+              </div>
+              <div style="color:var(--text-muted); font-size:0.8rem; margin-top:0.25rem;">
+                กรุณากรอกฟอร์มทางด้านขวามือ แล้วกดปุ่ม <strong>"ส่งข้อมูลเข้า Google Sheets"</strong> เพื่อบันทึกผล
+              </div>
+            `;
+          }
+          resBox.style.display = 'block';
+        }
+      }
+
       renderDischargeGraph(540.0);
       renderThermalImage();
       generateModbusPacket();
