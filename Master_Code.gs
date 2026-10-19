@@ -7,27 +7,24 @@
  * สคริปต์กลางตัวเดียวสำหรับจัดการทั้ง 7 หน่วยการเรียนรู้
  * - ใช้กับ Google Sheet เพียง 1 ไฟล์
  * - ได้รับ Web App URL เพียง 1 ลิงก์ แล้วนำไปใส่ในช่อง "URL กลาง" ของระบบ
- * - แยกแท็บชีตอัตโนมัติ 7 แท็บ (Unit 1 ถึง Unit 7) พร้อมจัดรูปแบบหัวตารางสวยงาม
+ * - แยกแท็บชีตอัตโนมัติ 7 แท็บ (Unit 1 ถึง Unit 7) ตามหน่วยการเรียนรู้
  * - ระบบป้องกันการส่งงานซ้ำแยกรายหน่วยและรายรหัสนักศึกษา (Anti-Duplicate)
+ * - บันทึกคะแนนแบบตัวเลขล้วน (Pure Numeric) เพื่อให้สูตรคำนวณและตัดเกรดได้ทันที
  * 
  * ขั้นตอนการติดตั้ง:
- * 1. เปิด Google Sheet ใหม่ (ไฟล์เดียวจบทั้ง 7 หน่วย)
+ * 1. เปิด Google Sheet (ไฟล์ "คะแนนทดสอบ" หรือสร้างใหม่)
  * 2. เมนู ส่วนขยาย (Extensions) > Apps Script
  * 3. ลบโค้ดเดิมทั้งหมด แล้ววางโค้ดชุดนี้ลงไป
- * 4. กดปุ่ม การทำให้ใช้งานได้ (Deploy) > การทำให้ใช้งานได้รายการใหม่ (New deployment)
- * 5. เลือกประเภท: เว็บแอป (Web App)
- * 6. ตั้งค่า:
- *    - Execute as: ฉัน (Me)
- *    - Who has access: ทุกคน (Anyone)
- * 7. กด Deploy และคัดลอก "Web App URL" (ที่ลงท้ายด้วย /exec)
- * 8. นำ URL มากรอกในช่อง "Google Apps Script Web App URL กลาง" ในหน้าครูผู้สอน
+ * 4. กดปุ่ม การทำให้ใช้งานได้ (Deploy) > จัดการการทำให้ใช้งานได้ (Manage deployments)
+ * 5. กดไอคอนรูปดินสอ (Edit) > เลือก Version: การทำให้ใช้งานได้รายการใหม่ (New version) แล้วกด Deploy
  * =========================================================================
  */
 
 function doGet(e) {
   var params = e ? e.parameter : {};
-  if (params && params.action === "check" && params.studentId && params.unit) {
-    var result = checkDuplicateInUnit(params.unit, params.studentId);
+  if (params && params.action === "check" && params.studentId) {
+    var unitNum = params.unit ? parseInt(params.unit, 10) : 1;
+    var result = checkDuplicateInUnit(unitNum, params.studentId);
     return ContentService.createTextOutput(JSON.stringify(result))
       .setMimeType(ContentService.MimeType.JSON);
   }
@@ -68,26 +65,29 @@ function doPost(e) {
     var unitTarget = detectUnit(data);
     var sheet = getOrCreateUnitSheet(ss, unitTarget);
 
-    // ตรวจสอบการส่งซ้ำในหน่วยนี้ (Anti-Duplicate Check)
+    // ตรวจสอบการส่งซ้ำในหน่วยนี้ (Anti-Duplicate Check in Unit Tab)
     var rows = sheet.getDataRange().getValues();
     for (var r = 1; r < rows.length; r++) {
       if (String(rows[r][2]).trim() === studentId) {
         return ContentService.createTextOutput(JSON.stringify({
           status: "duplicate",
-          message: "รหัสนักศึกษา " + studentId + " เคยบันทึกคะแนนในหน่วยนี้แล้ว (ห้ามส่งซ้ำ)"
+          duplicate: true,
+          unit: unitTarget,
+          message: "รหัสนักศึกษา " + studentId + " เคยบันทึกคะแนนในหน่วยที่ " + unitTarget + " แล้ว (ห้ามส่งซ้ำ)"
         })).setMimeType(ContentService.MimeType.JSON);
       }
     }
 
     var timestamp = Utilities.formatDate(new Date(), "Asia/Bangkok", "dd/MM/yyyy HH:mm:ss");
 
-    // บันทึกแถวข้อมูลตามโครงสร้างของแต่ละหน่วย
+    // บันทึกแถวข้อมูลตามโครงสร้างของแต่ละหน่วย พร้อมจัดรูปแบบตัวเลข
     appendUnitRow(sheet, unitTarget, timestamp, studentName, studentId, studentGroup, data);
 
     return ContentService.createTextOutput(JSON.stringify({
       status: "success",
       unit: unitTarget,
-      message: "บันทึกผลการทดลองและคะแนนเข้า " + sheet.getName() + " สำเร็จเรียบร้อย",
+      sheetName: sheet.getName(),
+      message: "บันทึกผลการทดลองและคะแนนเข้าแท็บ " + sheet.getName() + " สำเร็จเรียบร้อย",
       timestamp: timestamp
     })).setMimeType(ContentService.MimeType.JSON);
 
@@ -105,24 +105,52 @@ function doPost(e) {
  * วิเคราะห์หาหน่วยการเรียนรู้จากฟิลด์ Payload ที่ส่งเข้ามา
  */
 function detectUnit(data) {
-  if (data.plcStatus !== undefined || data.lotoDone !== undefined || data.thermoMaxTemp !== undefined) {
+  // 1. ตรวจสอบจากฟิลด์ data.unit โดยตรง
+  if (data.unit !== undefined && data.unit !== null && !isNaN(Number(data.unit))) {
+    var u = parseInt(data.unit, 10);
+    if (u >= 1 && u <= 7) return u;
+  }
+
+  // 2. ตรวจสอบจากข้อความในกิจกรรมและตัวแปรเฉพาะ
+  var fullText = [
+    String(data.activity || ""),
+    String(data.topology || ""),
+    String(data.status || ""),
+    String(data.controlMode || ""),
+    String(data.modbusCommand || "")
+  ].join(" ").toLowerCase();
+
+  // Unit 7: PLC & ซ่อมบำรุง
+  if (fullText.indexOf("หน่วยที่ 7") !== -1 || fullText.indexOf("unit 7") !== -1 || data.modbusCommand !== undefined || data.lotoStatus !== undefined || data.thermoscanTemp !== undefined || data.lotoDone !== undefined) {
     return 7;
   }
-  if (data.logData !== undefined || (data.targetRpm !== undefined && data.vfRatio !== undefined)) {
+
+  // Unit 6: อินเวอร์เตอร์ขับมอเตอร์ VFD
+  if (fullText.indexOf("หน่วยที่ 6") !== -1 || fullText.indexOf("unit 6") !== -1 || data.controlMode !== undefined || data.actualRpm !== undefined || data.vfRatio !== undefined || data.targetRpm !== undefined) {
     return 6;
   }
-  if (data.upsMode !== undefined || data.emergLux !== undefined || data.transferMs !== undefined) {
+
+  // Unit 5: เครื่องสำรองไฟ UPS
+  if (fullText.indexOf("หน่วยที่ 5") !== -1 || fullText.indexOf("unit 5") !== -1 || data.loadPower !== undefined || data.batteryAh !== undefined || data.emergencyStatus !== undefined || data.upsMode !== undefined) {
     return 5;
   }
-  if (data.deadtime !== undefined || data.ma !== undefined || data.mf !== undefined) {
+
+  // Unit 4: วงจรอินเวอร์เตอร์ (Inverters)
+  if (fullText.indexOf("หน่วยที่ 4") !== -1 || fullText.indexOf("unit 4") !== -1 || data.deadtime !== undefined || data.ma !== undefined || data.vrms !== undefined) {
     return 4;
   }
-  if (data.topo !== undefined || data.fsw !== undefined || data.duty !== undefined) {
+
+  // Unit 3: ดีซีชอปเปอร์ (DC Chopper / DC-DC)
+  if (fullText.indexOf("หน่วยที่ 3") !== -1 || fullText.indexOf("unit 3") !== -1 || data.dutyCycle !== undefined || data.inductance !== undefined || data.fsw !== undefined || data.duty !== undefined) {
     return 3;
   }
-  if (data.activity && (data.activity.indexOf("Unit 2") !== -1 || data.activity.indexOf("เรียงกระแส") !== -1)) {
+
+  // Unit 2: วงจรเรียงกระแสควบคุมได้ (Controlled Rectifiers)
+  if (fullText.indexOf("หน่วยที่ 2") !== -1 || fullText.indexOf("unit 2") !== -1 || fullText.indexOf("เรียงกระแส") !== -1 || fullText.indexOf("rectifier") !== -1 || data.alpha !== undefined || data.idc !== undefined) {
     return 2;
   }
+
+  // เริ่มต้นเป็น Unit 1: สวิตชิ่งกำลัง
   return 1;
 }
 
@@ -136,7 +164,7 @@ function getOrCreateUnitSheet(ss, unitNum) {
       bg: "#0f172a", fg: "#38bdf8",
       headers: [
         "Timestamp (วัน-เวลา)", "Student Name (ชื่อ-สกุล)", "Student ID (รหัสนักศึกษา)",
-        "Group (กลุ่มเรียน)", "Activity (กิจกรรม/อุปกรณ์)", "Test Values (ค่าที่วัดได้/คะแนน)",
+        "Group (กลุ่มเรียน)", "Activity (กิจกรรม/อุปกรณ์)", "Test Values / Score (คะแนน)",
         "Status / Note (สถานะ/หมายเหตุ)"
       ]
     },
@@ -145,8 +173,8 @@ function getOrCreateUnitSheet(ss, unitNum) {
       bg: "#0c1b33", fg: "#34d399",
       headers: [
         "Timestamp (วัน-เวลา)", "Student Name (ชื่อ-สกุล)", "Student ID (รหัสนักศึกษา)",
-        "Group (กลุ่มเรียน)", "Activity (กิจกรรม/วงจร)", "Result & Score (ผลการทดสอบ/คะแนน)",
-        "Evaluation (ผลการประเมิน)"
+        "Group (กลุ่มเรียน)", "Circuit Topology (ชนิดวงจร)", "Firing Angle α (มุมจุดชนวน)",
+        "V_dc (V)", "I_dc (A)", "Quiz Score (คะแนนแบบทดสอบ)", "Status / Note (สถานะ/หมายเหตุ)"
       ]
     },
     3: {
@@ -156,7 +184,7 @@ function getOrCreateUnitSheet(ss, unitNum) {
         "Timestamp (วัน-เวลา)", "Student Name (ชื่อ-สกุล)", "Student ID (รหัสนักศึกษา)",
         "Group (กลุ่มเรียน)", "Topology (ชนิดวงจร)", "Duty Cycle (D %)",
         "Switching Freq (kHz)", "Inductor L (µH)", "Mode (CCM/DCM)",
-        "V_out (V)", "I_out (A)", "Efficiency (%)", "Quiz Score (คะแนน)", "Status (สถานะ)"
+        "V_out (V)", "I_out (A)", "Efficiency (%)", "Quiz Score (คะแนนแบบทดสอบ)", "Status (สถานะ)"
       ]
     },
     4: {
@@ -166,7 +194,7 @@ function getOrCreateUnitSheet(ss, unitNum) {
         "Timestamp (วัน-เวลา)", "Student Name (ชื่อ-สกุล)", "Student ID (รหัสนักศึกษา)",
         "Group (กลุ่มเรียน)", "Topology (โครงสร้าง)", "m_a (Modulation Index)",
         "f_out (Hz)", "f_sw (kHz)", "Dead-Time (µs)", "V_rms (V)", "I_rms (A)",
-        "THD (%)", "Quiz Score (คะแนน)", "Status (สถานะ)"
+        "THD (%)", "Quiz Score (คะแนนแบบทดสอบ)", "Status (สถานะ)"
       ]
     },
     5: {
@@ -176,7 +204,7 @@ function getOrCreateUnitSheet(ss, unitNum) {
         "Timestamp (วัน-เวลา)", "Student Name (ชื่อ-สกุล)", "Student ID (รหัสนักศึกษา)",
         "Group (กลุ่มเรียน)", "Topology (ระบบ UPS)", "Transfer Time (ms)",
         "Load Power (W)", "Battery (Ah)", "Backup Time (min)",
-        "Charge Stage", "Emergency Lamp", "Quiz Score (คะแนน)", "Status (สถานะ)"
+        "Charge Stage", "Emergency Lamp", "Quiz Score (คะแนนแบบทดสอบ)", "Status (สถานะ)"
       ]
     },
     6: {
@@ -186,7 +214,7 @@ function getOrCreateUnitSheet(ss, unitNum) {
         "Timestamp (วัน-เวลา)", "Student Name (ชื่อ-สกุล)", "Student ID (รหัสนักศึกษา)",
         "Group (กลุ่มเรียน)", "Control Mode (โหมดควบคุม)", "Set Freq (Hz)",
         "Target RPM", "Actual RPM", "Motor Current (A)", "Torque (Nm)",
-        "V/f Ratio", "Acc/Dec (s)", "Fault Status", "Quiz Score (คะแนน)", "Status (สถานะ)"
+        "V/f Ratio", "Acc/Dec (s)", "Fault Status", "Quiz Score (คะแนนแบบทดสอบ)", "Status (สถานะ)"
       ]
     },
     7: {
@@ -196,7 +224,7 @@ function getOrCreateUnitSheet(ss, unitNum) {
         "Timestamp (วัน-เวลา)", "Student Name (ชื่อ-สกุล)", "Student ID (รหัสนักศึกษา)",
         "Group (กลุ่มเรียน)", "Modbus Command", "Set Freq (Hz)", "RPM & Current",
         "LOTO Status", "DC Bus Discharge (V)", "Thermoscan Temp (°C)", "Hotspot ΔT / NETA",
-        "Fault Diagnosis", "Quiz Score (คะแนน)", "Status (สถานะ)"
+        "Fault Diagnosis", "Quiz Score (คะแนนแบบทดสอบ)", "Status (สถานะ)"
       ]
     }
   };
@@ -224,99 +252,138 @@ function getOrCreateUnitSheet(ss, unitNum) {
 }
 
 /**
+ * แยกแปลงคะแนนให้เป็นตัวเลขล้วน (Pure Number)
+ */
+function parseNumericScore(val) {
+  if (val === undefined || val === null || val === "") return 0;
+  if (typeof val === "number") return val;
+  if (!isNaN(Number(val))) return Number(val);
+  if (typeof val === "string") {
+    var match = val.match(/(\d+)\s*\/\s*\d+/);
+    if (match) return Number(match[1]);
+    var num = parseFloat(val.replace(/[^0-9.]/g, ""));
+    if (!isNaN(num)) return num;
+  }
+  return 0;
+}
+
+/**
  * เพิ่มแถวข้อมูลตามหน่วย
  */
 function appendUnitRow(sheet, unitNum, timestamp, studentName, studentId, studentGroup, data) {
   var row = [];
+  var scoreCol = -1;
 
   if (unitNum === 1) {
+    var score1 = parseNumericScore(data.quizScore !== undefined ? data.quizScore : data.result);
     row = [
       timestamp, studentName, studentId, studentGroup,
       data.activity || "หน่วยที่ 1 สวิตชิ่งกำลัง",
-      data.result || "-",
-      data.status || "ส่งงานสมบูรณ์"
+      score1,
+      data.status || "ผ่านเกณฑ์"
     ];
+    scoreCol = 6;
   } else if (unitNum === 2) {
+    var score2 = parseNumericScore(data.quizScore !== undefined ? data.quizScore : data.result);
     row = [
       timestamp, studentName, studentId, studentGroup,
-      data.activity || "Unit 2 Rectifiers",
-      data.result || "-",
-      data.status || "ส่งงานสมบูรณ์"
+      data.topology || data.activity || "Controlled Rectifiers",
+      data.alpha !== undefined && data.alpha !== "" ? data.alpha : "-",
+      data.vdc !== undefined && data.vdc !== "" ? data.vdc : "-",
+      data.idc !== undefined && data.idc !== "" ? data.idc : "-",
+      score2,
+      data.status || "Completed"
     ];
+    scoreCol = 9;
   } else if (unitNum === 3) {
+    var score3 = parseNumericScore(data.quizScore);
     row = [
       timestamp, studentName, studentId, studentGroup,
-      data.topo ? data.topo.toUpperCase() : "-",
-      data.duty !== undefined ? data.duty + " %" : "-",
-      data.fsw !== undefined ? data.fsw + " kHz" : "-",
-      data.L !== undefined ? data.L + " µH" : "-",
-      data.mode || "-",
-      data.vout !== undefined ? data.vout + " V" : "-",
-      data.iout !== undefined ? data.iout + " A" : "-",
-      data.efficiency !== undefined ? data.efficiency + " %" : "-",
-      (data.quizScore !== undefined ? data.quizScore : "-") + " / " + (data.quizTotal || 5),
+      data.topology || (data.topo ? data.topo.toUpperCase() : "Buck"),
+      data.dutyCycle !== undefined ? data.dutyCycle : (data.duty !== undefined ? data.duty : 0),
+      data.fsw !== undefined ? data.fsw : 50,
+      data.inductance !== undefined ? data.inductance : (data.L !== undefined ? data.L : 100),
+      data.mode || "CCM",
+      data.vout !== undefined ? data.vout : 0,
+      data.iout !== undefined ? data.iout : 0,
+      data.efficiency !== undefined ? data.efficiency : 0,
+      score3,
       data.status || "Completed"
     ];
+    scoreCol = 13;
   } else if (unitNum === 4) {
+    var score4 = parseNumericScore(data.quizScore);
     row = [
       timestamp, studentName, studentId, studentGroup,
-      data.topo || "Full-Bridge SPWM",
-      data.ma !== undefined ? data.ma : "-",
-      data.fo !== undefined ? data.fo + " Hz" : "-",
-      data.fsw !== undefined ? data.fsw + " kHz" : "-",
-      data.deadtime !== undefined ? data.deadtime + " µs" : "-",
-      data.vrms !== undefined ? data.vrms + " V" : "-",
-      data.irms !== undefined ? data.irms + " A" : "-",
-      data.thd !== undefined ? data.thd + " %" : "-",
-      (data.quizScore !== undefined ? data.quizScore : "-") + " / " + (data.quizTotal || 5),
+      data.topology || (data.topo ? data.topo : "1-Phase Full Bridge"),
+      data.ma !== undefined ? data.ma : 0.8,
+      data.fout !== undefined ? data.fout : (data.fo !== undefined ? data.fo : 50),
+      data.fsw !== undefined ? data.fsw : 10,
+      data.deadtime !== undefined ? data.deadtime : 1.5,
+      data.vrms !== undefined ? data.vrms : 0,
+      data.irms !== undefined ? data.irms : 0,
+      data.thd !== undefined ? data.thd : 0,
+      score4,
       data.status || "Completed"
     ];
+    scoreCol = 13;
   } else if (unitNum === 5) {
+    var score5 = parseNumericScore(data.quizScore);
     row = [
       timestamp, studentName, studentId, studentGroup,
-      data.upsMode || "Online Double-Conversion",
-      data.transferMs !== undefined ? data.transferMs + " ms" : "0 ms",
-      data.loadWatt !== undefined ? data.loadWatt + " W" : "-",
-      data.battCap !== undefined ? data.battCap + " Ah" : "-",
-      data.backupMin !== undefined ? data.backupMin + " min" : "-",
-      data.chargeStage || "Float Charge (13.6V)",
-      data.emergLux !== undefined ? data.emergLux + " Lux" : "Normal",
-      (data.quizScore !== undefined ? data.quizScore : "-") + " / " + (data.quizTotal || 5),
+      data.topology || data.upsMode || "Online Double-Conversion",
+      data.transferTime !== undefined ? data.transferTime : (data.transferMs !== undefined ? data.transferMs : 0),
+      data.loadPower !== undefined ? data.loadPower : (data.loadWatt !== undefined ? data.loadWatt : 0),
+      data.batteryAh !== undefined ? data.batteryAh : (data.battCap !== undefined ? data.battCap : 0),
+      data.backupTime !== undefined ? data.backupTime : (data.backupMin !== undefined ? data.backupMin : 0),
+      data.chargeStage || "Float",
+      data.emergencyStatus || (data.emergLux !== undefined ? data.emergLux : "Normal"),
+      score5,
       data.status || "Completed"
     ];
+    scoreCol = 12;
   } else if (unitNum === 6) {
-    var logsSummary = Array.isArray(data.logData) ? data.logData.length + " ชุดข้อมูล" : "-";
+    var score6 = parseNumericScore(data.quizScore);
     row = [
       timestamp, studentName, studentId, studentGroup,
-      data.controlMode || "VFD V/f Scalar",
-      data.setFreq !== undefined ? data.setFreq + " Hz" : "-",
-      data.targetRpm !== undefined ? data.targetRpm : "-",
-      data.actualRpm !== undefined ? data.actualRpm : "-",
-      data.current !== undefined ? data.current + " A" : "-",
-      data.torque !== undefined ? data.torque + " Nm" : "-",
-      data.vfRatio || "-",
-      data.accDec || "5.0s / 5.0s",
-      data.fault || "Normal (OK)",
-      (data.quizScore !== undefined ? data.quizScore : "-") + " / " + (data.quizTotal || 5),
-      data.status || "บันทึก " + logsSummary
+      data.controlMode || "VFD Inverter (V/f Control)",
+      data.setFrequency !== undefined ? data.setFrequency : (data.setFreq !== undefined ? data.setFreq : "-"),
+      data.targetRpm !== undefined ? data.targetRpm : 0,
+      data.actualRpm !== undefined ? data.actualRpm : 0,
+      data.motorCurrent !== undefined ? data.motorCurrent : (data.current !== undefined ? data.current : "-"),
+      data.loadTorque !== undefined ? data.loadTorque : (data.torque !== undefined ? data.torque : "-"),
+      data.vfRatio || "4.40 V/Hz",
+      data.accDecTime || data.accDec || "5.0s / 5.0s",
+      data.faultStatus || data.fault || "Normal (No Fault)",
+      score6,
+      data.status || "Submitted"
     ];
+    scoreCol = 14;
   } else if (unitNum === 7) {
+    var score7 = parseNumericScore(data.quizScore);
     row = [
       timestamp, studentName, studentId, studentGroup,
-      data.modbusCmd || "01 06 20 00 00 01 (Run)",
-      data.freqHz !== undefined ? data.freqHz + " Hz" : "-",
-      data.rpmCurrent || "-",
-      data.lotoDone ? "LOTO ผ่านสมบูรณ์ (Verified)" : "ยังไม่เสร็จสิ้น",
-      data.dcVolt !== undefined ? data.dcVolt + " V" : "-",
-      data.thermoMaxTemp !== undefined ? data.thermoMaxTemp + " °C" : "-",
-      data.deltaT !== undefined ? data.deltaT + " °C (NETA Normal)" : "-",
-      data.faultResolved ? "แก้ไขสำเร็จ (Cleared)" : "ปกติ",
-      (data.quizScore !== undefined ? data.quizScore : "-") + " / " + (data.quizTotal || 10),
-      data.status || "ผ่านเกณฑ์ตรวจซ่อมบำรุง"
+      data.modbusCommand || data.modbusCmd || "Slave 01: FC06",
+      data.setFrequency !== undefined ? data.setFrequency : (data.freqHz !== undefined ? data.freqHz : "-"),
+      data.rpmAndCurrent || data.rpmCurrent || "-",
+      data.lotoStatus || (data.lotoDone ? "Verified Zero Energy" : "LOTO Incomplete"),
+      data.dcDischargeVoltage !== undefined ? data.dcDischargeVoltage : (data.dcVolt !== undefined ? data.dcVolt : "-"),
+      data.thermoscanTemp !== undefined ? data.thermoscanTemp : (data.thermoMaxTemp !== undefined ? data.thermoMaxTemp : "-"),
+      data.deltaTStatus || (data.deltaT !== undefined ? data.deltaT : "Normal"),
+      data.faultDiagnosis || (data.faultResolved ? "Cleared" : "Normal"),
+      score7,
+      data.status || "Submitted"
     ];
+    scoreCol = 13;
   }
 
   sheet.appendRow(row);
+  var lastRow = sheet.getLastRow();
+  sheet.getRange(lastRow, 1, 1, 1).setHorizontalAlignment("center");
+  sheet.getRange(lastRow, 3, 1, 1).setHorizontalAlignment("center");
+  if (scoreCol > 0) {
+    sheet.getRange(lastRow, scoreCol, 1, 1).setHorizontalAlignment("center").setNumberFormat("0");
+  }
 }
 
 /**
@@ -331,6 +398,8 @@ function checkDuplicateInUnit(unitNum, studentId) {
     if (String(rows[i][2]).trim() === String(studentId).trim()) {
       return {
         exists: true,
+        duplicate: true,
+        unit: unitNum,
         studentId: studentId,
         studentName: rows[i][1],
         timestamp: rows[i][0]
@@ -338,5 +407,5 @@ function checkDuplicateInUnit(unitNum, studentId) {
     }
   }
 
-  return { exists: false, studentId: studentId };
+  return { exists: false, duplicate: false, unit: unitNum, studentId: studentId };
 }
