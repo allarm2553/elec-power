@@ -566,9 +566,9 @@
         <button class="btn btn-outline" onclick="openTeacherModal()" style="color:#f59e0b; border-color:rgba(245,158,11,0.3);" title="ระบบจัดการสำหรับครูผู้สอน">
           <i class="fa-solid fa-chalkboard-user"></i> สำหรับครูผู้สอน
         </button>
-        <span class="btn btn-amber" id="header-workpiece-count">
+        <button class="btn btn-amber" id="header-workpiece-count" onclick="switchMainTab('tab-quiz-lab')" style="cursor:pointer;" title="คลิกเพื่อไปยังตารางใบงานและแบบทดสอบ">
           <i class="fa-solid fa-clipboard-check"></i> ชิ้นงาน [ <span id="log-count">0</span> ]
-        </span>
+        </button>
       </div>
     </div>
   </header>
@@ -1113,8 +1113,16 @@
               <div class="readout-val" id="lab-vdc-val">140.0 <span class="readout-unit">V</span></div>
             </div>
             <div class="readout-card">
+              <div class="readout-title">กระแสเฉลี่ย I_dc</div>
+              <div class="readout-val" id="lab-idc-val" style="color:var(--accent-secondary);">7.0 <span class="readout-unit">A</span></div>
+            </div>
+            <div class="readout-card">
               <div class="readout-title">แรงดันประสิทธิผล V_rms</div>
               <div class="readout-val" id="lab-vrms-val" style="color:#38bdf8;">178.5 <span class="readout-unit">V</span></div>
+            </div>
+            <div class="readout-card">
+              <div class="readout-title">กำลังเอาต์พุต P_out</div>
+              <div class="readout-val" id="lab-pout-val" style="color:#c084fc;">980 <span class="readout-unit">W</span></div>
             </div>
             <div class="readout-card">
               <div class="readout-title">Total Harmonics (THD_v)</div>
@@ -1129,12 +1137,12 @@
               <div class="readout-val" id="lab-rf-val" style="color:var(--accent-amber);">0.79</div>
             </div>
             <div class="readout-card">
-              <div class="readout-title">กำลังเอาต์พุต P_out</div>
-              <div class="readout-val" id="lab-pout-val" style="color:#c084fc;">980 <span class="readout-unit">W</span></div>
+              <div class="readout-title">ความถี่ริปเปิล (Ripple f)</div>
+              <div class="readout-val" id="lab-fripple-val" style="color:#a78bfa;">100 <span class="readout-unit">Hz</span></div>
             </div>
           </div>
 
-          <button onclick="recordLabPoint()" class="btn btn-primary" style="width:100%; justify-content:center; margin-top:1rem;">
+          <button id="btn-record-lab" onclick="recordLabPoint()" class="btn btn-primary" style="width:100%; justify-content:center; margin-top:1rem; transition:all 0.25s ease;">
             <i class="fa-solid fa-floppy-disk"></i> บันทึกจุดทดสอบลงตารางใบงาน (Log Point)
           </button>
         </div>
@@ -2222,12 +2230,26 @@
       const rf = Math.sqrt(Math.max(0, (vrmsOut / (vdc || 1)) ** 2 - 1));
       const pout = vdc * idc;
 
-      document.getElementById('lab-vdc-val').innerHTML = `${vdc.toFixed(1)} <span class="readout-unit">V</span>`;
-      document.getElementById('lab-vrms-val').innerHTML = `${vrmsOut.toFixed(1)} <span class="readout-unit">V</span>`;
-      document.getElementById('lab-thd-val').innerHTML = `${thd.toFixed(1)} <span class="readout-unit">%</span>`;
-      document.getElementById('lab-dpf-val').innerHTML = `${dpf.toFixed(2)} <span class="readout-unit">${alphaDeg > 0 ? 'lag' : ''}</span>`;
-      document.getElementById('lab-rf-val').innerText = rf.toFixed(2);
-      document.getElementById('lab-pout-val').innerHTML = `${pout.toFixed(0)} <span class="readout-unit">W</span>`;
+      const elVdc = document.getElementById('lab-vdc-val');
+      const elIdc = document.getElementById('lab-idc-val');
+      const elVrms = document.getElementById('lab-vrms-val');
+      const elPout = document.getElementById('lab-pout-val');
+      const elThd = document.getElementById('lab-thd-val');
+      const elDpf = document.getElementById('lab-dpf-val');
+      const elRf = document.getElementById('lab-rf-val');
+      const elFripple = document.getElementById('lab-fripple-val');
+
+      if (elVdc) elVdc.innerHTML = `${vdc.toFixed(1)} <span class="readout-unit">V</span>`;
+      if (elIdc) elIdc.innerHTML = `${idc.toFixed(2)} <span class="readout-unit">A</span>`;
+      if (elVrms) elVrms.innerHTML = `${vrmsOut.toFixed(1)} <span class="readout-unit">V</span>`;
+      if (elPout) elPout.innerHTML = `${pout.toFixed(0)} <span class="readout-unit">W</span>`;
+      if (elThd) elThd.innerHTML = `${thd.toFixed(1)} <span class="readout-unit">%</span>`;
+      if (elDpf) elDpf.innerHTML = `${dpf.toFixed(2)} <span class="readout-unit">${alphaDeg > 0 ? 'lag' : ''}</span>`;
+      if (elRf) elRf.innerText = rf.toFixed(2);
+      if (elFripple) {
+        const fripple = labSchemMode === '1ph' ? 100 : 300;
+        elFripple.innerHTML = `${fripple} <span class="readout-unit">Hz</span>`;
+      }
 
       drawLabSchematic(alphaDeg, vdc, idc);
       drawLabScopeCanvas(alphaDeg, vm, vdc, thd);
@@ -2607,47 +2629,79 @@
     }
 
     function recordLabPoint() {
-      const alpha = document.getElementById('slider-lab-alpha-badge').innerText;
-      const vdc = document.getElementById('lab-vdc-val').innerText;
-      const idc = document.getElementById('lab-idc-val').innerText;
-      const thd = document.getElementById('lab-thd-val').innerText;
-      const topo = labSchemMode === '1ph' ? '1-Ph Bridge' : '3-Ph 6-Pulse';
+      try {
+        const alphaEl = document.getElementById('slider-lab-alpha-badge');
+        const vdcEl = document.getElementById('lab-vdc-val');
+        const idcEl = document.getElementById('lab-idc-val');
+        const thdEl = document.getElementById('lab-thd-val');
 
-      const rec = {
-        id: recordedLogs.length + 1,
-        topo: topo,
-        alpha: alpha,
-        vdc: vdc,
-        idc: idc,
-        thd: thd,
-        status: 'Pass'
-      };
-      recordedLogs.push(rec);
-      updateLogTable();
-      alert(`บันทึกผลการทดสอบจุดที่ ${rec.id} (${topo}, α=${alpha}) เรียบร้อยแล้ว`);
+        const alpha = alphaEl ? alphaEl.innerText.trim() : '0°';
+        const vdc = vdcEl ? vdcEl.innerText.trim() : '0.0 V';
+        let idc = idcEl ? idcEl.innerText.trim() : '';
+        if (!idc) {
+          const rVal = parseFloat(document.getElementById('slider-lab-r')?.value || 20);
+          const vNum = parseFloat(vdc) || 0;
+          idc = (vNum / (rVal || 1)).toFixed(2) + ' A';
+        }
+        const thd = thdEl ? thdEl.innerText.trim() : '0.0 %';
+        const topo = labSchemMode === '1ph' ? '1-Ph Bridge' : '3-Ph 6-Pulse';
+
+        const rec = {
+          id: recordedLogs.length + 1,
+          topo: topo,
+          alpha: alpha,
+          vdc: vdc,
+          idc: idc,
+          thd: thd,
+          status: 'Pass'
+        };
+        recordedLogs.push(rec);
+        updateLogTable();
+
+        // Visual feedback on the button
+        const btn = document.getElementById('btn-record-lab');
+        if (btn) {
+          const origText = btn.innerHTML;
+          btn.innerHTML = `<i class="fa-solid fa-check"></i> บันทึกจุดที่ ${rec.id} แล้ว! (ชิ้นงาน [ ${recordedLogs.length} ])`;
+          btn.style.background = '#059669';
+          setTimeout(() => {
+            btn.innerHTML = origText;
+            btn.style.background = '';
+          }, 1200);
+        }
+
+        showToast(`✓ บันทึกจุดทดสอบที่ ${rec.id} (${topo}, α=${alpha}, V_dc=${vdc}, I_dc=${idc}) เรียบร้อยแล้ว`);
+      } catch (err) {
+        console.error('Error in recordLabPoint:', err);
+        alert('เกิดข้อผิดพลาดในการบันทึกจุดทดสอบ: ' + err.message);
+      }
     }
 
     function updateLogTable() {
       const tbody = document.getElementById('log-table-body');
-      document.getElementById('log-count').innerText = recordedLogs.length;
+      const countEl = document.getElementById('log-count');
+      if (countEl) countEl.innerText = recordedLogs.length;
+
+      if (!tbody) return;
 
       if (recordedLogs.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-dim); padding:1.5rem;">ยังไม่มีข้อมูลผลการทดลอง</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-dim); padding:1.5rem;">ยังไม่มีข้อมูลผลการทดลอง (กดบันทึกได้จากแท็บ 4)</td></tr>`;
         return;
       }
 
       tbody.innerHTML = recordedLogs.map(r => `
         <tr>
           <td>${r.id}</td>
-          <td style="color:#38bdf8;">${r.topo}</td>
+          <td style="color:#38bdf8; font-weight:600;">${r.topo}</td>
           <td>${r.alpha}</td>
           <td>${r.vdc}</td>
-          <td>${r.idc}</td>
+          <td style="color:#38bdf8;">${r.idc}</td>
           <td style="color:#c084fc;">${r.thd}</td>
           <td><span class="status-badge active-region">${r.status}</span></td>
         </tr>
       `).join('');
     }
+
 
     function clearRecordedLogs() {
       if (confirm('ยืนยันการล้างข้อมูลในตารางทั้งหมด?')) {
@@ -2725,15 +2779,45 @@
         return;
       }
 
+      // Get latest test values from recordedLogs if available
+      let latestAlpha = '-';
+      let latestVdc = '-';
+      let latestIdc = '-';
+      let latestTopo = labSchemMode === '1ph' ? '1-Ph Bridge' : '3-Ph 6-Pulse';
+      if (recordedLogs.length > 0) {
+        const lastLog = recordedLogs[recordedLogs.length - 1];
+        latestAlpha = lastLog.alpha;
+        latestVdc = lastLog.vdc;
+        latestIdc = lastLog.idc;
+        latestTopo = `${lastLog.topo} (${recordedLogs.length} จุดทดสอบ)`;
+      } else {
+        const alphaEl = document.getElementById('slider-lab-alpha-badge');
+        const vdcEl = document.getElementById('lab-vdc-val');
+        const idcEl = document.getElementById('lab-idc-val');
+        if (alphaEl) latestAlpha = alphaEl.innerText.trim();
+        if (vdcEl) latestVdc = vdcEl.innerText.trim();
+        if (idcEl) latestIdc = idcEl.innerText.trim();
+      }
+
       const payload = {
         name: sName,
         studentId: sId,
         group: sGroup,
-        activity: 'หน่วยที่ 2 วงจรเรียงกระแสแบบควบคุมได้',
+        topology: latestTopo,
+        activity: `หน่วยที่ 2 (${recordedLogs.length} จุดทดสอบ)`,
+        alpha: latestAlpha,
+        vdc: latestVdc,
+        idc: latestIdc,
         result: Number(quizScore),
         quizScore: Number(quizScore),
         status: quizScore >= 3 ? 'ผ่านเกณฑ์' : 'ต้องปรับปรุง'
       };
+
+      const btnSubmit = document.getElementById('btn-submit-unit');
+      if (btnSubmit) {
+        btnSubmit.disabled = true;
+        btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังส่งข้อมูลเข้า Google Sheets...';
+      }
 
       fetch(activeGas, {
         method: 'POST',
@@ -2741,12 +2825,20 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       }).then(() => {
+        if (btnSubmit) {
+          btnSubmit.disabled = false;
+          btnSubmit.innerHTML = '<i class="fa-solid fa-check"></i> ส่งข้อมูลสำเร็จแล้ว';
+        }
         // Record studentId to prevent duplicate submissions on this device
         submittedIds.push(sId);
         localStorage.setItem('submitted_student_ids_unit2', JSON.stringify(submittedIds));
         checkUnitDuplicate();
         alert('ส่งผลการทดลองและคะแนนเข้า Google Sheet ของครูผู้สอนเรียบร้อยแล้ว!');
       }).catch(err => {
+        if (btnSubmit) {
+          btnSubmit.disabled = false;
+          btnSubmit.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> ส่งผลการทดลอง & คะแนนเข้า Google Sheet';
+        }
         alert('เกิดข้อผิดพลาดในการเชื่อมต่อ: ' + err);
       });
     }
