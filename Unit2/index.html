@@ -2488,6 +2488,25 @@
     const MAX_QUIZ_ATTEMPTS = 2;
     let unit2QuizLocked = unit2QuizCheckCount >= MAX_QUIZ_ATTEMPTS;
 
+    function showToast(msg) {
+      let toast = document.getElementById('unit2-floating-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'unit2-floating-toast';
+        toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:rgba(15,23,42,0.96);border:1px solid #38bdf8;color:#fff;padding:0.85rem 1.35rem;border-radius:10px;font-family:var(--font-display, sans-serif);font-size:0.9rem;font-weight:600;box-shadow:0 10px 28px rgba(0,0,0,0.65);z-index:9999;transition:opacity 0.25s ease;pointer-events:none;';
+        document.body.appendChild(toast);
+      }
+      toast.innerText = msg;
+      toast.style.display = 'block';
+      toast.style.opacity = '1';
+      clearTimeout(window._unit2ToastTimer);
+      window._unit2ToastTimer = setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => { toast.style.display = 'none'; }, 250);
+      }, 3500);
+    }
+    window.showToast = showToast;
+
     function checkOption(el, qIndex, isCorrect) {
       if (unit2QuizLocked) {
         showToast('🔒 ไม่สามารถเปลี่ยนคำตอบได้ เนื่องจากใช้สิทธิ์ตรวจคะแนนครบ 2 ครั้งแล้ว (ระบบล็อกคำตอบ)');
@@ -2670,7 +2689,9 @@
           }, 1200);
         }
 
-        showToast(`✓ บันทึกจุดทดสอบที่ ${rec.id} (${topo}, α=${alpha}, V_dc=${vdc}, I_dc=${idc}) เรียบร้อยแล้ว`);
+        if (typeof showToast === 'function') {
+          showToast(`✓ บันทึกจุดทดสอบที่ ${rec.id} (${topo}, α=${alpha}, V_dc=${vdc}, I_dc=${idc}) เรียบร้อยแล้ว`);
+        }
       } catch (err) {
         console.error('Error in recordLabPoint:', err);
         alert('เกิดข้อผิดพลาดในการบันทึกจุดทดสอบ: ' + err.message);
