@@ -971,6 +971,35 @@
           <button onclick="recordCurrentDataPoint()" class="btn btn-primary" style="width:100%; justify-content:center;">
             <i class="fa-solid fa-floppy-disk"></i> บันทึกจุดทำงาน Q-Point ลงชิ้นงาน
           </button>
+
+          <!-- Tab 2: ตารางแสดงผลจุดทำงาน Q-Point ที่บันทึก -->
+          <div style="margin-top: 1.25rem; border-top: 1px solid var(--glass-border); padding-top: 1rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
+              <span style="font-size:0.85rem; font-weight:700; color:#fff; display:flex; align-items:center; gap:0.4rem;">
+                <i class="fa-solid fa-table-list" style="color:var(--accent-secondary);"></i> ตารางจุดทำงานที่บันทึก (<span id="tab2-log-count">0</span>)
+              </span>
+              <button onclick="clearRecordedData()" class="btn btn-outline" style="font-size:0.7rem; padding:0.2rem 0.5rem; color:#ef4444; border-color:rgba(239,68,68,0.3);">
+                <i class="fa-solid fa-trash"></i> ล้างตาราง
+              </button>
+            </div>
+            <div style="max-height: 180px; overflow-y: auto; border: 1px solid var(--glass-border); border-radius: 8px;">
+              <table style="width: 100%; text-align: left; font-size: 0.75rem; border-collapse: collapse;">
+                <thead style="background: rgba(15, 23, 42, 0.9); color: var(--text-dim); position: sticky; top: 0; border-bottom: 1px solid var(--glass-border);">
+                  <tr>
+                    <th style="padding: 0.4rem 0.5rem;">#</th>
+                    <th style="padding: 0.4rem 0.5rem;">อุปกรณ์</th>
+                    <th style="padding: 0.4rem 0.5rem;">V_sw</th>
+                    <th style="padding: 0.4rem 0.5rem;">I_sw</th>
+                    <th style="padding: 0.4rem 0.5rem;">กำลังสูญเสีย</th>
+                    <th style="padding: 0.4rem 0.5rem;">สถานะ</th>
+                  </tr>
+                </thead>
+                <tbody id="tab2-log-table-body" style="font-family: var(--font-mono); color: var(--text-secondary);">
+                  <tr><td colspan="6" style="text-align: center; padding: 1rem; color: var(--text-dim);">ยังไม่มีจุดทำงานที่บันทึก — กดปุ่มบันทึกด้านบน</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
 
       </div>
@@ -1263,6 +1292,35 @@
           <button onclick="recordGateDataPoint()" class="btn btn-primary" style="width:100%; justify-content:center;">
             <i class="fa-solid fa-floppy-disk"></i> บันทึกค่าเวลาสวิตชิ่ง &amp; Loss
           </button>
+
+          <!-- Tab 4: ตารางผลการทดสอบสวิตชิ่ง & Loss ที่บันทึก -->
+          <div style="margin-top: 1.25rem; border-top: 1px solid var(--glass-border); padding-top: 1rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
+              <span style="font-size:0.85rem; font-weight:700; color:#fff; display:flex; align-items:center; gap:0.4rem;">
+                <i class="fa-solid fa-table-list" style="color:var(--accent-secondary);"></i> ตารางผลการทดสอบสวิตชิ่ง (<span id="tab4-log-count">0</span>)
+              </span>
+              <button onclick="clearRecordedData()" class="btn btn-outline" style="font-size:0.7rem; padding:0.2rem 0.5rem; color:#ef4444; border-color:rgba(239,68,68,0.3);">
+                <i class="fa-solid fa-trash"></i> ล้างตาราง
+              </button>
+            </div>
+            <div style="max-height: 180px; overflow-y: auto; border: 1px solid var(--glass-border); border-radius: 8px;">
+              <table style="width: 100%; text-align: left; font-size: 0.75rem; border-collapse: collapse;">
+                <thead style="background: rgba(15, 23, 42, 0.9); color: var(--text-dim); position: sticky; top: 0; border-bottom: 1px solid var(--glass-border);">
+                  <tr>
+                    <th style="padding: 0.4rem 0.5rem;">#</th>
+                    <th style="padding: 0.4rem 0.5rem;">กิจกรรม</th>
+                    <th style="padding: 0.4rem 0.5rem;">V_bus</th>
+                    <th style="padding: 0.4rem 0.5rem;">I_load</th>
+                    <th style="padding: 0.4rem 0.5rem;">กำลังสูญเสีย</th>
+                    <th style="padding: 0.4rem 0.5rem;">สถานะ</th>
+                  </tr>
+                </thead>
+                <tbody id="tab4-log-table-body" style="font-family: var(--font-mono); color: var(--text-secondary);">
+                  <tr><td colspan="6" style="text-align: center; padding: 1rem; color: var(--text-dim);">ยังไม่มีผลการทดสอบที่บันทึก — กดปุ่มบันทึกด้านบน</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
 
       </div>
@@ -1377,6 +1435,50 @@
           </div>
           <div id="quiz-result-subtext" style="font-size:0.8rem; color:var(--text-muted); margin-top:0.3rem;">
             ตรวจคะแนนเรียบร้อยแล้ว กรุณากรอกข้อมูลผู้เรียนด้านล่างและกดปุ่ม "ส่งผลคะแนนเข้า Google Sheet ของครู" เพื่อบันทึกคะแนน
+          </div>
+        </div>
+
+        <!-- Tab 5: ตารางสรุปผลการทดลองและชิ้นงานประจำหน่วยที่ 1 -->
+        <div style="background:rgba(15,23,42,0.85); border:1px solid var(--glass-border); border-radius:12px; padding:1.25rem; margin-top:1.5rem; box-shadow:0 8px 24px rgba(0,0,0,0.3);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.85rem; flex-wrap:wrap; gap:0.5rem;">
+            <div>
+              <div style="font-weight:700; color:var(--accent-amber); font-size:0.95rem; display:flex; align-items:center; gap:0.5rem;">
+                <i class="fa-solid fa-clipboard-list"></i> ผลการทดลองและชิ้นงานที่บันทึก (<span id="tab5-log-count">0</span> จุด)
+              </div>
+              <p style="font-size:0.75rem; color:var(--text-muted); margin-top:3px; margin-bottom:0;">
+                รวบรวมผลการทดสอบจาก แท็บ 2 (จุดทำงาน Q-Point) และ แท็บ 4 (ห้องทดลองวงจรขับสวิตชิ่ง)
+              </p>
+            </div>
+            <div style="display:flex; gap:0.5rem; align-items:center;">
+              <button onclick="clearRecordedData()" class="btn btn-outline" style="font-size:0.72rem; padding:0.25rem 0.6rem; color:#ef4444; border-color:rgba(239,68,68,0.3);">
+                <i class="fa-solid fa-trash"></i> ล้างตาราง
+              </button>
+              <button onclick="openModal('report-modal')" class="btn btn-amber" style="font-size:0.72rem; padding:0.25rem 0.6rem;">
+                <i class="fa-solid fa-print"></i> รายงาน PDF
+              </button>
+            </div>
+          </div>
+
+          <div style="max-height: 240px; overflow-y: auto; border: 1px solid var(--glass-border); border-radius: 8px;">
+            <table style="width: 100%; text-align: left; font-size: 0.78rem; border-collapse: collapse;">
+              <thead style="background: rgba(15, 23, 42, 0.95); color: var(--text-dim); position: sticky; top: 0; border-bottom: 1px solid var(--glass-border);">
+                <tr>
+                  <th style="padding: 0.55rem 0.65rem;">#</th>
+                  <th style="padding: 0.55rem 0.65rem;">อุปกรณ์ / กิจกรรม</th>
+                  <th style="padding: 0.55rem 0.65rem;">แรงดัน</th>
+                  <th style="padding: 0.55rem 0.65rem;">กระแส</th>
+                  <th style="padding: 0.55rem 0.65rem;">กำลังสูญเสีย</th>
+                  <th style="padding: 0.55rem 0.65rem;">สถานะ</th>
+                </tr>
+              </thead>
+              <tbody id="tab5-log-table-body" style="font-family: var(--font-mono); color: var(--text-secondary);">
+                <tr>
+                  <td colspan="6" style="text-align: center; padding: 1.5rem; color: var(--text-dim);">
+                    ยังไม่มีข้อมูลผลการทดลอง — สามารถกดบันทึกได้จาก แท็บ 2 (จุดทำงาน Q-Point) หรือ แท็บ 4 (ห้องทดลองวงจร)
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
@@ -1576,7 +1678,7 @@
     let teacherGasUrl = localStorage.getItem('power_unit1_gas_url') || '';
     let quizScore = 0;
     let answeredQuestions = new Set();
-    let recordedLogs = [];
+    let recordedLogs = JSON.parse(localStorage.getItem('power_unit1_recorded_logs') || '[]');
 
     // Canvas contexts
     const structCanvas = document.getElementById('canvas-structure');
@@ -3082,15 +3184,16 @@
 
       const rec = {
         id: recordedLogs.length + 1,
-        device: dev,
+        device: dev + ' (Q-Point)',
         voltage: vsw,
         current: isw,
         power: pcond,
         status: 'Pass'
       };
       recordedLogs.push(rec);
-      updateReportTable();
-      alert('บันทึกผลการทดสอบ Q-Point ของ ' + dev + ' เรียบร้อยแล้ว');
+      saveAndSyncRecordedLogs();
+      showToast('✓ บันทึกจุดทำงาน Q-Point ของ ' + dev + ' เรียบร้อยแล้ว');
+      alert('บันทึกผลการทดสอบ Q-Point ของ ' + dev + ' เรียบร้อยแล้ว\n(ข้อมูลถูกเพิ่มลงในตารางผลการทดลองเรียบร้อย)');
     }
 
     function recordGateDataPoint() {
@@ -3098,40 +3201,125 @@
       const tr = document.getElementById('circ-tr-val').innerText;
       const rec = {
         id: recordedLogs.length + 1,
-        device: 'GATE TEST',
+        device: 'GATE TEST (Switching)',
         voltage: document.getElementById('circ-vbus-badge').innerText,
         current: document.getElementById('circ-iload-badge').innerText,
         power: ptot,
         status: 'tr=' + tr
       };
       recordedLogs.push(rec);
+      saveAndSyncRecordedLogs();
+      showToast('✓ บันทึกผลเวลาสวิตชิ่งและ Loss เรียบร้อยแล้ว');
+      alert('บันทึกผลการทดสอบเวลาสวิตชิ่งและ Loss เรียบร้อยแล้ว\n(ข้อมูลถูกเพิ่มลงในตารางผลการทดลองเรียบร้อย)');
+    }
+
+    function saveAndSyncRecordedLogs() {
+      try {
+        localStorage.setItem('power_unit1_recorded_logs', JSON.stringify(recordedLogs));
+      } catch (e) {
+        console.warn('Cannot save logs to localStorage:', e);
+      }
       updateReportTable();
-      alert('บันทึกผลการทดสอบเวลาสวิตชิ่งและ Loss เรียบร้อยแล้ว');
     }
 
     function updateReportTable() {
-      document.getElementById('record-count-badge').innerText = recordedLogs.length;
-      const tbody = document.getElementById('report-table-body');
-      if (recordedLogs.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 1.5rem; color: var(--text-dim);">ยังไม่มีข้อมูลบันทึก — กดบันทึกผลการทดสอบจากหน้าแล็บ</td></tr>`;
-        return;
+      const count = recordedLogs.length;
+
+      // Update Header badge
+      const countBadge = document.getElementById('record-count-badge');
+      if (countBadge) countBadge.innerText = count;
+
+      // 1. Update Tab 2 Log Table
+      const tab2Count = document.getElementById('tab2-log-count');
+      if (tab2Count) tab2Count.innerText = count;
+      const tab2Tbody = document.getElementById('tab2-log-table-body');
+      if (tab2Tbody) {
+        if (count === 0) {
+          tab2Tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 1rem; color: var(--text-dim);">ยังไม่มีจุดทำงานที่บันทึก — กดปุ่มบันทึกด้านบน</td></tr>`;
+        } else {
+          tab2Tbody.innerHTML = recordedLogs.map(r => `
+            <tr style="border-bottom: 1px solid rgba(148, 163, 184, 0.1);">
+              <td style="padding: 0.4rem 0.5rem; color: var(--accent-secondary); font-weight:700;">${r.id}</td>
+              <td style="padding: 0.4rem 0.5rem; color: #fff;">${r.device}</td>
+              <td style="padding: 0.4rem 0.5rem; color: var(--accent-amber);">${r.voltage}</td>
+              <td style="padding: 0.4rem 0.5rem; color: var(--accent-primary);">${r.current}</td>
+              <td style="padding: 0.4rem 0.5rem; color: var(--accent-red);">${r.power}</td>
+              <td style="padding: 0.4rem 0.5rem; color: var(--accent-green);">${r.status}</td>
+            </tr>
+          `).join('');
+        }
       }
-      tbody.innerHTML = recordedLogs.map(r => `
-        <tr style="border-bottom: 1px solid rgba(148, 163, 184, 0.1);">
-          <td style="padding: 0.55rem; color: var(--accent-secondary);">${r.id}</td>
-          <td style="padding: 0.55rem; color: #fff;">${r.device}</td>
-          <td style="padding: 0.55rem; color: var(--accent-amber);">${r.voltage}</td>
-          <td style="padding: 0.55rem; color: var(--accent-primary);">${r.current}</td>
-          <td style="padding: 0.55rem; color: var(--accent-red);">${r.power}</td>
-          <td style="padding: 0.55rem; color: var(--accent-green);">${r.status}</td>
-        </tr>
-      `).join('');
+
+      // 2. Update Tab 4 Log Table
+      const tab4Count = document.getElementById('tab4-log-count');
+      if (tab4Count) tab4Count.innerText = count;
+      const tab4Tbody = document.getElementById('tab4-log-table-body');
+      if (tab4Tbody) {
+        if (count === 0) {
+          tab4Tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 1rem; color: var(--text-dim);">ยังไม่มีผลการทดสอบที่บันทึก — กดปุ่มบันทึกด้านบน</td></tr>`;
+        } else {
+          tab4Tbody.innerHTML = recordedLogs.map(r => `
+            <tr style="border-bottom: 1px solid rgba(148, 163, 184, 0.1);">
+              <td style="padding: 0.4rem 0.5rem; color: var(--accent-secondary); font-weight:700;">${r.id}</td>
+              <td style="padding: 0.4rem 0.5rem; color: #fff;">${r.device}</td>
+              <td style="padding: 0.4rem 0.5rem; color: var(--accent-amber);">${r.voltage}</td>
+              <td style="padding: 0.4rem 0.5rem; color: var(--accent-primary);">${r.current}</td>
+              <td style="padding: 0.4rem 0.5rem; color: var(--accent-red);">${r.power}</td>
+              <td style="padding: 0.4rem 0.5rem; color: var(--accent-green);">${r.status}</td>
+            </tr>
+          `).join('');
+        }
+      }
+
+      // 3. Update Tab 5 Master Log Table
+      const tab5Count = document.getElementById('tab5-log-count');
+      if (tab5Count) tab5Count.innerText = count;
+      const tab5Tbody = document.getElementById('tab5-log-table-body');
+      if (tab5Tbody) {
+        if (count === 0) {
+          tab5Tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 1.5rem; color: var(--text-dim);">ยังไม่มีข้อมูลผลการทดลอง — สามารถกดบันทึกได้จาก แท็บ 2 (จุดทำงาน Q-Point) หรือ แท็บ 4 (ห้องทดลองวงจร)</td></tr>`;
+        } else {
+          tab5Tbody.innerHTML = recordedLogs.map(r => `
+            <tr style="border-bottom: 1px solid rgba(148, 163, 184, 0.1);">
+              <td style="padding: 0.55rem 0.65rem; color: var(--accent-secondary); font-weight:700;">${r.id}</td>
+              <td style="padding: 0.55rem 0.65rem; color: #fff;">${r.device}</td>
+              <td style="padding: 0.55rem 0.65rem; color: var(--accent-amber);">${r.voltage}</td>
+              <td style="padding: 0.55rem 0.65rem; color: var(--accent-primary);">${r.current}</td>
+              <td style="padding: 0.55rem 0.65rem; color: var(--accent-red);">${r.power}</td>
+              <td style="padding: 0.55rem 0.65rem; color: var(--accent-green);">${r.status}</td>
+            </tr>
+          `).join('');
+        }
+      }
+
+      // 4. Update Modal Report Table
+      const tbody = document.getElementById('report-table-body');
+      if (tbody) {
+        if (count === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 1.5rem; color: var(--text-dim);">ยังไม่มีข้อมูลบันทึก — กดปุ่มบันทึกผลการทดสอบจากหน้าแล็บ</td></tr>`;
+        } else {
+          tbody.innerHTML = recordedLogs.map(r => `
+            <tr style="border-bottom: 1px solid rgba(148, 163, 184, 0.1);">
+              <td style="padding: 0.55rem; color: var(--accent-secondary); font-weight:700;">${r.id}</td>
+              <td style="padding: 0.55rem; color: #fff;">${r.device}</td>
+              <td style="padding: 0.55rem; color: var(--accent-amber);">${r.voltage}</td>
+              <td style="padding: 0.55rem; color: var(--accent-primary);">${r.current}</td>
+              <td style="padding: 0.55rem; color: var(--accent-red);">${r.power}</td>
+              <td style="padding: 0.55rem; color: var(--accent-green);">${r.status}</td>
+            </tr>
+          `).join('');
+        }
+      }
     }
 
     function clearRecordedData() {
-      if (confirm('คุณต้องการล้างข้อมูลบันทึกทั้งหมดหรือไม่?')) {
+      if (confirm('คุณต้องการล้างข้อมูลบันทึกผลการทดลองทั้งหมดหรือไม่?')) {
         recordedLogs = [];
+        try {
+          localStorage.removeItem('power_unit1_recorded_logs');
+        } catch (e) {}
         updateReportTable();
+        showToast('ล้างตารางผลการทดลองเรียบร้อยแล้ว');
       }
     }
 
@@ -3231,7 +3419,7 @@
         name: name,
         studentId: sid,
         group: group,
-        activity: 'หน่วยที่ 1 สวิตชิ่งกำลัง',
+        activity: recordedLogs.length > 0 ? `หน่วยที่ 1 สวิตชิ่งกำลัง (บันทึก ${recordedLogs.length} จุด)` : 'หน่วยที่ 1 สวิตชิ่งกำลัง',
         result: Number(quizScore),
         quizScore: Number(quizScore),
         status: quizScore >= 3 ? 'ผ่านเกณฑ์' : 'ส่งชิ้นงานสมบูรณ์'
@@ -3387,6 +3575,7 @@
       updateCircuitScope();
       checkUnitDuplicate();
       updateQuizAttemptUI();
+      updateReportTable();
 
       if (unit1QuizCheckCount >= 2) {
         const savedScore = localStorage.getItem('unit1_saved_quiz_score');
